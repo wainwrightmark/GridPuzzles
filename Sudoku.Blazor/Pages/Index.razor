@@ -8,13 +8,8 @@
 @code {
 
     [Parameter]
-    public int Size { get; set; }
+    public int Size { get; set; } = 9;
 
     [Parameter]
     public string? GridText { get; set; }
-
-    public void Go()
-    {
-        KeyboardEventArgs keyboardEventArgs = new KeyboardEventArgs();
-    }
 }

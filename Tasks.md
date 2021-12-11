@@ -41,7 +41,8 @@
 - [x] Split Sudoku to separate project
 - [x] Use Codegen for SVG
 - [ ] Cellvalue should be a struct bitarray (maybe a flags structlayout enum)
-- [ ] Create separate web projects for sudoku and crosswords
+- [x] Create separate web project for sudoku
+- [ ] Create separate web project for crosswords
 - [x] Add a ClearAll button
 - [x] Contradiction reasons should be structured objects
 - [x] Update reasons should be structured object
