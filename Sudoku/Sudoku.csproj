@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <nullable>enable</nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GridPuzzles\GridPuzzles.csproj" />
+    <ProjectReference Include="..\SVGElements\SVGElements.csproj" />
+  </ItemGroup>
+
+</Project>

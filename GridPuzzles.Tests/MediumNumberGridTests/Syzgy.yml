@@ -1,0 +1,81 @@
+﻿Columns: 9
+Rows: 9
+Grid: >-
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+Variants:
+- Name: Complete Columns
+- Name: Complete Rows
+- Name: Complete Square Boxes
+- Name: Arithmetic Consistency
+- Name: Consecutive Group
+  Arguments:
+    Positions: B1; A1; A2
+- Name: Consecutive Group
+  Arguments:
+    Positions: A4; A5; A6
+- Name: Consecutive Group
+  Arguments:
+    Positions: A7; A8; A9
+- Name: Consecutive Group
+  Arguments:
+    Positions: I4; I5; I6
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: A5; B4; A3
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: A5; B6; A7
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: C2; D3; D4
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: E2; E3; E4; D5
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: G2; F3; F4
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: I5; H4; I3
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: I5; H6; I7
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: H9; H8; I8
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: G8; F7; F6
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: E8; E7; E6; F5
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: C8; D7; D6

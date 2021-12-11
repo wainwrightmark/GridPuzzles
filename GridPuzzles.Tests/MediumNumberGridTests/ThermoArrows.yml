@@ -1,0 +1,96 @@
+﻿Columns: 9
+Rows: 9
+Grid: >-
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+Variants:
+- Name: Complete Columns
+- Name: Thermometer
+  Arguments:
+    Positions: G8; F9
+- Name: Complete Square Boxes
+- Name: Arithmetic Consistency
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: A8; B9; C9
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: C1; D2; D3
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: E6; D5; D4
+- Name: Complete Rows
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: I3; H4; G4
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: E1; F2; F3
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: A7; B6; C6
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: F5; E4; E3
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: H9; I8; I7
+- Name: Thermometer
+  Arguments:
+    Positions: D4; D5; C5; C4
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: G9; F8; F7
+- Name: Thermometer
+  Arguments:
+    Positions: C2; D2; D3; E3
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: A5; B4; C4
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: I5; H6; G6
+- Name: Thermometer
+  Arguments:
+    Positions: H8; I9
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: E9; D8; D7
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: I2; H1; G1
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: B1; A2; A3
+- Name: Thermometer
+  Arguments:
+    Positions: G6; F6

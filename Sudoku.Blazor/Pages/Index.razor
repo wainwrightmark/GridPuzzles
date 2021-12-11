@@ -1,0 +1,20 @@
+﻿@page "/"
+@page "/{Size:int}/{GridText}"
+@page "/{Size:int}"
+@using Sudoku
+
+<GridPage T="int" Columns="@Size" Rows="@Size" GridCreator="SudokuGridCreator.Instance" GridText="@GridText"/>
+
+@code {
+
+    [Parameter]
+    public int Size { get; set; }
+
+    [Parameter]
+    public string? GridText { get; set; }
+
+    public void Go()
+    {
+        KeyboardEventArgs keyboardEventArgs = new KeyboardEventArgs();
+    }
+}

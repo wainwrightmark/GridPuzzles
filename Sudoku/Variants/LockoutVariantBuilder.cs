@@ -1,0 +1,111 @@
+﻿using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Drawing;
+using System.Linq;
+using CSharpFunctionalExtensions;
+using GridPuzzles;
+using GridPuzzles.Clues;
+using GridPuzzles.Clues.Constraints;
+using GridPuzzles.Overlays;
+using GridPuzzles.VariantBuilderArguments;
+using MoreLinq;
+
+namespace Sudoku.Variants;
+
+public class LockoutVariantBuilder : VariantBuilder<int>
+{
+    private LockoutVariantBuilder()
+    {
+    }
+
+    public static VariantBuilder<int> Instance { get; } = new LockoutVariantBuilder();
+
+    /// <inheritdoc />
+    public override string Name => "Lockout";
+
+    /// <inheritdoc />
+    public override Result<IReadOnlyCollection<IClueBuilder<int>>> TryGetClueBuilders1(
+        IReadOnlyDictionary<string, string> arguments)
+    {
+        var pr = Positions.TryGetFromDictionary(arguments);
+        if (pr.IsFailure) return pr.ConvertFailure<IReadOnlyCollection<IClueBuilder<int>>>();
+
+        var md = MinimumDifference.TryGetFromDictionary(arguments);
+        if (md.IsFailure) return md.ConvertFailure<IReadOnlyCollection<IClueBuilder<int>>>();
+
+        return new List<IClueBuilder<int>>
+        {
+            new LockoutClueBuilder(pr.Value.ToImmutableList(), md.Value)
+        };
+    }
+
+    public static readonly IntArgument MinimumDifference = new("Minimum Difference", 0, 9, Maybe<int>.From(4));
+    public static readonly ListPositionArgument Positions = new("Positions", 3, 9);
+
+
+    /// <inheritdoc />
+    public override IReadOnlyList<VariantBuilderArgument> Arguments => new VariantBuilderArgument[]
+    {
+        MinimumDifference,
+        Positions
+    };
+
+    public class LockoutClueBuilder : IClueBuilder<int>
+    {
+        /// <summary>
+        /// Cells on the line must be between the cells on the circles
+        /// </summary>
+        public LockoutClueBuilder(ImmutableList<Position> allPositions, int minDifference)
+        {
+            AllPositions = allPositions;
+            MinDifference = minDifference;
+        }
+
+        /// <inheritdoc />
+        public string Name => "Lockout";
+
+        /// <inheritdoc />
+        public int Level => 4;
+
+        public ImmutableList<Position> AllPositions { get; }
+        public int MinDifference { get; }
+
+        /// <inheritdoc />
+        public IEnumerable<IClue<int>> CreateClues(Position minPosition, Position maxPosition,
+            IValueSource<int> valueSource,
+            IReadOnlyCollection<IClue<int>> lowerLevelClues)
+        {
+            if (AllPositions.Count > 2)
+            {
+                yield return new RelationshipClue<int>(AllPositions[0], AllPositions.Last(),
+                    new DifferByAtLeastConstraint(MinDifference));
+
+                yield return new LockoutClue(AllPositions[0], AllPositions.Last(),
+                    AllPositions.Skip(1).SkipLast(1).ToImmutableSortedSet(), MinDifference);
+            }
+        }
+
+
+        /// <param name="minPosition"></param>
+        /// <param name="maxPosition"></param>
+        /// <inheritdoc />
+        public IEnumerable<ICellOverlay> GetOverlays(Position minPosition, Position maxPosition)
+        {
+            if (!AllPositions.Any()) yield break;
+
+            yield return new InsideRectCellOverlay(AllPositions[0], Color.Yellow);
+            yield return new InsideRectCellOverlay(AllPositions.Last(), Color.Yellow);
+
+            if (AllPositions.Pairwise((a, b) => PositionExtensions.IsAdjacent(a, b)).All(x => x))
+            {
+                yield return new LineCellOverlay(AllPositions, Color.DeepSkyBlue);
+                yield break;
+            }
+
+            foreach (var position in AllPositions.Skip(1).SkipLast(1))
+            {
+                yield return new CellColorOverlay(Color.DeepSkyBlue, position);
+            }
+        }
+    }
+}

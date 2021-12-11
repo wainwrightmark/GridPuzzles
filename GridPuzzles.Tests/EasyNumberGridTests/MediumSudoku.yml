@@ -1,0 +1,16 @@
+﻿Columns: 9
+Rows: 9
+Grid: >-
+  3	-	-	-	2	-	-	6	5
+  -	2	-	-	-	8	-	-	-
+  8	-	-	-	-	3	7	1	2
+  2	-	5	-	7	-	-	-	-
+  -	-	-	-	-	-	-	-	-
+  -	-	-	-	8	-	9	-	6
+  4	3	6	2	-	-	-	-	8
+  -	-	-	9	-	-	-	2	-
+  9	1	-	-	5	-	-	-	4
+Variants:
+- Name: Complete Columns
+- Name: Complete Rows
+- Name: Complete Square Boxes

@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+	  <BlazorWebAssemblyEnableLinking>false</BlazorWebAssemblyEnableLinking>
+	  <RunAOTCompilation>true</RunAOTCompilation>
+	  <InvariantGlobalization>true</InvariantGlobalization>
+	  <BlazorEnableTimeZoneSupport>false</BlazorEnableTimeZoneSupport>
+	  <EmccTotalMemory>16777216</EmccTotalMemory>
+
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.0" PrivateAssets="all" />
+    <PackageReference Include="MudBlazor" Version="6.0.2" />
+  </ItemGroup>
+
+	<!--<ItemGroup>
+		<ProjectCapability Include="AspNetCore" />
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>-->
+
+  <ItemGroup>
+    <ProjectReference Include="..\GridComponents\GridComponents.csproj" />
+    <ProjectReference Include="..\Sudoku\Sudoku.csproj" />
+  </ItemGroup>
+
+</Project>

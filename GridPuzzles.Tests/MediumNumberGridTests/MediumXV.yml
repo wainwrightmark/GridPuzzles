@@ -1,0 +1,78 @@
+﻿Columns: 9
+Rows: 9
+Grid: >-
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	5	-	3	-	8	-	2	-
+
+  2	-	5	-	3	-	6	-	9
+
+  -	9	-	4	-	6	-	1	-
+
+  -	-	-	-	-	-	-	-	-
+Variants:
+- Name: Complete Columns
+- Name: Complete Rows
+- Name: Complete Square Boxes
+- Name: Arithmetic Consistency
+- Name: Sum
+  Arguments:
+    Positions: B2; B3
+    Sum: 10
+    Unique: true
+- Name: Sum
+  Arguments:
+    Sum: 10
+    Positions: C1; C2
+    Unique: true
+- Name: Sum
+  Arguments:
+    Sum: 10
+    Positions: C3; C4
+    Unique: true
+- Name: Sum
+  Arguments:
+    Sum: 10
+    Positions: D2; D3
+    Unique: true
+- Name: Sum
+  Arguments:
+    Sum: 10
+    Positions: E1; E2
+    Unique: true
+- Name: Sum
+  Arguments:
+    Sum: 10
+    Positions: E3; E4
+    Unique: true
+- Name: Sum
+  Arguments:
+    Sum: 10
+    Positions: F2; F3
+    Unique: true
+- Name: Sum
+  Arguments:
+    Sum: 10
+    Positions: G1; G2
+    Unique: true
+- Name: Sum
+  Arguments:
+    Sum: 10
+    Positions: G3; G4
+    Unique: true
+- Name: Sum
+  Arguments:
+    Sum: 10
+    Positions: H2; H3
+    Unique: true
+- Name: Unconstrained Pairs cannot add to
+  Arguments:
+    Values: 5,10

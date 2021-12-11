@@ -1,0 +1,14 @@
+﻿@page "/numbergrid/{Size:int}/{GridText}"
+@page "/numbergrid/{Size:int}"
+@using Sudoku
+
+<GridPage T="int" Columns="@Size" Rows="@Size" GridCreator="SudokuGridCreator.Instance" GridText="@GridText"/>
+
+@code {
+
+    [Parameter]
+    public int Size { get; set; }
+
+    [Parameter]
+    public string? GridText { get; set; }
+}

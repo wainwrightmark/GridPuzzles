@@ -1,0 +1,78 @@
+.sudokuGrid {
+    position: sticky;   
+}
+
+.sudokuCell {
+    text-align: center;
+    border: 1px black;
+    border-collapse: collapse;
+    user-select: all;
+    position: absolute;
+
+}
+
+.outsideCell {
+    text-align: center;
+    user-select: none;
+    position: absolute;
+    line-height: 4;
+}
+
+.cellInput {
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    font-weight: bold;
+}
+
+.rowRight {
+    border-right: dashed;
+}
+
+.boxRight {
+    border-right: solid;
+}
+
+.boxBottom {
+    border-bottom: solid;
+}
+
+.updatedCell {
+    box-shadow: 2px 2px 2px 2px #00F;
+}
+
+.contradictionCell {
+    box-shadow: 2px 2px 2px 2px #F00;
+}
+
+.unfixedCell {
+    font-size: 9px;
+}
+
+
+.svg_overlay {
+    pointer-events: none;
+    position: absolute;
+}
+
+.text_overlay {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    user-select: none;
+    font-size: large;
+    font-weight: bold;
+    color: white;
+    text-shadow: -1px 1px 0 #000, 1px 1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000;
+    opacity: 75%;
+    pointer-events: none;
+    position:absolute;
+}
+
+.variantPositionCheckbox {
+    top: 5%;
+    left: 5%;
+    width: 90%;
+    height: 90%;
+}

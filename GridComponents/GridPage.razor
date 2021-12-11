@@ -1,0 +1,167 @@
+﻿@using GridPuzzles.Session
+@typeparam T
+@namespace GridComponents
+
+@inject ClipboardService _clipboardService
+@inject IDialogService _dialogService
+
+@* ReSharper disable once ConditionIsAlwaysTrueOrFalse *@
+@if (MyGridSession != null)
+{
+<MudGrid Justify="Justify.Center">
+
+
+    <MudItem xs="10" lg="5" Style="position: relative; height: 100%; width: 100%;">
+        <GridSVGComponent SVGBuilder="GetSVGBuilder()" />
+        <MudPaper Class="d-flex justify-start py-2 px-1">
+            <MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="MyGridSession.Clear" Icon="@Icons.Filled.LayersClear" Title="Clear" />
+            <MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="MyGridSession.ClearAll" Icon="@Icons.Filled.FormatClear" Title="Clear All" />
+            <MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="MyGridSession.UndoLastManualChange" Icon="@Icons.Filled.Undo" Title="Undo" />
+            <MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="MyGridSession.PreviousGrid" Icon="@Icons.Filled.ArrowBack" Title="Previous" />
+            <MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="MyGridSession.NextGrid" Icon="@Icons.Filled.ArrowForward" Title="Next" />
+            <MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="MyGridSession.FinalGrid" Icon="@Icons.Filled.LastPage" Title="Final" />
+            <MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="MyGridSession.RandomChange" Icon="@Icons.Filled.Casino" Title="Random" />
+            <MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="MyGridSession.RandomSolve" Icon="@Icons.Filled.Cake" Title="Solve" />
+            <MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="Export" Icon="@Icons.Filled.Download" Title="Export" />
+            <MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="Import" Icon="@Icons.Filled.Upload" Title="Import" />
+            <MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="SolveToFile" Icon="@Icons.Filled.Calculate" Title="SolveToFile" />
+
+
+            <MudTooltip Text="@(MyGridSession.SessionSettings.GoToFinalStateOnKeyPress ? "Do automatic updates" : "Do not do automatic updates")">
+                <MudCheckBox Disabled="@MyGridSession.ButtonsDisabled" T="bool" CheckedIcon="@Icons.Filled.FastForward" UncheckedIcon="@Icons.Filled.Pause" @bind-Checked="MyGridSession.SessionSettings.GoToFinalStateOnKeyPress" />
+            </MudTooltip>
+
+            <MudTooltip Text="@(MyGridSession.SessionSettings.SingleStep ? "Single Step" : "Combined Steps")">
+                <MudCheckBox Disabled="@MyGridSession.ButtonsDisabled" T="bool" CheckedIcon="@Icons.Filled.DoNotStep" UncheckedIcon="@Icons.Filled.Fastfood" @bind-Checked="MyGridSession.SessionSettings.SingleStep" />
+            </MudTooltip>
+
+            <MudIconButton Disabled="@(!MyGridSession.ButtonsDisabled)" OnClick="MyGridSession.Cancel" Icon="@Icons.Filled.Cancel" Title="Cancel" />
+
+        </MudPaper>
+        <MudPaper Class="d-flex justify-start py-2 px-1">
+            <MudNumericField T="int" FullWidth="false" Min="1" Max="MyGridSession.SolveState.Grid.ClueSource.ValueSource.AllValues.Count"
+                             Variant="Variant.Outlined"
+                             HelperText="Display"
+                             @bind-value="MyGridSession.SessionSettings.MinimumValuesToShow" />
+            <MudNumericField T="int" FullWidth="false" Min="0" Max="10" Variant="Variant.Outlined" HelperText="Depth" @bind-value="MyGridSession.SessionSettings.BifurcateDepth" />
+
+            <MudSlider Min="0"
+                       Max="10000"
+                       Step="100"
+                       @bind-Value="MyGridSession.SessionSettings.MaxFinalIntervalMS">
+                @($"Step: {MyGridSession.SessionSettings.MaxFinalIntervalMS}ms")
+            </MudSlider>
+
+            <MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="_=>MyGridSession.Transform(1,false, false)" Icon="@Icons.Filled.RotateRight" Title="Rotate" />
+            <MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="_=>MyGridSession.Transform(0,true, false)" Icon="@Icons.Filled.SwapHorizontalCircle" Title="Flip Horizontal" />
+            <MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="_=>MyGridSession.Transform(0,false, true)" Icon="@Icons.Filled.SwapVerticalCircle" Title="Flip Vertical" />
+
+
+        </MudPaper>
+
+    </MudItem>
+
+
+    <MudItem xs="10" lg="5">
+
+        <MudTable T="SolveState<T>"
+                  Dense="true"
+                  Items="@MyGridSession.StateHistory"
+                  Height="500px"
+                  @bind-SelectedItem="MyGridSession.SelectedState">
+            <ToolBarContent>
+                <MudIconButton Icon="@Icons.Filled.Clear" OnClick="() => MyGridSession.ClearHistory()" />
+            </ToolBarContent>
+            <HeaderContent>
+                <MudTh>Message</MudTh>
+                <MudTh>ChangeType</MudTh>
+                <MudTh>Duration</MudTh>
+                <MudTh>Updates</MudTh>
+                <MudTh>Contradictions</MudTh>
+                <MudTh>GoTo</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Message">@context.Message</MudTd>
+                <MudTd DataLabel="ChangeType">@context.ChangeType</MudTd>
+                <MudTd DataLabel="Duration">@context.Duration.TotalSeconds</MudTd>
+                <MudTd DataLabel="Updates">@context.UpdateResult.IsNotEmpty</MudTd>
+                <MudTd DataLabel="Contradictions">@context.UpdateResult.HasContradictions</MudTd>
+                <MudTd DataLabel="GoTo">
+                    <MudIconButton Icon="@Icons.Filled.PlayCircle" OnClick="@(() => MyGridSession.GoToState(@context))" />
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+    </MudItem>
+
+
+    <MudItem xs="10" lg="10">
+        
+        <MudMenu Label="Add Variant" MaxHeight="300">
+            @foreach (var vb in MyGridSession.PotentialVariantBuilders)
+            {
+                <MudMenuItem OnClick="()=>AddVariantBuilder(vb.Name)">@vb.Name</MudMenuItem>
+            }
+        </MudMenu>
+
+        <MudSelect T="string"  @onselectionchange="args => AddVariantBuilder(args.ToString())">
+            
+        </MudSelect>
+
+        <MudChipSet>
+            @foreach (var basicBuilder in MyGridSession.SolveState.VariantBuilders.Where(x => !x.Pairs.Any()))
+            {
+                <MudChip OnClose="_ => RemoveVariantBuilder(basicBuilder)">
+                    @basicBuilder.AsString(true)
+                </MudChip>
+            }
+        </MudChipSet>
+        <MudExpansionPanels>
+            @foreach (var group in MyGridSession.SolveState.VariantBuilders
+                .Where(x => x.Pairs.Any())
+                .GroupBy(x => x.VariantBuilder.Name))
+            {
+                <MudExpansionPanel>
+
+                    <TitleContent>
+                        <div class="d-flex">
+                            <MudIconButton Icon="@Icons.Filled.Add" OnClick="_ => AddVariantBuilder(group.Key)"/>
+                            <MudText>@group.Key</MudText>
+                        </div>
+                    </TitleContent>
+                    <ChildContent>
+                        <MudChipSet>
+                            @foreach (var v in group)
+                            {
+                                <MudChip OnClose="_ => RemoveVariantBuilder(v)">
+                                    @v.AsString(false)
+                                </MudChip>
+                            }
+                        </MudChipSet>
+                    </ChildContent>
+
+
+                </MudExpansionPanel>
+            }
+
+        </MudExpansionPanels>
+
+
+
+    </MudItem>
+
+    <MudItem xs="10" lg="5">
+        <MudPaper Class="d-flex justify-start py-2 px-1">
+            <MudNumericField HelperText="Columns" @bind-Value="SelectedColumns" Min="GridCreator.MinSize" Max="GridCreator.MaxSize" />
+            @if (!GridCreator.WidthMustMatchHeight)
+            {
+                <MudNumericField HelperText="Rows" @bind-Value="SelectedRows" Min="GridCreator.MinSize" Max="GridCreator.MaxSize" />
+            }
+            <MudIconButton Icon="@Icons.Filled.PowerSettingsNew" OnClick="ChangeSize" Title="Change Size" />
+        </MudPaper>
+
+        
+
+    </MudItem>
+
+</MudGrid>
+}

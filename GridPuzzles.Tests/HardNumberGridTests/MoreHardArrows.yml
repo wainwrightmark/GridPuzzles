@@ -1,0 +1,73 @@
+﻿Columns: 9
+Rows: 9
+Grid: >-
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+Variants:
+- Name: Complete Columns
+- Name: Complete Rows
+- Name: Complete Square Boxes
+- Name: Arithmetic Consistency
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: A1; A2; A3; B3
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: C3; C2; B2
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: D3; D2; E2
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: F1; F2; F3; E3
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: G2; G1; H1; I1
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: I2; I3; H3
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: I9; I8; I7; I6; H6
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: A9; A8; B8; C8
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: A6; A7; B7
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: E4; D5; C5
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: C7; D6; E5; F4
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: C7; C6; B5; A4

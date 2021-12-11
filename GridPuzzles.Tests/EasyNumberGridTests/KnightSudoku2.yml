@@ -1,0 +1,26 @@
+Columns: 9
+Rows: 9
+Grid: >-
+  3	-	-	-	-	-	-	-	5
+
+  -	-	-	9	-	4	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	9	-	1	-	3	-	8	-
+
+  -	-	-	-	7	-	-	-	-
+
+  -	3	-	5	-	9	-	4	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	3	-	2	-	-	-
+
+  5	-	-	-	-	-	-	-	2
+Variants:
+- Name: Complete Columns
+- Name: Complete Rows
+- Name: Complete Square Boxes
+- Name: Arithmetic Consistency
+- Name: Knight

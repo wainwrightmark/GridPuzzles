@@ -1,0 +1,80 @@
+﻿Columns: 9
+Rows: 9
+Grid: >-
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+Variants:
+- Name: Complete Columns
+- Name: Complete Rows
+- Name: Complete Square Boxes
+- Name: Arithmetic Consistency
+- Name: Sum
+  Arguments:
+    Unique: True
+    Sum: 14
+    Positions: C1; C2; C3; D3
+- Name: Sum
+  Arguments:
+    Sum: 14
+    Unique: True
+    Positions: A3; B3; C4; B4
+- Name: Sum
+  Arguments:
+    Sum: 14
+    Unique: True
+    Positions: B5; B6; C6; C7
+- Name: Sum
+  Arguments:
+    Sum: 14
+    Unique: True
+    Positions: A9; B8; B9; C9
+- Name: Sum
+  Arguments:
+    Sum: 14
+    Unique: True
+    Positions: E8; F8; F9; E9
+- Name: Sum
+  Arguments:
+    Sum: 14
+    Unique: True
+    Positions: F7; G7; G8; G9
+- Name: Sum
+  Arguments:
+    Sum: 14
+    Unique: True
+    Positions: G6; H6; H7; I7
+- Name: Sum
+  Arguments:
+    Sum: 14
+    Unique: True
+    Positions: D4; E4; E5; F5
+- Name: Sum
+  Arguments:
+    Sum: 14
+    Unique: True
+    Positions: G3; G4; H4; H5
+- Name: Sum
+  Arguments:
+    Sum: 14
+    Unique: True
+    Positions: D2; E2; E3
+- Name: Sum
+  Arguments:
+    Sum: 14
+    Unique: True
+    Positions: F2; F3; F4

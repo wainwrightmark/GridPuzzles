@@ -1,0 +1,261 @@
+﻿@using GridPuzzles.VariantBuilderArguments
+@using GridPuzzles.Session
+@using GridPuzzles.SVG
+@using SVGHelper
+@using GridPuzzles
+@namespace GridComponents
+
+
+<MudDialog DisableSidePadding="true">
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            @VariantBuilder.Name
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+
+
+        @{
+            var sizeStyle = $"position: relative; height: {CellStyleHelpers.GetHeight(MyGrid)}px; width: {CellStyleHelpers.GetWidth(MyGrid)};";
+        }
+
+        <MudContainer Fixed="true" MaxWidth="MaxWidth.Medium" Style="@($"max-height: {CellStyleHelpers.GetHeight(MyGrid) * 4 / 5}px; overflow-y: scroll")">
+            @foreach (var argument in VariantBuilder.Arguments)
+            {
+                if (argument is SinglePositionArgument)
+                {
+                    <MudElement Style="@sizeStyle">
+
+                        @{
+                            <MudItem xs="10" lg="5" Style="@sizeStyle">
+                                <GridSVGComponent SVGBuilder="GetSVGBuilder(argument, true)"/>
+
+                            </MudItem>
+                        }
+                    </MudElement>
+                }
+                else if (argument is ListPositionArgument)
+                {
+                    <MudItem xs="10" lg="5" Style="@sizeStyle">
+
+                        <GridSVGComponent SVGBuilder="GetSVGBuilder(argument, false)" />
+
+                    </MudItem>
+                }
+
+                else if (argument is MultilineStringArgument msa)
+                {
+                    <div class="form-group">
+                        <label>@argument.Name</label>
+                        <textarea type="text" class="form-control" @oninput="(e) => SetValue(e.Value?.ToString(), argument.Name)">@msa.DefaultString
+            </textarea>
+                    </div>
+                    @*<MudTextField T="string"
+                Lines="5"
+                Variant="Variant.Outlined"
+                Label="@argument.Name"
+                Value="@(GetValue<string>(argument.Name))"
+                ValueChanged="(e) => SetValue(e, argument.Name)" />*@
+                }
+                else if (argument is StringArgument sa)
+                {
+                    <div class="form-group">
+                        <label>@argument.Name</label>
+                        <input type="text" class="form-control" @oninput="(e) => SetValue(e.Value?.ToString(), argument.Name)" value=@sa.DefaultString>
+                    </div>
+
+                    @*<MudTextField T="string"
+                Variant="Variant.Outlined"
+                Label="@argument.Name"
+                Value="@(GetValue<string>(argument.Name))"
+                ValueChanged="(e) => SetValue(e, argument.Name)" />*@
+                }
+                else if (argument is IntArgument ia)
+                {
+                    <div class="form-group">
+                        <label>@argument.Name</label>
+                        <input type="number" max="@ia.MaxValue" min="@ia.MinValue" class="form-control" @oninput="e => SetValue(e.Value?.ToString(), argument.Name)" value=@ia.DefaultString>
+                    </div>
+                    @*<MudNumericField Label="@ia.Name"
+                                     Variant="Variant.Outlined"
+                                     Max="@ia.MaxValue"
+                                     Min="@ia.MinValue"
+                                     T="int"
+                                     @oninput="@(e=> SetValue(e.Value?.ToString(), argument.Name))"
+                                     Value=@(GetValue<int>(argument.Name))
+                                     />*@
+                }
+                else if (argument is BoolArgument ba)
+                {
+                    <div class="form-group">
+                        <label>@argument.Name</label>
+                        <input type="checkbox" class="form-control" @oninput="(e) => SetValue(e.Value?.ToString(), argument.Name)" value=@ba.DefaultString>
+                    </div>
+                    @*<MudCheckBox T="bool"
+                @onchange="(e) => SetValue(e.Value.ToString(), argument.Name)"
+                Checked="@(GetValue<bool>(argument.Name))" />*@
+                }
+
+                else if (argument is IEnumArgument ea)
+                {
+                    <div class="form-group">
+                        <label>@argument.Name</label>
+                        <select class="form-control" @oninput="(e) => SetValue(e.Value?.ToString(), argument.Name)">
+                            <option value=""></option>
+
+                            @foreach (var o in ea.Options)
+                            {
+                                <option value="@o">
+                                    @o
+                                </option>
+                            }
+                        </select>
+                    </div>
+                    @*<MudSelect T="String"
+                           Label="@argument.Name"
+                           @onchange="(e) => SetValue(e.Value.ToString(), argument.Name)"
+                           Value="@(GetValue<string>(argument.Name))">
+                    @foreach (var o in ea.Options)
+                    {
+                        <MudSelectItem Value="@o">
+                            @o
+                        </MudSelectItem>
+                    }
+                </MudSelect>*@
+                }
+                else
+                {
+                    <MudAlert Severity="Severity.Error">$"Cannot Display {argument.Name}"</MudAlert>
+                }
+            }
+        </MudContainer>
+
+
+    </DialogContent >
+    <DialogActions >
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+
+        <MudButton OnClick="SubmitForm" Disabled="@(!CanSubmit)">Submit</MudButton>
+        <MudButton OnClick="AddAnother" Disabled="@(!CanSubmit)">AddAnother</MudButton>
+
+    </DialogActions>
+</MudDialog>
+
+@code {
+
+
+        public const string AgainString = "Again";
+#pragma warning disable 8618
+    [CascadingParameter]
+    MudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public IVariantBuilder VariantBuilder { get; set; }
+
+    [Parameter]
+    public ISolveState SolveState { get; set; }
+
+
+    [Parameter]
+    public Dictionary<string, string> Results { get; set; }
+#pragma warning restore 8618
+
+    public SVGBuilder GetSVGBuilder(VariantBuilderArgument variantBuilderArgument, bool isSingle) => new VariantBuilderFormGridSVG(
+        SolveState, p =>
+            isSingle ?
+                new[]
+                {
+                    SVGEventHandler.OnClick(_ => SetValue(p.Serialize(), variantBuilderArgument.Name)),
+                } :
+                new[]
+                {
+                    SVGEventHandler.OnClick(_ => SetMember(p.Serialize(), variantBuilderArgument.Name)),
+                }
+        , VariantBuilder, variantBuilderArgument, Results
+        );
+
+    private IGrid MyGrid => SolveState.Grid;
+
+        public const int GridSize = 9; //Allow changing of this
+
+    bool CanSubmit => VariantBuilder.Arguments.All(arg => Results.TryGetValue(arg.Name, out var v) && arg.TryParse(v).IsSuccess);
+
+
+    void SubmitForm()
+    {
+        MudDialog.Close(DialogResult.Ok(Results));
+    }
+
+    void AddAnother()
+    {
+        Results.Add(AgainString, true.ToString());
+        MudDialog.Close(DialogResult.Ok(Results));
+    }
+
+    /// <inheritdoc />
+    protected override void OnParametersSet()
+    {
+        foreach (var variantBuilderArgument in VariantBuilder.Arguments)
+        {
+            if (!string.IsNullOrWhiteSpace(variantBuilderArgument.DefaultString))
+                SetValue(variantBuilderArgument.DefaultString, variantBuilderArgument.Name);
+        }
+    }
+
+    void SetValue(string? argValue, string argName)
+    {
+        var arg = VariantBuilder.Arguments.SingleOrDefault(x => x.Name == argName);
+
+        if (argValue == null)
+            Results.Remove(argName);
+
+        else if (arg != null)
+        {
+            var r = arg.TryParse(argValue);
+
+            if (r.IsSuccess)
+                Results[argName] = argValue;
+            else Results.Remove(argName);
+        }
+    }
+
+    void SetMember(string argValue, string argName)
+    {
+        var arg = VariantBuilder.Arguments.SingleOrDefault(x => x.Name == argName);
+
+
+        if (arg != null)
+        {
+            if (Results.TryGetValue(argName, out var v))
+            {
+                var values = v
+                    .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+                if (values.Remove(argValue))
+                {
+                    if (values.Any())
+                        Results[argName] = string.Join("; ", values);
+                    else
+                        Results.Remove(argName);
+                }
+                else
+                {
+                    values.Add(argValue);
+                    Results[argName] = string.Join("; ", values);
+                }
+            }
+            else
+            {
+                Results[argName] = argValue;
+            }
+            StateHasChanged();
+        }
+    }
+
+    void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+
+}

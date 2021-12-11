@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MudBlazor" Version="6.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Crossword\Crossword.csproj" />
+    <ProjectReference Include="..\GridComponents\GridComponents.csproj" />
+    <ProjectReference Include="..\GridPuzzles\GridPuzzles.csproj" />
+    <ProjectReference Include="..\Sudoku\Sudoku.csproj" />
+    <ProjectReference Include="..\SVGElements\SVGElements.csproj" />
+    <ProjectReference Include="..\SVGHelper\SVGHelper.csproj" />
+    <ProjectReference Include="..\Words\Words.csproj" />
+  </ItemGroup>
+
+</Project>

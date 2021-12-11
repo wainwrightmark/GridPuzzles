@@ -1,0 +1,116 @@
+﻿#https://www.youtube.com/watch?v=XBpHiEGxyA4&ab_channel=CrackingTheCryptic
+Columns: 9
+Rows: 9
+Grid: >-
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+Variants:
+- Name: Complete Columns
+- Name: Complete Rows
+- Name: Complete Square Boxes
+- Name: Arithmetic Consistency
+- Name: Doubling Group
+  Arguments:
+    Positions: B1; H8
+- Name: Doubling Group
+  Arguments:
+    Positions: B2; H9
+- Name: Doubling Group
+  Arguments:
+    Positions: C6; F4
+- Name: Doubling Group
+  Arguments:
+    Positions: D6; G4
+- Name: Differ By
+  Arguments:
+    Amount: 1
+    Positions: A5; B5
+- Name: Differ By
+  Arguments:
+    Amount: 1
+    Positions: C3; D3
+- Name: Thermometer
+  Arguments:
+    Positions: A1; B1
+- Name: Thermometer
+  Arguments:
+    Positions: C1; B1
+- Name: Thermometer
+  Arguments:
+    Positions: A2; B2
+- Name: Thermometer
+  Arguments:
+    Positions: B3; B2
+- Name: Thermometer
+  Arguments:
+    Positions: C2; B2
+- Name: Thermometer
+  Arguments:
+    Positions: H9; G9
+- Name: Thermometer
+  Arguments:
+    Positions: H9; I9
+- Name: Thermometer
+  Arguments:
+    Positions: H8; I8
+- Name: Thermometer
+  Arguments:
+    Positions: H8; H7
+- Name: Thermometer
+  Arguments:
+    Positions: H8; G8
+- Name: Thermometer
+  Arguments:
+    Positions: C5; C6
+- Name: Thermometer
+  Arguments:
+    Positions: C7; C6
+- Name: Thermometer
+  Arguments:
+    Positions: B6; C6
+- Name: Thermometer
+  Arguments:
+    Positions: D5; D6
+- Name: Thermometer
+  Arguments:
+    Positions: E6; D6
+- Name: Thermometer
+  Arguments:
+    Positions: D7; D6
+- Name: Thermometer
+  Arguments:
+    Positions: F4; F5
+- Name: Thermometer
+  Arguments:
+    Positions: F4; E4
+- Name: Thermometer
+  Arguments:
+    Positions: F4; F3
+- Name: Thermometer
+  Arguments:
+    Positions: G4; G3
+- Name: Thermometer
+  Arguments:
+    Positions: G4; H4
+- Name: Thermometer
+  Arguments:
+    Positions: G4; G5
+- Name: Differ By
+  Arguments:
+    Amount: 1
+    Positions: E9; F9

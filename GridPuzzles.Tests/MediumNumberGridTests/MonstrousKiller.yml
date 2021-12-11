@@ -1,0 +1,146 @@
+﻿#https://www.youtube.com/watch?v=TddbR3rcpZQ&list=PLK-l8O0YikOnK2jAWgDiSawf1f5WIY48G&index=8&ab_channel=CrackingTheCryptic
+Columns: 9
+Rows: 9
+Grid: >-
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+Variants:
+- Name: Complete Columns
+- Name: Complete Rows
+- Name: Complete Square Boxes
+- Name: Arithmetic Consistency
+- Name: Sum
+  Arguments:
+    Positions: G8; H8; H7; I7
+    Sum: 22
+    Unique: true
+- Name: Sum
+  Arguments:
+    Sum: 6
+    Positions: G9; H9
+    Unique: true
+- Name: Sum
+  Arguments:
+    Sum: 9
+    Positions: I8; I9
+    Unique: true
+- Name: Sum
+  Arguments:
+    Sum: 8
+    Positions: H6; I6
+    Unique: true
+- Name: Sum
+  Arguments:
+    Sum: 22
+    Positions: F6; G6; G7; F7
+    Unique: true
+- Name: Sum
+  Arguments:
+    Sum: 20
+    Positions: F5; G5; H5; I5
+    Unique: true
+- Name: Sum
+  Arguments:
+    Sum: 13
+    Positions: F4; G4; H4; I4
+    Unique: true
+- Name: Sum
+  Arguments:
+    Sum: 13
+    Positions: D4; E4
+    Unique: true
+- Name: Sum
+  Arguments:
+    Sum: 26
+    Positions: D5; E5; E6; E7
+    Unique: true
+- Name: Sum
+  Arguments:
+    Sum: 19
+    Positions: D8; E8; F8; F9
+    Unique: true
+- Name: Sum
+  Arguments:
+    Sum: 10
+    Positions: D9; E9
+    Unique: true
+- Name: Sum
+  Arguments:
+    Sum: 7
+    Positions: B9; C9
+    Unique: true
+- Name: Sum
+  Arguments:
+    Sum: 15
+    Positions: D6; D7; C7; C8
+    Unique: true
+- Name: Sum
+  Arguments:
+    Sum: 29
+    Positions: A9; A8; B8; B7
+    Unique: true
+- Name: Sum
+  Arguments:
+    Sum: 14
+    Positions: A7; A6; A5
+    Unique: true
+- Name: Sum
+  Arguments:
+    Sum: 10
+    Positions: B6; C6
+    Unique: true
+- Name: Sum
+  Arguments:
+    Sum: 19
+    Positions: B4; C4; C5; B5
+    Unique: true
+- Name: Sum
+  Arguments:
+    Sum: 12
+    Positions: A3; A4
+    Unique: true
+- Name: Sum
+  Arguments:
+    Sum: 17
+    Positions: A2; B1; C1; A1
+    Unique: true
+- Name: Sum
+  Arguments:
+    Sum: 21
+    Positions: B2; B3; C3; D3
+    Unique: true
+- Name: Sum
+  Arguments:
+    Sum: 12
+    Positions: C2; D2
+    Unique: true
+- Name: Sum
+  Arguments:
+    Sum: 27
+    Positions: E1; E2; F2; F3; E3; D1
+    Unique: true
+- Name: Sum
+  Arguments:
+    Sum: 28
+    Positions: F1; G1; H1; I1; G2; G3
+    Unique: true
+- Name: Sum
+  Arguments:
+    Sum: 26
+    Positions: H2; I2; I3; H3
+    Unique: true

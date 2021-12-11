@@ -1,0 +1,80 @@
+﻿# https://www.youtube.com/watch?v=dPhQDsisRl0&ab_channel=CrackingTheCryptic
+#Killin It - 159 Style by Mr Menace
+
+Columns: 9
+Rows: 9
+Grid: >-
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+Variants:
+- Name: Arithmetic Consistency
+- Name: Complete Columns
+- Name: Complete Rows
+- Name: Complete Square Boxes
+- Name: Index
+  Arguments:
+    Parallel: Column
+    Index: 5
+- Name: Index
+  Arguments:
+    Parallel: Column
+    Index: 9
+- Name: Index
+  Arguments:
+    Parallel: Column
+    Index: 1
+- Name: Sum
+  Arguments:
+    Unique: True
+    Positions: G8; G9
+    Sum: 11
+- Name: Sum
+  Arguments:
+    Unique: True
+    Positions: C8; C9; D9
+    Sum: 21
+- Name: Sum
+  Arguments:
+    Unique: True
+    Positions: E3; F3
+    Sum: 8
+- Name: Sum
+  Arguments:
+    Unique: True
+    Positions: F1; G1; G2
+    Sum: 17
+- Name: Sum
+  Arguments:
+    Unique: True
+    Positions: C1; C2
+    Sum: 11
+- Name: Sum
+  Arguments:
+    Unique: True
+    Positions: D7; E7
+    Sum: 12
+- Name: Sum
+  Arguments:
+    Unique: True
+    Positions: G6; H6; H5
+    Sum: 22
+- Name: Sum
+  Arguments:
+    Unique: True
+    Positions: B5; B4; C4
+    Sum: 8

@@ -1,0 +1,53 @@
+- [x] Remove 'State'
+- [x] Fix Crossword Blocks
+- [ ] Linear Algebra
+- [x] Killer Sudoku Cage Drawing
+- [x] Make Clue Methods Stateless Again
+- [x] Make Variant Argument remember stuff
+- [x] Group Variants On Gridpage
+- [ ] Add Variants Directly on Gridpage
+- [ ] Highlight Selected Variants On Gridpage
+- [x] Single Step Next
+- [x] Single Step Bifurcation
+- [x] Text for updates and contradictions
+- [x] Updates / Contradictions based on currently selected state
+- [ ] Nice VariantBuilderArgumentForm
+- [x] Add Clear Button to Result List
+- [x] More Detail in results
+- [ ] Reintroduce Swordfish
+- [x] Fix Crosswrod Find Solution
+- [x] Fix SVG weirdness
+- [x] Grid Page should let you control grid size
+- [x] Put SVG Logic into GridPuzzles project
+- [ ] Browser Local Storage https://github.com/Blazored/LocalStorage
+- [x] Improve Doubling Groups
+- [ ] Improve sums
+- [x] Fix random crossword solve
+- [ ] New Crossword Parallel Clue uisng recursive bifurcation
+- [x] Allow grid rotation and reflection
+- [x] Check what happens if there are multiple possible solutions
+- [x] Set maximum speed of Final
+- [x] Selected states should be displayed
+- [x] Manually placed cells should have different colors
+- [x] Single Step update combining should group updates of the same type when only a single cell is changed
+- [x] Cell updates should keep track of dependent cells
+- [x] Update displays should compare with previous cell
+- [ ] Random solve should do individual steps
+- [x] Changing the interval during final should work
+- [x] Cancel button
+- [ ] Sounds :) https://odino.org/emit-a-beeping-sound-with-javascript/
+- [ ] Rename to Contessa
+- [ ] Improve sum performance
+- [x] Split Sudoku to separate project
+- [x] Use Codegen for SVG
+- [ ] Cellvalue should be a struct bitarray (maybe a flags structlayout enum)
+- [ ] Create separate web projects for sudoku and crosswords
+- [x] Add a ClearAll button
+- [x] Contradiction reasons should be structured objects
+- [x] Update reasons should be structured object
+- [x] Strongly typed svg elements :)
+- [ ] Only use immutable collections when strictly necessary
+- [x] Grid Should use Dictionary not immutableDictionary
+- [ ] Allow Updates to contain new clues
+- [ ] Add 'or' clues
+- [ ] Improve Reason Text / add more variety of reasons

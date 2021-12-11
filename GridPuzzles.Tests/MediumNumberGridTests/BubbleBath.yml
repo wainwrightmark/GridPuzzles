@@ -1,0 +1,162 @@
+﻿#https://www.youtube.com/watch?v=9x8w69udtD8&ab_channel=CrackingTheCryptic
+Columns: 9
+Rows: 9
+Grid: >-
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+Variants:
+- Name: Differ By
+  Arguments:
+    Amount: 1
+    Positions: E8; E9
+- Name: Differ By
+  Arguments:
+    Amount: 1
+    Positions: C4; C5
+- Name: Differ By
+  Arguments:
+    Amount: 1
+    Positions: A5; B5
+- Name: Differ By
+  Arguments:
+    Amount: 1
+    Positions: D3; C3
+- Name: Differ By
+  Arguments:
+    Amount: 1
+    Positions: D6; E6
+- Name: Differ By
+  Arguments:
+    Amount: 1
+    Positions: B8; C8
+- Name: Multiple
+  Arguments:
+    Amount: 2
+    Positions: F8; G8
+- Name: Differ By
+  Arguments:
+    Amount: 1
+    Positions: G5; G6
+- Name: Differ By
+  Arguments:
+    Amount: 1
+    Positions: F7; G7
+- Name: Differ By
+  Arguments:
+    Amount: 1
+    Positions: H6; G6
+- Name: Multiple
+  Arguments:
+    Amount: 2
+    Positions: H2; I2
+- Name: Differ By
+  Arguments:
+    Amount: 1
+    Positions: G7; G6
+- Name: Differ By
+  Arguments:
+    Amount: 1
+    Positions: E3; E4
+- Name: Differ By
+  Arguments:
+    Amount: 1
+    Positions: F4; F5
+- Name: Differ By
+  Arguments:
+    Amount: 1
+    Positions: E6; E7
+- Name: Differ By
+  Arguments:
+    Amount: 1
+    Positions: D4; E4
+- Name: Differ By
+  Arguments:
+    Amount: 1
+    Positions: A2; B2
+- Name: Differ By
+  Arguments:
+    Amount: 1
+    Positions: B4; C4
+- Name: Differ By
+  Arguments:
+    Amount: 1
+    Positions: D5; D6
+- Name: Differ By
+  Arguments:
+    Amount: 1
+    Positions: D8; D9
+- Name: Differ By
+  Arguments:
+    Amount: 1
+    Positions: E4; F4
+- Name: Differ By
+  Arguments:
+    Amount: 1
+    Positions: C5; D5
+- Name: Differ By
+  Arguments:
+    Amount: 1
+    Positions: D6; D7
+- Name: Differ By
+  Arguments:
+    Amount: 1
+    Positions: C3; C4
+- Name: Differ By
+  Arguments:
+    Amount: 1
+    Positions: B2; C2
+- Name: Multiple
+  Arguments:
+    Amount: 2
+    Positions: G8; G9
+- Name: Differ By
+  Arguments:
+    Amount: 1
+    Positions: E6; F6
+- Name: Multiple
+  Arguments:
+    Amount: 2
+    Positions: F9; G9
+- Name: Complete Columns
+- Name: Complete Square Boxes
+- Name: Arithmetic Consistency
+- Name: Differ By
+  Arguments:
+    Amount: 1
+    Positions: H5; I5
+- Name: Multiple
+  Arguments:
+    Amount: 2
+    Positions: G2; H2
+- Name: Differ By
+  Arguments:
+    Amount: 1
+    Positions: H8; I8
+- Name: Restrict Values
+  Arguments:
+    Allowed Values (Comma Separated): 1,3,5,7,9
+    Positions: B1; E1; H1
+- Name: Differ By
+  Arguments:
+    Amount: 1
+    Positions: F3; F4
+- Name: Differ By
+  Arguments:
+    Amount: 1
+    Positions: F5; G5
+- Name: Complete Rows

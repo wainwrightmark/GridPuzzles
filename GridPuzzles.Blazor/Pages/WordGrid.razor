@@ -1,0 +1,9 @@
+﻿@page "/wordgrid/{Size:int}"
+@using Crossword
+
+<GridPage T="char" Columns="@Size" Rows="@Size" GridCreator="CrosswordGridCreator.Instance" GridText="" GetExtraFunc="CrosswordExport.ExportCrossword"/>
+
+@code {
+    [Parameter]
+    public int Size { get; set; }
+}

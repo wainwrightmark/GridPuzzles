@@ -1,0 +1,82 @@
+﻿#https://www.youtube.com/watch?v=G9eeB9-XxQw&ab_channel=CrackingTheCryptic
+Columns: 9
+Rows: 9
+Grid: >-
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+Variants:
+- Name: Complete Columns
+- Name: Complete Rows
+- Name: Complete Square Boxes
+- Name: Arithmetic Consistency
+- Name: Sum
+  Arguments:
+    Sum: 21
+    Positions: A4; B5; C6; D7; E8; F9
+    Unique: false
+- Name: Sum
+  Arguments:
+    Sum: 22
+    Positions: F1; E2; D3; C4; B5; A6
+    Unique: false
+- Name: Sum
+  Arguments:
+    Sum: 19
+    Positions: D9; E8; F7; G6; H5; I4
+    Unique: false
+- Name: Sum
+  Arguments:
+    Sum: 13
+    Positions: I6; H5; G4; F3; E2; D1
+    Unique: false
+- Name: Sum
+  Arguments:
+    Positions: C3; C2; D2
+    Sum: 20
+    Unique: true
+- Name: Sum
+  Arguments:
+    Sum: 20
+    Positions: F2; G2; G3
+    Unique: true
+- Name: Sum
+  Arguments:
+    Sum: 10
+    Positions: H9; I9; I8
+    Unique: true
+- Name: Sum
+  Arguments:
+    Sum: 17
+    Positions: A8; A9; B9
+    Unique: true
+- Name: Sum
+  Arguments:
+    Sum: 12
+    Positions: C6; C7; D7
+    Unique: true
+- Name: Sum
+  Arguments:
+    Sum: 17
+    Positions: F7; G7; G6
+    Unique: true
+- Name: Sum
+  Arguments:
+    Sum: 6
+    Positions: D5; E5; F5
+    Unique: true
+- Name: Knight

@@ -1,0 +1,133 @@
+﻿Columns: 9
+Rows: 9
+Grid: >-
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+Variants:
+- Name: Complete Columns
+- Name: Complete Rows
+- Name: Complete Square Boxes
+- Name: Arithmetic Consistency
+- Name: Complete Columns
+- Name: Complete Rows
+- Name: Complete Square Boxes
+- Name: Arithmetic Consistency
+- Name: Slingshot
+  Arguments:
+    Position: C1
+    From: West
+    To: South
+- Name: Slingshot
+  Arguments:
+    Position: G1
+    From: West
+    To: South
+- Name: Slingshot
+  Arguments:
+    Position: H1
+    From: West
+    To: South
+- Name: Slingshot
+  Arguments:
+    Position: B2
+    From: South
+    To: East
+- Name: Slingshot
+  Arguments:
+    Position: E2
+    From: West
+    To: South
+- Name: Slingshot
+  Arguments:
+    Position: G2
+    From: West
+    To: South
+- Name: Slingshot
+  Arguments:
+    Position: I2
+    From: South
+    To: West
+- Name: Slingshot
+  Arguments:
+    Position: I3
+    From: North
+    To: West
+- Name: Slingshot
+  Arguments:
+    Position: A3
+    From: North
+    To: East
+- Name: Slingshot
+  Arguments:
+    Position: B3
+    From: South
+    To: East
+- Name: Slingshot
+  Arguments:
+    From: West
+    To: South
+    Position: F4
+- Name: Slingshot
+  Arguments:
+    Position: A6
+    From: South
+    To: East
+- Name: Slingshot
+  Arguments:
+    Position: A7
+    From: South
+    To: East
+- Name: Slingshot
+  Arguments:
+    Position: C8
+    From: East
+    To: North
+- Name: Slingshot
+  Arguments:
+    From: East
+    To: North
+    Position: C9
+- Name: Slingshot
+  Arguments:
+    Position: G9
+    From: West
+    To: North
+- Name: Slingshot
+  Arguments:
+    Position: H8
+    From: West
+    To: North
+- Name: Slingshot
+  Arguments:
+    From: North
+    To: West
+    Position: H7
+- Name: Slingshot
+  Arguments:
+    Position: I7
+    From: North
+    To: West
+- Name: Slingshot
+  Arguments:
+    Position: I4
+    From: North
+    To: West
+- Name: Restrict Values
+  Arguments:
+    Positions: C3; D3; E3; F3; G3; G4; G5; G6; G7; E7; D7; F7; C7; C6; C4; C5
+    Allowed Values (Comma Separated): 1,2,3,4,5,6

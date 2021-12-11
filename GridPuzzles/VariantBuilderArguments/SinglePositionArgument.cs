@@ -1,0 +1,34 @@
+﻿using System.Collections.Generic;
+using System.Collections.Immutable;
+using CSharpFunctionalExtensions;
+
+namespace GridPuzzles.VariantBuilderArguments;
+
+public class SinglePositionArgument : VariantBuilderArgument<Position>
+{
+    public SinglePositionArgument(string name) : base(name, Maybe<Position>.None)
+    {
+    }
+
+    /// <inheritdoc />
+    public override Result<Position> TryParseTyped(string s)
+    {
+        return Position.Deserialize(s);
+    }
+
+    /// <inheritdoc />
+    public override VariantBuilderArgument CloneWithValue(string newValue) => this;
+
+    /// <inheritdoc />
+    public override IReadOnlyList<Position> GetCheckedPositions(string text)
+    {
+        var r = TryParseTyped(text);
+        if(r.IsFailure)
+            return ImmutableList<Position>.Empty;
+
+        return ImmutableList<Position>.Empty.Add(r.Value);
+    }
+
+    /// <inheritdoc />
+    public override bool ClearOnAdded => true;
+}

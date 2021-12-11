@@ -1,0 +1,86 @@
+﻿#https://www.youtube.com/watch?v=oUOOUDRzVRc&ab_channel=CrackingTheCryptic
+Columns: 9
+Rows: 9
+Grid: >-
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+Variants:
+- Name: Arrow
+  Arguments:
+    Positions: B8; A7; B6
+    Head Size: 1
+- Name: Sum
+  Arguments:
+    Positions: B4; C4
+    Sum: 15
+    Unique: False
+- Name: Arrow
+  Arguments:
+    Positions: F2; F3; E3; E2
+    Head Size: 1
+- Name: Complete Rows
+- Name: Complete Columns
+- Name: Sum
+  Arguments:
+    Positions: B1; C1
+    Sum: 12
+    Unique: True
+- Name: Complete Square Boxes
+- Name: Arithmetic Consistency
+- Name: Arrow
+  Arguments:
+    Positions: I3; H3; H2
+    Head Size: 1
+- Name: Sum
+  Arguments:
+    Positions: D7; D8
+    Sum: 13
+    Unique: True
+- Name: Arrow
+  Arguments:
+    Positions: D5; E5; F5; F6
+    Head Size: 1
+- Name: Arrow
+  Arguments:
+    Positions: H5; G5; G6; H6
+    Head Size: 1
+- Name: Arrow
+  Arguments:
+    Positions: E8; F8; G8
+    Head Size: 1
+- Name: Sum
+  Arguments:
+    Positions: I7; I8
+    Sum: 15
+    Unique: True
+- Name: Arrow
+  Arguments:
+    Positions: G1; G2; G3
+    Head Size: 1
+- Name: Arrow
+  Arguments:
+    Positions: H7; G7; F7
+    Head Size: 1
+- Name: Arrow
+  Arguments:
+    Positions: C6; C5; B5
+    Head Size: 1
+- Name: Arrow
+  Arguments:
+    Positions: C3; B2; A3
+    Head Size: 1

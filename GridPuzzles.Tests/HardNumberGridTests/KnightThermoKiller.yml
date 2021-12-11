@@ -1,0 +1,96 @@
+﻿Columns: 9
+Rows: 9
+Grid: >-
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+Variants:
+- Name: Complete Columns
+- Name: Complete Rows
+- Name: Complete Square Boxes
+- Name: Arithmetic Consistency
+- Name: Thermometer
+  Arguments:
+    Positions: A1; A2
+- Name: Thermometer
+  Arguments:
+    Positions: B1; B2
+- Name: Thermometer
+  Arguments:
+    Positions: A4; B4
+- Name: Thermometer
+  Arguments:
+    Positions: A5; B5
+- Name: Thermometer
+  Arguments:
+    Positions: E2; F1; G2; H2
+- Name: Sum
+  Arguments:
+    Positions: A1; A2
+    Sum: 10
+    Unique: true
+- Name: Sum
+  Arguments:
+    Sum: 10
+    Positions: B1; B2
+    Unique: true
+- Name: Sum
+  Arguments:
+    Sum: 10
+    Positions: A4; B4
+    Unique: true
+- Name: Sum
+  Arguments:
+    Sum: 10
+    Positions: A5; B5
+    Unique: true
+- Name: Sum
+  Arguments:
+    Positions: E6; F6
+    Sum: 10
+    Unique: true
+- Name: Sum
+  Arguments:
+    Positions: F4; F5
+    Sum: 10
+    Unique: true
+- Name: Sum
+  Arguments:
+    Positions: H4; H5
+    Sum: 10
+    Unique: true
+- Name: Sum
+  Arguments:
+    Positions: I4; I5
+    Sum: 10
+    Unique: true
+- Name: Sum
+  Arguments:
+    Positions: I7; I8
+    Sum: 10
+    Unique: true
+- Name: Sum
+  Arguments:
+    Positions: C8; C9
+    Sum: 10
+    Unique: true
+- Name: Sum
+  Arguments:
+    Positions: D8; E8
+    Sum: 10
+    Unique: true
+- Name: Knight

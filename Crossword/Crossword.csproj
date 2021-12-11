@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+ <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+ <ItemGroup>
+   <PackageReference Include="AngleSharp" Version="0.16.1" />
+ </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GridPuzzles\GridPuzzles.csproj" />
+    <ProjectReference Include="..\Words\Words.csproj" />
+  </ItemGroup>
+
+</Project>

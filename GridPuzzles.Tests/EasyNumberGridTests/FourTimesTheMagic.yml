@@ -1,0 +1,37 @@
+Columns: 9
+Rows: 9
+Grid: >-
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	1
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	6	-	-	-	-	-	-	-
+Variants:
+- Name: Complete Columns
+- Name: Complete Rows
+- Name: Complete Square Boxes
+- Name: Arithmetic Consistency
+- Name: Magic Square
+  Arguments:
+    Center of Magic Square: B4
+- Name: Magic Square
+  Arguments:
+    Center of Magic Square: F2
+- Name: Magic Square
+  Arguments:
+    Center of Magic Square: H6
+- Name: Magic Square
+  Arguments:
+    Center of Magic Square: D8
