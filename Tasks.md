@@ -11,7 +11,7 @@
 - [x] Single Step Bifurcation
 - [x] Text for updates and contradictions
 - [x] Updates / Contradictions based on currently selected state
-- [ ] Nice VariantBuilderArgumentForm
+- [x] Nice VariantBuilderArgumentForm
 - [x] Add Clear Button to Result List
 - [x] More Detail in results
 - [ ] Reintroduce Swordfish

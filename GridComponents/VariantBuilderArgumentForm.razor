@@ -28,7 +28,7 @@
 
                         @{
                             <MudItem xs="10" lg="5" Style="@sizeStyle">
-                                <GridSVGComponent SVGBuilder="GetSVGBuilder(argument, true)"/>
+                                <GridSVGComponent SVGBuilder="CreateSVGBuilder(argument, true)"/>
 
                             </MudItem>
                         }
@@ -38,7 +38,7 @@
                 {
                     <MudItem xs="10" lg="5" Style="@sizeStyle">
 
-                        <GridSVGComponent SVGBuilder="GetSVGBuilder(argument, false)" />
+                        <GridSVGComponent SVGBuilder="CreateSVGBuilder(argument, false)"/>
 
                     </MudItem>
                 }
@@ -47,81 +47,52 @@
                 {
                     <div class="form-group">
                         <label>@argument.Name</label>
-                        <textarea type="text" class="form-control" @oninput="(e) => SetValue(e.Value?.ToString(), argument.Name)">@msa.DefaultString
+                        <textarea type="text" class="form-control" @oninput="(e) => SetValue(argument.Name, e.Value?.ToString())">@ReadValue(argument.Name)
             </textarea>
                     </div>
-                    @*<MudTextField T="string"
-                Lines="5"
-                Variant="Variant.Outlined"
-                Label="@argument.Name"
-                Value="@(GetValue<string>(argument.Name))"
-                ValueChanged="(e) => SetValue(e, argument.Name)" />*@
                 }
                 else if (argument is StringArgument sa)
                 {
                     <div class="form-group">
                         <label>@argument.Name</label>
-                        <input type="text" class="form-control" @oninput="(e) => SetValue(e.Value?.ToString(), argument.Name)" value=@sa.DefaultString>
+                        <input type="text" class="form-control" @oninput="(e) => SetValue(argument.Name, e.Value?.ToString())" value=@ReadValue(argument.Name)>
                     </div>
-
-                    @*<MudTextField T="string"
-                Variant="Variant.Outlined"
-                Label="@argument.Name"
-                Value="@(GetValue<string>(argument.Name))"
-                ValueChanged="(e) => SetValue(e, argument.Name)" />*@
                 }
                 else if (argument is IntArgument ia)
                 {
                     <div class="form-group">
                         <label>@argument.Name</label>
-                        <input type="number" max="@ia.MaxValue" min="@ia.MinValue" class="form-control" @oninput="e => SetValue(e.Value?.ToString(), argument.Name)" value=@ia.DefaultString>
+                        <input type="number" max="@ia.MaxValue" min="@ia.MinValue" class="form-control" @oninput="e => SetValue(argument.Name, e.Value?.ToString())" value=@ReadValue(argument.Name)>
                     </div>
-                    @*<MudNumericField Label="@ia.Name"
-                                     Variant="Variant.Outlined"
-                                     Max="@ia.MaxValue"
-                                     Min="@ia.MinValue"
-                                     T="int"
-                                     @oninput="@(e=> SetValue(e.Value?.ToString(), argument.Name))"
-                                     Value=@(GetValue<int>(argument.Name))
-                                     />*@
                 }
                 else if (argument is BoolArgument ba)
                 {
+                    var value = bool.TryParse(ReadValue(argument.Name), out var v)? v  : null as bool?;
+
                     <div class="form-group">
                         <label>@argument.Name</label>
-                        <input type="checkbox" class="form-control" @oninput="(e) => SetValue(e.Value?.ToString(), argument.Name)" value=@ba.DefaultString>
+                        <input type="checkbox" class="form-control" @oninput="(e) => SetValue(argument.Name, e.Value?.ToString())" checked="@value">
                     </div>
-                    @*<MudCheckBox T="bool"
-                @onchange="(e) => SetValue(e.Value.ToString(), argument.Name)"
-                Checked="@(GetValue<bool>(argument.Name))" />*@
                 }
 
                 else if (argument is IEnumArgument ea)
                 {
+                    var value = @ReadValue(argument.Name);
+
                     <div class="form-group">
                         <label>@argument.Name</label>
-                        <select class="form-control" @oninput="(e) => SetValue(e.Value?.ToString(), argument.Name)">
+                        <select class="form-control" @oninput="(e) => SetValue(argument.Name, e.Value?.ToString())">
                             <option value=""></option>
 
                             @foreach (var o in ea.Options)
                             {
-                                <option value="@o">
+                                var selected = o == value;
+                                <option value="@o" selected="@selected">
                                     @o
                                 </option>
                             }
                         </select>
                     </div>
-                    @*<MudSelect T="String"
-                           Label="@argument.Name"
-                           @onchange="(e) => SetValue(e.Value.ToString(), argument.Name)"
-                           Value="@(GetValue<string>(argument.Name))">
-                    @foreach (var o in ea.Options)
-                    {
-                        <MudSelectItem Value="@o">
-                            @o
-                        </MudSelectItem>
-                    }
-                </MudSelect>*@
                 }
                 else
                 {
@@ -147,29 +118,33 @@
         public const string AgainString = "Again";
 #pragma warning disable 8618
     [CascadingParameter]
+    [EditorRequired]
     MudDialogInstance MudDialog { get; set; }
 
     [Parameter]
+    [EditorRequired]
     public IVariantBuilder VariantBuilder { get; set; }
 
     [Parameter]
+    [EditorRequired]
     public ISolveState SolveState { get; set; }
 
 
     [Parameter]
+    [EditorRequired]
     public Dictionary<string, string> Results { get; set; }
 #pragma warning restore 8618
 
-    public SVGBuilder GetSVGBuilder(VariantBuilderArgument variantBuilderArgument, bool isSingle) => new VariantBuilderFormGridSVG(
+    public SVGBuilder CreateSVGBuilder(VariantBuilderArgument variantBuilderArgument, bool isSingle) => new VariantBuilderFormGridSVG(
         SolveState, p =>
             isSingle ?
                 new[]
                 {
-                    SVGEventHandler.OnClick(_ => SetValue(p.Serialize(), variantBuilderArgument.Name)),
+                    SVGEventHandler.OnClick(_ => SetValue(variantBuilderArgument.Name, p.Serialize())),
                 } :
                 new[]
                 {
-                    SVGEventHandler.OnClick(_ => SetMember(p.Serialize(), variantBuilderArgument.Name)),
+                    SVGEventHandler.OnClick(_ => SetMember(variantBuilderArgument.Name, p.Serialize())),
                 }
         , VariantBuilder, variantBuilderArgument, Results
         );
@@ -197,12 +172,18 @@
     {
         foreach (var variantBuilderArgument in VariantBuilder.Arguments)
         {
-            if (!string.IsNullOrWhiteSpace(variantBuilderArgument.DefaultString))
-                SetValue(variantBuilderArgument.DefaultString, variantBuilderArgument.Name);
+            if (Results.TryGetValue(variantBuilderArgument.Name, out var rv))
+            {
+                continue; //Result is already set
+            }
+            else if (!string.IsNullOrWhiteSpace(variantBuilderArgument.DefaultString))
+                SetValue(variantBuilderArgument.Name, variantBuilderArgument.DefaultString);
         }
     }
 
-    void SetValue(string? argValue, string argName)
+    string? ReadValue(string name) => Results[name];
+
+    void SetValue(string argName, string? argValue)
     {
         var arg = VariantBuilder.Arguments.SingleOrDefault(x => x.Name == argName);
 
@@ -219,10 +200,9 @@
         }
     }
 
-    void SetMember(string argValue, string argName)
+    void SetMember(string argName, string argValue)
     {
         var arg = VariantBuilder.Arguments.SingleOrDefault(x => x.Name == argName);
-
 
         if (arg != null)
         {
