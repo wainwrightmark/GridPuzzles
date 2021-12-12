@@ -1,9 +1,4 @@
-﻿using CSharpFunctionalExtensions;
-using GridPuzzles.Clues.Constraints;
-using GridPuzzles.Overlays;
-using GridPuzzles.VariantBuilderArguments;
-
-namespace Sudoku.Variants;
+﻿namespace Sudoku.Variants;
 
 public class UnconstrainedPairsMultipleVariantBuilder : VariantBuilder<int>
 {

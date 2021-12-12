@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Drawing;
-using CSharpFunctionalExtensions;
-using GridPuzzles.Overlays;
-using GridPuzzles.VariantBuilderArguments;
 
 namespace Sudoku.Clues;
 

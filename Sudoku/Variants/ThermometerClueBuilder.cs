@@ -1,12 +1,5 @@
 ﻿using System;
-using System.Drawing;
-using CSharpFunctionalExtensions;
-using Generator.Equals;
-using GridPuzzles.Clues.Constraints;
 using GridPuzzles.Enums;
-using GridPuzzles.Overlays;
-using GridPuzzles.VariantBuilderArguments;
-using MoreLinq;
 using Sudoku.Clues;
 using Sudoku.Overlays;
 

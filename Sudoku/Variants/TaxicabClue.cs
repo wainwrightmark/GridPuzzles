@@ -1,6 +1,4 @@
-﻿using CSharpFunctionalExtensions;
-
-namespace Sudoku.Variants;
+﻿namespace Sudoku.Variants;
 ///// <summary>
 ///// All the numbers in this group are consecutive (in some order) and unique
 ///// </summary>

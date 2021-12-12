@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Drawing;
-using CSharpFunctionalExtensions;
 using GridPuzzles.Enums;
-using GridPuzzles.Overlays;
-using GridPuzzles.VariantBuilderArguments;
 
 namespace Sudoku.Variants;
 

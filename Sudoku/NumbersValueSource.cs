@@ -1,7 +1,4 @@
-﻿using System.Drawing;
-using CSharpFunctionalExtensions;
-
-namespace Sudoku;
+﻿namespace Sudoku;
 
 public class NumbersValueSource : IValueSource<int>
 {

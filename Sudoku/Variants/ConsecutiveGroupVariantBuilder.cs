@@ -1,11 +1,4 @@
-﻿using System.Drawing;
-using CSharpFunctionalExtensions;
-using Generator.Equals;
-using GridPuzzles.Clues.Constraints;
-using GridPuzzles.Overlays;
-using GridPuzzles.VariantBuilderArguments;
-
-namespace Sudoku.Variants;
+﻿namespace Sudoku.Variants;
 
 public partial class ConsecutiveGroupVariantBuilder : VariantBuilder<int>
 {

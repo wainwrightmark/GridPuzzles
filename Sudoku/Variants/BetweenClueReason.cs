@@ -1,6 +1,4 @@
-﻿using CSharpFunctionalExtensions;
-
-namespace Sudoku.Variants;
+﻿namespace Sudoku.Variants;
 
 public sealed record BetweenClueReason(BetweenClue BetweenClue) : ISingleReason
 {

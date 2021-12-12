@@ -1,6 +1,4 @@
-﻿using CSharpFunctionalExtensions;
-
-namespace Sudoku.Clues;
+﻿namespace Sudoku.Clues;
 
 public class RestrictedValuesClue<T> : IRuleClue<T>  where T :notnull
 {

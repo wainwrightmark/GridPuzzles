@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Text;
-using CSharpFunctionalExtensions;
 using GridPuzzles.Enums;
-using GridPuzzles.Overlays;
 using SVGElements;
 
 namespace Sudoku.Overlays;

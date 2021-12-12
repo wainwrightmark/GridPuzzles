@@ -1,8 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using CSharpFunctionalExtensions;
 using GridPuzzles.Session;
-using GridPuzzles.VariantBuilderArguments;
 
 namespace Sudoku;
 

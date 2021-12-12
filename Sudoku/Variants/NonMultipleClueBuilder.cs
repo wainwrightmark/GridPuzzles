@@ -1,6 +1,4 @@
-﻿using GridPuzzles.Clues.Constraints;
-
-namespace Sudoku.Variants;
+﻿namespace Sudoku.Variants;
 
 public class NonMultipleClueBuilder : NoArgumentVariantBuilder<int>
 {

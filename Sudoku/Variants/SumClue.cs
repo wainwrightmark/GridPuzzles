@@ -1,6 +1,4 @@
 ﻿using System;
-using CSharpFunctionalExtensions;
-using GridPuzzles.Clues.Constraints;
 
 namespace Sudoku.Variants;
 

@@ -1,6 +1,4 @@
-﻿using GridPuzzles.VariantBuilderArguments;
-
-namespace Sudoku.Variants;
+﻿namespace Sudoku.Variants;
 
 public class KnightVariantBuilder <T> : MutexVariantBuilder<T>where T : notnull
 {

@@ -1,7 +1,4 @@
-﻿using System.Drawing;
-using GridPuzzles.Overlays;
-using MoreLinq;
-using SVGElements;
+﻿using SVGElements;
 
 
 namespace Sudoku.Overlays;

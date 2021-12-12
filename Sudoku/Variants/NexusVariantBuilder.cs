@@ -1,11 +1,4 @@
-﻿using System.Drawing;
-using CSharpFunctionalExtensions;
-using Generator.Equals;
-using GridPuzzles.Overlays;
-using GridPuzzles.VariantBuilderArguments;
-using MoreLinq;
-
-namespace Sudoku.Variants;
+﻿namespace Sudoku.Variants;
 
 public partial class NexusVariantBuilder : VariantBuilder<int>
 {
