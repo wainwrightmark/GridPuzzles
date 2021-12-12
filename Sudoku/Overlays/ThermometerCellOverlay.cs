@@ -14,7 +14,7 @@ public record ThermometerCellOverlay(IReadOnlyList<Position> Positions, Color Co
         string.Join(" ", Positions.Select(x => $"{(x.Column * scale) + scale / 2}, {(x.Row * scale) + scale / 2}"));
 
     /// <inheritdoc />
-    public IEnumerable<SVGElement> GetSVGDefinitions(double scale)
+    public IEnumerable<SVGElement> SVGDefinitions(double scale)
     {
         yield return new SVGMarker(
             "thermoCircle" +Color.ToSVGColor(),
@@ -39,7 +39,7 @@ public record ThermometerCellOverlay(IReadOnlyList<Position> Positions, Color Co
     }
 
     /// <inheritdoc />
-    public IEnumerable<SVGElement> GetSVGElements(double scale)
+    public IEnumerable<SVGElement> SVGElements(double scale, bool selected)
     {
         yield return new SVGPolyLine(
             "Thermo" + Positions.ToDelimitedString(""),

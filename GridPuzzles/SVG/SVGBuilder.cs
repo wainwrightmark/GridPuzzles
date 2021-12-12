@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Drawing;
 using System.Linq;
+using CSharpFunctionalExtensions;
+using GridPuzzles.Clues;
 using GridPuzzles.Overlays;
 using GridPuzzles.Reasons;
 using GridPuzzles.Session;
 using GridPuzzles.VariantBuilderArguments;
-using MoreLinq;
 using SVGElements;
 
 namespace GridPuzzles.SVG;
@@ -15,23 +16,32 @@ namespace GridPuzzles.SVG;
 public sealed class GridPageGridSVG : SVGBuilder
 {
     /// <inheritdoc />
-    public GridPageGridSVG(ISolveState solveState, Func<Position, IEnumerable<ISVGEventHandler>> getEventHandlers,
+    public GridPageGridSVG(ISolveState solveState, 
+        IReadOnlySet<IClueBuilder> selectedClueBuilders,
+        Func<Position, IEnumerable<ISVGEventHandler>> getEventHandlers,
         SessionSettings sessionSettings) : base(solveState, getEventHandlers)
     {
         SessionSettings = sessionSettings;
+        SelectedClueBuilders = selectedClueBuilders;
     }
 
     public SessionSettings SessionSettings { get; }
-
+    public IReadOnlySet<IClueBuilder> SelectedClueBuilders { get; }
 
     /// <inheritdoc />
-    protected override IEnumerable<ICellOverlay> ExtraOverlays
+    public override bool IsSelected(IClueBuilder clueBuilder)
+    {
+        return SelectedClueBuilders.Contains(clueBuilder);
+    }
+
+    /// <inheritdoc />
+    protected override IEnumerable<CellOverlayWrapper> ExtraOverlays
     {
         get { yield break; }
     }
 
     /// <inheritdoc />
-    protected override IReadOnlyDictionary<Position, IUpdateReason> GetPositionReasonDictionary()
+    protected override IReadOnlyDictionary<Position, IUpdateReason> CreatePositionReasonDictionary()
     {
         return SolveState.UpdateResult.GetPositionReasons();
     }
@@ -68,7 +78,7 @@ public sealed class GridPageGridSVG : SVGBuilder
     }
 
     /// <inheritdoc />
-    protected override IEnumerable<SVGGroup> GetExtraGroups()
+    protected override IEnumerable<SVGGroup> CreateExtraGroups()
     {
         var contradictions = new SVGGroup(Id: "Contradictions",
             Children:
@@ -136,7 +146,7 @@ public sealed class GridPageGridSVG : SVGBuilder
 
 
     /// <inheritdoc />
-    protected override IEnumerable<SVGText> GetTexts()
+    protected override IEnumerable<SVGText> CreateCellTexts()
     {
         foreach (var position in Grid.AllPositions)
         {
@@ -156,7 +166,7 @@ public sealed class VariantBuilderFormGridSVG : SVGBuilder
         IVariantBuilder variantBuilder,
         VariantBuilderArgument variantBuilderArgument,
         Dictionary<string, string> results)
-        : base(solveState, getEventHandlers)
+        : base(solveState,   getEventHandlers)
     {
         VariantBuilder = variantBuilder;
         VariantBuilderArgument = variantBuilderArgument;
@@ -170,7 +180,13 @@ public sealed class VariantBuilderFormGridSVG : SVGBuilder
     public Dictionary<string, string> Results { get; }
 
     /// <inheritdoc />
-    protected override IEnumerable<SVGText> GetTexts()
+    public override bool IsSelected(IClueBuilder clueBuilder)
+    {
+        return clueBuilder is InProgressClueBuilder;
+    }
+
+    /// <inheritdoc />
+    protected override IEnumerable<SVGText> CreateCellTexts()
     {
         foreach (var position in SolveState.FixedValuePositions)
         {
@@ -187,20 +203,20 @@ public sealed class VariantBuilderFormGridSVG : SVGBuilder
     }
 
     /// <inheritdoc />
-    protected override IReadOnlyDictionary<Position, IUpdateReason> GetPositionReasonDictionary()
+    protected override IReadOnlyDictionary<Position, IUpdateReason> CreatePositionReasonDictionary()
     {
         return ImmutableDictionary<Position, IUpdateReason>.Empty;
     }
 
     /// <inheritdoc />
-    protected override IEnumerable<SVGGroup> GetExtraGroups()
+    protected override IEnumerable<SVGGroup> CreateExtraGroups()
     {
         yield break;
     }
 
 
     /// <inheritdoc />
-    protected override IEnumerable<ICellOverlay> ExtraOverlays
+    protected override IEnumerable<CellOverlayWrapper> ExtraOverlays
     {
         get
         {
@@ -211,7 +227,7 @@ public sealed class VariantBuilderFormGridSVG : SVGBuilder
                 {
                     foreach (var cellOverlay in clueBuilder.GetOverlays(Position.Origin, Grid.MaxPosition))
                     {
-                        yield return cellOverlay;
+                        yield return new CellOverlayWrapper(cellOverlay, Maybe<IClueBuilder>.From(InProgressClueBuilder.Instance));
                     }
                 }
             }
@@ -222,36 +238,58 @@ public sealed class VariantBuilderFormGridSVG : SVGBuilder
                              .Where(x => x.IsSuccess)
                              .Select(x => x.Value))
                 {
-                    yield return new TextCellOverlay(kvp, 1, 1, "✓", Color.Black, Color.Transparent);
+                    yield return new CellOverlayWrapper(new TextCellOverlay(kvp, 1, 1, "✓", Color.Black, Color.Transparent), Maybe<IClueBuilder>.None);
                 }
             }
+        }
+    }
+
+    private class InProgressClueBuilder : IClueBuilder
+    {
+        private InProgressClueBuilder() {}
+
+        public static IClueBuilder Instance { get; } = new InProgressClueBuilder();
+
+        /// <inheritdoc />
+        public string Name => "In Progress";
+
+        /// <inheritdoc />
+        public int Level => 100;
+
+        /// <inheritdoc />
+        public IEnumerable<ICellOverlay> GetOverlays(Position minPosition, Position maxPosition)
+        {
+            yield break;
         }
     }
 }
 
 public abstract class SVGBuilder
 {
-    protected SVGBuilder(ISolveState solveState, Func<Position, IEnumerable<ISVGEventHandler>> getEventHandlers)
+    protected SVGBuilder(ISolveState solveState,
+
+        Func<Position, IEnumerable<ISVGEventHandler>> getEventHandlers)
     {
         SolveState = solveState;
-        GetEventHandlers = getEventHandlers;
+        EventHandlers = getEventHandlers;
     }
 
     public ISolveState SolveState { get; }
-    public Func<Position, IEnumerable<ISVGEventHandler>> GetEventHandlers { get; }
+    public abstract bool IsSelected(IClueBuilder clueBuilder);
+    public Func<Position, IEnumerable<ISVGEventHandler>> EventHandlers { get; }
 
     public IGrid Grid => SolveState.Grid;
 
-    protected abstract IEnumerable<SVGText> GetTexts();
+    protected abstract IEnumerable<SVGText> CreateCellTexts();
 
-    protected abstract IEnumerable<SVGGroup> GetExtraGroups();
+    protected abstract IEnumerable<SVGGroup> CreateExtraGroups();
 
 
     protected abstract IEnumerable<SVGElement> Definitions { get; }
 
-    protected abstract IEnumerable<ICellOverlay> ExtraOverlays { get; }
+    protected abstract IEnumerable<CellOverlayWrapper> ExtraOverlays { get; }
 
-    protected abstract IReadOnlyDictionary<Position, IUpdateReason> GetPositionReasonDictionary();
+    protected abstract IReadOnlyDictionary<Position, IUpdateReason> CreatePositionReasonDictionary();
 
     private static SVGLinearGradient CreateLinearGradient(string name, IGrouping<Position, CellColorOverlay> group)
     {
@@ -267,7 +305,7 @@ public abstract class SVGBuilder
         return gradient;
     }
 
-    private static SVGText GetOuterIndicator((Position position, string text) arg)
+    private static SVGText CreateOuterIndicator((Position position, string text) arg)
     {
         var (position, text) = arg;
         return new SVGText(
@@ -286,8 +324,8 @@ public abstract class SVGBuilder
     private SVGRectangle CreateRectangle(Position position, IReadOnlyDictionary<Position, string> fillsDict,
         IReadOnlyDictionary<Position, IUpdateReason> textDictionary)
     {
-        string fill = fillsDict.TryGetValue(position, out var v) ? v : "white";
-        var eventHandlers = GetEventHandlers(position).ToImmutableList();
+        var fill = fillsDict.TryGetValue(position, out var v) ? v : "white";
+        var eventHandlers = EventHandlers(position).ToImmutableList();
 
 
         IReadOnlyList<SVGElement>? children = null;
@@ -325,8 +363,9 @@ public abstract class SVGBuilder
             .Concat(ExtraOverlays).ToList();
 
         var definitions = allOverlays
+            .Select(x=>x.CellOverlay)
             .OfType<ICellSVGElementOverlay>()
-            .SelectMany(x => x.GetSVGDefinitions(CellStyleHelpers.CellSize))
+            .SelectMany(x => x.SVGDefinitions(CellStyleHelpers.CellSize))
             .Concat(Definitions)
             .DistinctBy(x => x.Id)
             .ToList();
@@ -335,6 +374,7 @@ public abstract class SVGBuilder
         HashSet<string> addedGradients = new();
 
         foreach (var group in allOverlays
+                     .Select(x=>x.CellOverlay)
                      .OfType<CellColorOverlay>()
                      .GroupBy(x => x.Position))
         {
@@ -357,9 +397,9 @@ public abstract class SVGBuilder
         children.Add(new SVGDefinitions("definitions", definitions));
 
         var outerIndicatorGroup = new SVGGroup("OuterIndicators",
-            Grid.GetOuterIndicators().Select(GetOuterIndicator).ToList());
+            Grid.GetOuterIndicators().Select(CreateOuterIndicator).ToList());
 
-        var reasonDictionary = GetPositionReasonDictionary();
+        var reasonDictionary = CreatePositionReasonDictionary();
 
         children.Add(outerIndicatorGroup);
 
@@ -371,12 +411,15 @@ public abstract class SVGBuilder
 
         var overlayGroups = new List<SVGElement>();
         foreach (var overlayGroup in allOverlays
-                     .OfType<ICellSVGElementOverlay>()
-                     .GroupBy(x => x.ZIndex).OrderBy(x => x.Key))
+                     .Select(x=> AsSVGOverlay(x, IsSelected))
+                     .SelectMany(x=>x.ToList())
+                     .GroupBy(x => x.overlay.ZIndex).OrderBy(x => x.Key))
         {
+            
             var group = new SVGGroup(
                 Id: $"OverlayLevel{overlayGroup.Key}",
-                overlayGroup.SelectMany(overlay => overlay.GetSVGElements(CellStyleHelpers.CellSize)).ToList()
+                overlayGroup.SelectMany(x => x.overlay.SVGElements(CellStyleHelpers.CellSize,
+                    x.selected)).ToList()
             );
             overlayGroups.Add(group);
         }
@@ -384,10 +427,10 @@ public abstract class SVGBuilder
 
         children.Add(new SVGGroup(Id: "Overlays", Children: overlayGroups));
 
-        children.AddRange(GetExtraGroups());
+        children.AddRange(CreateExtraGroups());
 
 
-        children.Add(new SVGGroup(Id: "CellViews", Children: GetTexts().ToList()));
+        children.Add(new SVGGroup(Id: "CellViews", Children: CreateCellTexts().ToList()));
 
         var svg = new SVGElements.SVG("GridSVG",
             children.ToImmutable(),
@@ -396,5 +439,17 @@ public abstract class SVGBuilder
         );
 
         return svg;
+
+        static Maybe<(ICellSVGElementOverlay overlay, bool selected)> AsSVGOverlay(CellOverlayWrapper wrapper,
+            Func<IClueBuilder, bool> isSelected) 
+        {
+            if (wrapper.CellOverlay is ICellSVGElementOverlay svgElementOverlay)
+            {
+                var selected = wrapper.ClueBuilder.HasValue && isSelected(wrapper.ClueBuilder.Value);
+                return (svgElementOverlay, selected);
+            }
+
+            return Maybe<(ICellSVGElementOverlay overlay, bool selected)>.None;
+        }
     }
 }

@@ -8,13 +8,13 @@ public record RectangleCellOverlay
     (Position TopLeftPosition, int Width, int Height, Color Color, int Thickness) : ICellSVGElementOverlay
 {
     /// <inheritdoc />
-    public IEnumerable<SVGElement> GetSVGDefinitions(double scale)
+    public IEnumerable<SVGElement> SVGDefinitions(double scale)
     {
         yield break;
     }
 
     /// <inheritdoc />
-    public IEnumerable<SVGElement> GetSVGElements(double scale)
+    public IEnumerable<SVGElement> SVGElements(double scale, bool selected)
     {
         yield return new SVGRectangle(
             TopLeftPosition + Color.ToSVGColor() + "Rectangle" + Width + "-" + Height,

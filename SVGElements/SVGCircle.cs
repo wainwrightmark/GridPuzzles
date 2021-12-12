@@ -9,6 +9,7 @@ public sealed partial record SVGCircle(
     [property: SVGProperty("cy")] double? CentreY = null,
     [property: SVGProperty("fill")] string? Fill = null,
     [property: SVGProperty("transform")] string? Transform = null,
+    IReadOnlyList<SVGElement>? Children = null,
     IReadOnlyList<ISVGEventHandler>? EventHandlers = null,
         
     int? TabIndex = null,
@@ -23,7 +24,7 @@ public sealed partial record SVGCircle(
     "circle",
     Id,
     null,
-    null,
+    Children,
     EventHandlers,
     TabIndex,
     Class,

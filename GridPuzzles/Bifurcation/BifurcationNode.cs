@@ -144,7 +144,7 @@ public class BifurcationNode<T> where T : notnull
 
             var bifurcationOptions =
                 cellBifurcationOptions.Concat(
-                    Grid.ClueSource.BifurcationClueHelper.GetBifurcationOptions(Grid,
+                    Grid.ClueSource.BifurcationClueHelper.CalculateBifurcationOptions(Grid,
                         positions,
                         maxChoices));
 

@@ -5,8 +5,8 @@ namespace GridPuzzles.Overlays;
 
 public interface ICellSVGElementOverlay : ICellOverlay
 {
-    IEnumerable<SVGElement> GetSVGDefinitions(double scale);
-    IEnumerable<SVGElement> GetSVGElements(double scale);
+    IEnumerable<SVGElement> SVGDefinitions(double scale);
+    IEnumerable<SVGElement> SVGElements(double scale, bool selected);
 
     public int ZIndex { get; }
 }

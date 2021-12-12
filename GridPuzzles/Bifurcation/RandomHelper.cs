@@ -24,7 +24,7 @@ public static class RandomSolver
         {
             const int max = 10000;
             var bifurcationOptions =
-                grid.ClueSource.BifurcationClueHelper.GetBifurcationOptions(grid, grid.AllPositions, max).ToList();
+                grid.ClueSource.BifurcationClueHelper.CalculateBifurcationOptions(grid, grid.AllPositions, max).ToList();
 
             foreach (var (position, cell) in grid.Cells)
                 bifurcationOptions.AddRange(cell.GetBifurcationOptions(position, 10000));

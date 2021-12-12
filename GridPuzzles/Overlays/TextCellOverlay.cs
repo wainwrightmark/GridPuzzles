@@ -14,13 +14,13 @@ public record TextCellOverlay(Position TopLeftPosition,
     : ICellSVGElementOverlay
 {
     /// <inheritdoc />
-    public IEnumerable<SVGElement> GetSVGDefinitions(double scale)
+    public IEnumerable<SVGElement> SVGDefinitions(double scale)
     {
         yield break;
     }
 
     /// <inheritdoc />
-    public IEnumerable<SVGElement> GetSVGElements(double scale)
+    public IEnumerable<SVGElement> SVGElements(double scale, bool selected)
     {
         yield return new SVGText(
             TopLeftPosition + "Text" + Width + "-" + Height + Text.GetHashCode(),

@@ -14,13 +14,13 @@ public record ShapeCellOverlay(IReadOnlyList<IReadOnlyList<ValueTuple<Position, 
     string? Text) : ICellSVGElementOverlay
 {
     /// <inheritdoc />
-    public IEnumerable<SVGElement> GetSVGDefinitions(double scale)
+    public IEnumerable<SVGElement> SVGDefinitions(double scale)
     {
         yield break;
     }
 
     /// <inheritdoc />
-    public IEnumerable<SVGElement> GetSVGElements(double scale)
+    public IEnumerable<SVGElement> SVGElements(double scale, bool selected)
     {
         if (Text is not null)
         {

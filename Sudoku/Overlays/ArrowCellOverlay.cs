@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using GridPuzzles;
@@ -59,7 +60,7 @@ public record ArrowCellOverlay(IReadOnlyList<Position> Positions, Color Color) :
     }
 
     /// <inheritdoc />
-    public IEnumerable<SVGElement> GetSVGDefinitions(double scale)
+    public IEnumerable<SVGElement> SVGDefinitions(double scale)
     {
         yield return new SVGMarker(
             "arrowHead" + Color.ToSVGColor(),
@@ -78,9 +79,16 @@ public record ArrowCellOverlay(IReadOnlyList<Position> Positions, Color Color) :
         );
     }
 
-    /// <inheritdoc />
-    public IEnumerable<SVGElement> GetSVGElements(double scale)
+    private static readonly IReadOnlyList<SVGElement> SelectedAnimations = new List<SVGElement>()
     {
+        new SVGAnimate("SelectedAnimation", RepeatCount:"indefinite", Values:"2;3;2", Dur:2,AttributeName: "stroke-width")
+    };
+
+    /// <inheritdoc />
+    public IEnumerable<SVGElement> SVGElements(double scale, bool selected)
+    {
+        var animations = selected ? SelectedAnimations : null;
+
         yield return
             new SVGCircle(
                 "circle",
@@ -88,7 +96,8 @@ public record ArrowCellOverlay(IReadOnlyList<Position> Positions, Color Color) :
                 CentreX: Positions.First().GetX(true, scale),
                 CentreY: Positions.First().GetY(true, scale),
                 Stroke: Color.ToSVGColor(),
-                Fill: "none"
+                Fill: "none",
+                Children: animations
             );
 
         yield return new SVGPolyLine(
@@ -97,10 +106,10 @@ public record ArrowCellOverlay(IReadOnlyList<Position> Positions, Color Color) :
             Fill: "none",
             Stroke: Color.ToSVGColor(),
             StrokeWidth: 2,
-            //MarkerStart: $"url(#cellCircle{Color.ToSVGColor()})",
             MarkerEnd: $"url(#arrowHead{Color.ToSVGColor()})",
             PointerEvents: PointerEvents.none,
-            StrokeLinecap: StrokeLinecap.round
+            StrokeLinecap: StrokeLinecap.round,
+            Children:animations
         );
     }
 

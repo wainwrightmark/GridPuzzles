@@ -27,9 +27,9 @@ public class Grid<T> : IGrid where T :notnull
             ));
         MaxPosition = allPositions.Last();
 
-        LazyOverlays = new Lazy<IReadOnlyList<ICellOverlay>>(() =>
+        LazyOverlays = new Lazy<IReadOnlyList<CellOverlayWrapper>>(() =>
             ClueSource.FixedOverlays
-                .Concat(ClueSource.DynamicOverlayClueHelper.GetCellOverlays(this))
+                .Concat(ClueSource.DynamicOverlayClueHelper.CreateCellOverlays(this))
                     
                 .ToList());
     }
@@ -41,13 +41,13 @@ public class Grid<T> : IGrid where T :notnull
     public Position MaxPosition { get; }
     public Lazy<int> NumberOfFixedCells { get; }
     public Lazy<string> UniqueString { get; }
-    private Lazy<IReadOnlyList<ICellOverlay>> LazyOverlays { get; }
+    private Lazy<IReadOnlyList<CellOverlayWrapper>> LazyOverlays { get; }
 
     public bool IsComplete => NumberOfFixedCells.Value >= AllPositions.Length;
 
     /// <inheritdoc />
     [Pure]
-    public IEnumerable<ICellOverlay> GetOverlays() => LazyOverlays.Value;
+    public IEnumerable<CellOverlayWrapper> GetOverlays() => LazyOverlays.Value;
     /// <summary>
     /// Creates a new grid with these cells. Other positions will have empty cells.
     /// </summary>
@@ -274,10 +274,12 @@ public class Grid<T> : IGrid where T :notnull
 }
 
 
+public record CellOverlayWrapper(ICellOverlay CellOverlay, Maybe<IClueBuilder> ClueBuilder);
+
 public interface IGrid
 {
     [Pure]
-    IEnumerable<ICellOverlay> GetOverlays();
+    IEnumerable<CellOverlayWrapper> GetOverlays();
         
 
     [Pure]

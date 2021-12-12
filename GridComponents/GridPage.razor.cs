@@ -60,6 +60,17 @@ public partial class GridPage<T> where T : notnull
 
     [Parameter] public Func<Grid<T>, string>? GetExtraFunc { get; set; }
 
+    private MudChip[] _selectedVariantBuilderChips = Array.Empty<MudChip>();
+
+    private IReadOnlySet<IClueBuilder> SelectedClueBuilders =>
+        _selectedVariantBuilderChips.Select(x => x.Value)
+            .Cast<VariantBuilderArgumentPair<T>>()
+            .SelectMany(x =>
+                x.VariantBuilder.TryGetClueBuilders(x.Pairs).OnFailureCompensate(_ => new List<IClueBuilder>()).Value)
+            .ToHashSet();
+        
+
+
     public async Task ChangeSize()
     {
         if (Columns == SelectedColumns && Rows == SelectedRows)
@@ -111,7 +122,12 @@ public partial class GridPage<T> where T : notnull
 
 
     public SVGBuilder GetSVGBuilder() =>
-        new GridPageGridSVG(MyGridSession.ChosenState, p => new[]
+        new GridPageGridSVG(MyGridSession.ChosenState,
+            SelectedClueBuilders,
+            
+            
+            
+            p => new[]
         {
             SVGHelper.SVGEventHandler.OnKeyPressAsync(kea => KeyWasPressed(kea, p))
         }, MyGridSession.SessionSettings);

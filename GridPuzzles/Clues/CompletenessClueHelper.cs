@@ -61,7 +61,7 @@ public sealed class CompletenessClueHelper<T> : ClueHelper<ICompletenessClue<T>,
 
     public ILookup<Position, ICompletenessClue<T>> CluesByPosition { get; }
         
-    public IEnumerable<ICellChangeResult> GetUpdates(Grid<T> grid,
+    public IEnumerable<ICellChangeResult> CalculateUpdates(Grid<T> grid,
         Maybe<IReadOnlyCollection<Position>> positionsToLookAt)
     {
         var clues =

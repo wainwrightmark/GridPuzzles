@@ -7,14 +7,16 @@ using System.Linq;
 using CSharpFunctionalExtensions;
 using GridPuzzles.Bifurcation;
 using GridPuzzles.Cells;
-using GridPuzzles.Overlays;
 
 namespace GridPuzzles.Clues;
 
 public interface IClueUpdateHelper<T> where T : notnull
 {
+    /// <summary>
+    /// Calculate Updates related to this clue
+    /// </summary>
     [Pure]
-    IEnumerable<ICellChangeResult> GetUpdates(Grid<T> grid, Maybe<IReadOnlyCollection<Position>> positionsToLookAt);
+    IEnumerable<ICellChangeResult> CalculateUpdates(Grid<T> grid, Maybe<IReadOnlyCollection<Position>> positionsToLookAt);
 }
 
 public abstract class ClueHelper<TClue,T> where TClue : IClue<T>where T: notnull
@@ -39,8 +41,11 @@ public sealed class BifurcationClueHelper<T> : ClueHelper<IBifurcationClue<T>, T
         
     public ILookup<Position, IBifurcationClue<T>> Lookup;
         
+    /// <summary>
+    /// Find Bifurcation Options relating to this clue
+    /// </summary>
     [Pure]
-    public IEnumerable<IBifurcationOption<T>> GetBifurcationOptions(Grid<T> grid, 
+    public IEnumerable<IBifurcationOption<T>> CalculateBifurcationOptions(Grid<T> grid, 
         Maybe<IEnumerable<Position>>
             positionsToLookAt,
             
@@ -61,10 +66,14 @@ public sealed class DynamicOverlayClueHelper<T> : ClueHelper<IDynamicOverlayClue
 {
     public DynamicOverlayClueHelper(IEnumerable<IClue<T>> allClues) : base(allClues) { }
 
+    /// <summary>
+    /// Create the Cell Overlays relating to this clue
+    /// </summary>
     [Pure]
-    public IEnumerable<ICellOverlay> GetCellOverlays(Grid<T> grid)
+    public IEnumerable<CellOverlayWrapper> CreateCellOverlays(Grid<T> grid)
     {
-        return Clues.SelectMany(x => x.GetCellOverlays(grid));
+        return Clues.SelectMany(x => x.GetCellOverlays(grid))
+            .Select(x=> new CellOverlayWrapper(x, Maybe<IClueBuilder>.None));
     }
 }
 
@@ -82,7 +91,7 @@ public sealed class RuleClueHelper<T> : ClueHelper<IRuleClue<T>, T>, IClueUpdate
     public ILookup<Position, IRuleClue<T>> Lookup;
 
     /// <inheritdoc />
-    public IEnumerable<ICellChangeResult> GetUpdates(Grid<T> grid,
+    public IEnumerable<ICellChangeResult> CalculateUpdates(Grid<T> grid,
         Maybe<IReadOnlyCollection<Position>> positionsToLookAt)
     {
         var clues =
@@ -110,7 +119,7 @@ public sealed class RelationshipClueHelper<T> : ClueHelper<IRelationshipClue<T>,
     public ILookup<Position, IRelationshipClue<T>> Lookup { get; }
 
     /// <inheritdoc />
-    public IEnumerable<ICellChangeResult> GetUpdates(Grid<T> grid,
+    public IEnumerable<ICellChangeResult> CalculateUpdates(Grid<T> grid,
         Maybe<IReadOnlyCollection<Position>> positionsToLookAt)
     {
         if (Lookup.Any())

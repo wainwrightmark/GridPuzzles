@@ -13,6 +13,7 @@ public sealed partial record SVGPolyLine(
     string? MarkerStart = null,
     [property: SVGProperty("marker-mid")] string? MarkerMid = null,
     [property: SVGProperty("marker-end")] string? MarkerEnd = null,
+    IReadOnlyList<SVGElement>? Children = null,
     IReadOnlyList<ISVGEventHandler>? EventHandlers = null,
     int? TabIndex = null,
     string? Class = null,
@@ -22,6 +23,6 @@ public sealed partial record SVGPolyLine(
     double? StrokeWidth = null,
     StrokeLinecap? StrokeLinecap = null,
     string? StrokeDashArray = null) : SVGStrokeElement("polyline",
-    Id, null, null, EventHandlers, TabIndex, Class, Style, PointerEvents,
+    Id, null, Children, EventHandlers, TabIndex, Class, Style, PointerEvents,
     Stroke, StrokeWidth, StrokeLinecap, StrokeDashArray
 );

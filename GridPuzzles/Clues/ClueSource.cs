@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using GridPuzzles.Overlays;
 using GridPuzzles.VariantBuilderArguments;
 
 namespace GridPuzzles.Clues;
@@ -61,7 +60,10 @@ public sealed class ClueSource<T> where T : notnull
 
         BifurcationClueHelper = new BifurcationClueHelper<T>(clues);
         DynamicOverlayClueHelper = new DynamicOverlayClueHelper<T>(clues);
-        FixedOverlays = ClueBuilders.SelectMany(x => x.GetOverlays(minPosition, maxPosition)).ToList();
+        FixedOverlays = ClueBuilders.SelectMany(x => 
+            x.GetOverlays(minPosition, maxPosition)
+            .Select(overlay=> new CellOverlayWrapper(overlay, Maybe<IClueBuilder>.From(x))) )
+            .ToList();
     }
 
     public IReadOnlyCollection<IClue<T>> Clues { get; }
@@ -82,7 +84,7 @@ public sealed class ClueSource<T> where T : notnull
 
     //private ILookup<Parallel, ParallelClue<T>> ParallelClueLookup { get; }
 
-    public IReadOnlyList<ICellOverlay> FixedOverlays { get; }
+    public IReadOnlyList<CellOverlayWrapper> FixedOverlays { get; }
 
     //TODO add more to these methods when we have option clues!
 

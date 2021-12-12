@@ -1,9 +1,13 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <nullable>enable</nullable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Generator.Equals" Version="2.2.3" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\GridPuzzles\GridPuzzles.csproj" />

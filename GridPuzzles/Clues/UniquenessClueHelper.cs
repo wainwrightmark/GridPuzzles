@@ -111,7 +111,7 @@ public sealed class UniquenessClueHelper<T> : ClueHelper<IUniquenessClue<T>, T>,
         }
     }
 
-    public IEnumerable<ICellChangeResult> GetUpdates(Grid<T> grid, Maybe<IReadOnlyCollection<Position>> positions)
+    public IEnumerable<ICellChangeResult> CalculateUpdates(Grid<T> grid, Maybe<IReadOnlyCollection<Position>> positions)
     {
         var clues =
             positions.HasValue ? positions.Value.SelectMany(p => Lookup[p]).Distinct() : Clues;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Drawing;
 using System.Linq;
+using CSharpFunctionalExtensions;
 using GridPuzzles.Cells;
 using GridPuzzles.Clues.Constraints;
 using GridPuzzles.Overlays;

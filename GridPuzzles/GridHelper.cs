@@ -44,7 +44,7 @@ public static class GridHelper
             var positionsToCheck = remainingPositions.Any()
                 ? remainingPositions
                 : Maybe<IReadOnlyCollection<Position>>.None;
-            var newUpdate = combiner.Combine(clueHelper.GetUpdates(gridSoFar, positionsToCheck));
+            var newUpdate = combiner.Combine(clueHelper.CalculateUpdates(gridSoFar, positionsToCheck));
 
             updateSoFar = updateSoFar.Combine(newUpdate, out var hasChanges);
             remainingPositions.Clear();
@@ -73,10 +73,10 @@ public static class GridHelper
     {
             
         var changes =
-                grid.ClueSource.UniquenessClueHelper.GetUpdates(grid, positions).Concat(
-                    grid.ClueSource.CompletenessClueHelper.GetUpdates(grid, positions)).Concat(
-                    grid.ClueSource.RelationshipClueHelper.GetUpdates(grid, positions)).Concat(
-                    grid.ClueSource.RuleClueHelper.GetUpdates(grid, positions))
+                grid.ClueSource.UniquenessClueHelper.CalculateUpdates(grid, positions).Concat(
+                    grid.ClueSource.CompletenessClueHelper.CalculateUpdates(grid, positions)).Concat(
+                    grid.ClueSource.RelationshipClueHelper.CalculateUpdates(grid, positions)).Concat(
+                    grid.ClueSource.RuleClueHelper.CalculateUpdates(grid, positions))
             ;
 
         return combiner.Combine(changes);

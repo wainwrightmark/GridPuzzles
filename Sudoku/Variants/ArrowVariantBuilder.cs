@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using System.Drawing;
 using System.Linq;
 using CSharpFunctionalExtensions;
+using Generator.Equals;
 using GridPuzzles;
 using GridPuzzles.Clues;
 using GridPuzzles.Clues.Constraints;
@@ -12,7 +13,7 @@ using Sudoku.Overlays;
 
 namespace Sudoku.Variants;
 
-public class ArrowVariantBuilder : VariantBuilder<int>
+public partial class ArrowVariantBuilder : VariantBuilder<int>
 {
     private ArrowVariantBuilder() { }
 
@@ -34,8 +35,8 @@ public class ArrowVariantBuilder : VariantBuilder<int>
         if (positionArgumentsResult.IsFailure)
             return positionArgumentsResult.ConvertFailure<IReadOnlyCollection<IClueBuilder<int>>>();
 
-        var heads = positionArgumentsResult.Value.Take(headSizeArgumentResult.Value).ToList();
-        var tails = positionArgumentsResult.Value.Skip(headSizeArgumentResult.Value).ToList();
+        var heads = positionArgumentsResult.Value.Take(headSizeArgumentResult.Value).ToImmutableList();
+        var tails = positionArgumentsResult.Value.Skip(headSizeArgumentResult.Value).ToImmutableList();
 
         if(heads.Count < 1)
             return Result.Failure<IReadOnlyCollection<IClueBuilder<int>>>("Must be at least one head cell");
@@ -66,23 +67,15 @@ public class ArrowVariantBuilder : VariantBuilder<int>
         PositionArguments,
     };
 
-    private class ArrowClueBuilder : IClueBuilder<int>
+    [Equatable]
+    private partial record ArrowClueBuilder([property:OrderedEquality] ImmutableList<Position> HeadPositions,[property:OrderedEquality] ImmutableList<Position> TailPositions) : IClueBuilder<int>
     {
-        public ArrowClueBuilder(IEnumerable<Position> headPositions, IEnumerable<Position> tailPositions)
-        {
-            HeadPositions = headPositions.Distinct().ToImmutableList();
-            TailPositions = tailPositions.Distinct().ToImmutableList();
-        }
 
         /// <inheritdoc />
         public string Name => "Sum along arrow";
 
         /// <inheritdoc />
         public int Level => 2;
-
-
-        public ImmutableList<Position> HeadPositions { get; }
-        public ImmutableList<Position> TailPositions { get; }
 
         /// <inheritdoc />
         public IEnumerable<IClue<int>> CreateClues(Position minPosition, Position maxPosition, IValueSource<int> valueSource,

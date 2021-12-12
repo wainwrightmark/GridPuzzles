@@ -7,13 +7,13 @@ namespace GridPuzzles.Overlays;
 public record InsideRectCellOverlay(Position Position, Color Color) : ICellSVGElementOverlay
 {
     /// <inheritdoc />
-    public IEnumerable<SVGElement> GetSVGDefinitions(double scale)
+    public IEnumerable<SVGElement> SVGDefinitions(double scale)
     {
         yield break;
     }
 
     /// <inheritdoc />
-    public IEnumerable<SVGElement> GetSVGElements(double scale)
+    public IEnumerable<SVGElement> SVGElements(double scale, bool selected)
     {
         yield return new SVGRectangle(
             Position + Color.ToSVGColor() + "Rect",
