@@ -11,7 +11,7 @@ public sealed partial record SVGPath(
     [property:SVGProperty("marker-start")] string? MarkerStart = null,
     [property:SVGProperty("marker-mid")] string? MarkerMid = null,
     [property:SVGProperty("marker-end")] string? MarkerEnd = null,
-
+    IReadOnlyList<SVGElement>? Children = null,
     IReadOnlyList<ISVGEventHandler>? EventHandlers = null,
         
     int? TabIndex = null,
@@ -24,7 +24,7 @@ public sealed partial record SVGPath(
     string? StrokeDashArray = null) : SVGStrokeElement("path",
     Id,
     null,
-    null,
+    Children,
     EventHandlers,
         
     TabIndex,

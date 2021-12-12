@@ -37,7 +37,8 @@ public record ShapeCellOverlay(IReadOnlyList<IReadOnlyList<ValueTuple<Position, 
             PointerEvents: PointerEvents.none,
             Stroke: "black",
             StrokeWidth: 1,
-            StrokeDashArray: "8 4");
+            StrokeDashArray: "8 4",
+            Children:selected? Animations.IsSelectedOpacity : null);
     }
 
     static string DrawFullPath(IReadOnlyList<IReadOnlyList<ValueTuple<Position, Corner>>> positions, double scale)

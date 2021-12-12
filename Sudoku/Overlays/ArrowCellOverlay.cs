@@ -3,9 +3,12 @@
 
 namespace Sudoku.Overlays;
 
+/// <summary>
+/// Used for Arrow clues
+/// </summary>
 public record ArrowCellOverlay(IReadOnlyList<Position> Positions, Color Color) : ICellSVGElementOverlay
 {
-    public string GetPointsString(double scale)
+    public string CreatePointsString(double scale)
     {
         return string.Join(" ", GetPoints());
 
@@ -72,15 +75,12 @@ public record ArrowCellOverlay(IReadOnlyList<Position> Positions, Color Color) :
         );
     }
 
-    private static readonly IReadOnlyList<SVGElement> SelectedAnimations = new List<SVGElement>()
-    {
-        new SVGAnimate("SelectedAnimation", RepeatCount:"indefinite", Values:"2;3;2", Dur:2,AttributeName: "stroke-width")
-    };
+    
 
     /// <inheritdoc />
     public IEnumerable<SVGElement> SVGElements(double scale, bool selected)
     {
-        var animations = selected ? SelectedAnimations : null;
+        var animations = selected ? Animations.IsSelectedStrokeOpacity  : null;
 
         yield return
             new SVGCircle(
@@ -95,7 +95,7 @@ public record ArrowCellOverlay(IReadOnlyList<Position> Positions, Color Color) :
 
         yield return new SVGPolyLine(
             "Arrow" + Positions.ToDelimitedString(""),
-            GetPointsString(scale),
+            CreatePointsString(scale),
             Fill: "none",
             Stroke: Color.ToSVGColor(),
             StrokeWidth: 2,

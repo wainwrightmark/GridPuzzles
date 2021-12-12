@@ -25,6 +25,7 @@ public record RectangleCellOverlay
             PointerEvents: PointerEvents.none,
             Stroke: Color.ToSVGColor(),
             StrokeWidth: Thickness,
+            Children:selected? Animations.IsSelectedOpacity : null,
             Fill: "transparent"
         );
     }

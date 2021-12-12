@@ -21,6 +21,7 @@ public record InsideRectCellOverlay(Position Position, Color Color) : ICellSVGEl
             1,1,
             scale * 4/5, scale * 4/5, 
             Color.ToSVGColor(), 
+            Children:selected? Animations.IsSelectedOpacity : null,
             Stroke:"none",
             PointerEvents:PointerEvents.none);
     }

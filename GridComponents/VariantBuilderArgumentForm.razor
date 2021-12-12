@@ -181,7 +181,7 @@
         }
     }
 
-    string? ReadValue(string name) => Results[name];
+    string? ReadValue(string name) => Results.TryGetValue(name, out var v) ? v : null;
 
     void SetValue(string argName, string? argValue)
     {

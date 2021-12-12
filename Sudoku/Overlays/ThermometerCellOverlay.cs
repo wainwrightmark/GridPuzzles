@@ -4,7 +4,7 @@ namespace Sudoku.Overlays;
 
 public record ThermometerCellOverlay(IReadOnlyList<Position> Positions, Color Color) : ICellSVGElementOverlay
 {
-    public string GetPointsString(double scale) =>
+    public string CreatePointsString(double scale) =>
         string.Join(" ", Positions.Select(x => $"{(x.Column * scale) + scale / 2}, {(x.Row * scale) + scale / 2}"));
 
     /// <inheritdoc />
@@ -38,13 +38,14 @@ public record ThermometerCellOverlay(IReadOnlyList<Position> Positions, Color Co
         yield return new SVGPolyLine(
             "Thermo" + Positions.ToDelimitedString(""),
 
-            GetPointsString(scale),
+            CreatePointsString(scale),
             Fill: "none",
             Stroke:Color.ToSVGColor(),
             StrokeWidth:10,
             MarkerStart: $"url(#thermoCircle{Color.ToSVGColor()})",
             PointerEvents: PointerEvents.none,
-            StrokeLinecap: StrokeLinecap.round
+            StrokeLinecap: StrokeLinecap.round,
+            Children:selected? Animations.IsSelectedOpacity : null
         );
     }
 

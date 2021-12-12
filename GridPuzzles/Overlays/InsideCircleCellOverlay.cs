@@ -3,6 +3,7 @@ using SVGElements;
 
 namespace GridPuzzles.Overlays;
 
+
 public record InsideCircleCellOverlay(Position Position, Color Color) : ICellSVGElementOverlay
 {
     /// <inheritdoc />
@@ -10,6 +11,7 @@ public record InsideCircleCellOverlay(Position Position, Color Color) : ICellSVG
     {
         yield break;
     }
+    
 
     /// <inheritdoc />
     public IEnumerable<SVGElement> SVGElements(double scale, bool selected)
@@ -21,7 +23,9 @@ public record InsideCircleCellOverlay(Position Position, Color Color) : ICellSVG
             Position.GetY(true, scale), 
                  
             Color.ToSVGColor(), Stroke:"none",
-            PointerEvents:PointerEvents.none);
+            PointerEvents:PointerEvents.none,
+            Children:selected? Animations.IsSelectedOpacity : null
+            );
     }
 
     /// <inheritdoc />

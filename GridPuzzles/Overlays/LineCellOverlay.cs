@@ -23,6 +23,7 @@ public record LineCellOverlay(IReadOnlyList<Position> Positions, Color Color) : 
             GetPointsString(scale),
             Fill: "none",
             StrokeWidth:3,
+            Children:selected? Animations.IsSelectedOpacity : null,
             Stroke:Color.ToSVGColor(),
             PointerEvents: PointerEvents.none
         );
