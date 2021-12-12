@@ -1,10 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Drawing;
-using System.Linq;
+﻿using System.Drawing;
 using CSharpFunctionalExtensions;
-using GridPuzzles;
-using GridPuzzles.Clues;
+using Generator.Equals;
 using GridPuzzles.Enums;
 using GridPuzzles.Overlays;
 using GridPuzzles.VariantBuilderArguments;
@@ -13,7 +9,7 @@ using Sudoku.Overlays;
 
 namespace Sudoku.Variants;
 
-public class SumVariantBuilder : VariantBuilder<int>
+public partial class SumVariantBuilder : VariantBuilder<int>
 {
     private SumVariantBuilder() {}
 
@@ -58,26 +54,14 @@ public class SumVariantBuilder : VariantBuilder<int>
 
     private static readonly BoolArgument UniqueArgument = new("Unique", Maybe<bool>.From(true));
 
-
-    public class SumClueBuilder : IClueBuilder<int>
+    [Equatable]
+    public partial record SumClueBuilder(int Sum,[property:OrderedEquality] ImmutableSortedSet<Position> Positions, bool Unique) : IClueBuilder<int>
     {
-        public SumClueBuilder(int sum, ImmutableSortedSet<Position> positions, bool unique)
-        {
-            Sum = sum;
-            Positions = positions;
-            Unique = unique;
-        }
-
         /// <inheritdoc />
         public string Name => $"Sum to {Sum}";
 
         /// <inheritdoc />
         public int Level => 2;
-
-        public int Sum { get; }
-
-        public ImmutableSortedSet<Position> Positions { get; }
-        public bool Unique { get; }
 
         /// <inheritdoc />
         public IEnumerable<IClue<int>> CreateClues(Position minPosition, Position maxPosition,

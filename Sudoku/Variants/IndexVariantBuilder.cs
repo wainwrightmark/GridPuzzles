@@ -1,13 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Drawing;
-using System.Linq;
+﻿using System.Drawing;
 using CSharpFunctionalExtensions;
-using GridPuzzles;
-using GridPuzzles.Cells;
-using GridPuzzles.Clues;
 using GridPuzzles.Overlays;
-using GridPuzzles.Reasons;
 using GridPuzzles.VariantBuilderArguments;
 
 namespace Sudoku.Variants;
@@ -46,23 +39,8 @@ public class IndexVariantBuilder : VariantBuilder<int>
     public static readonly EnumArgument<Parallel> Parallel = new(nameof(Parallel), Maybe<Parallel>.None);
 
         
-    public class IndexClueBuilder : IClueBuilder<int>
+    public record IndexClueBuilder(Parallel ClueParallel,int ClueIndex) : IClueBuilder<int>
     {
-        public IndexClueBuilder(Parallel clueParallel, int clueIndex)
-        {
-            ClueParallel = clueParallel;
-            ClueIndex = clueIndex;
-        }
-
-        /// <summary>
-        /// The parallel
-        /// </summary>
-        public Parallel ClueParallel { get; }
-
-        /// <summary>
-        /// The index
-        /// </summary>
-        public int ClueIndex { get; }
 
         /// <inheritdoc />
         public IEnumerable<IClue<int>> CreateClues(Position minPosition, Position maxPosition, IValueSource<int> valueSource,

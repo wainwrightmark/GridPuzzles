@@ -1,15 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Drawing;
-using System.Linq;
 using CSharpFunctionalExtensions;
-using GridPuzzles;
-using GridPuzzles.Cells;
-using GridPuzzles.Clues;
 using GridPuzzles.Enums;
 using GridPuzzles.Overlays;
-using GridPuzzles.Reasons;
 using GridPuzzles.VariantBuilderArguments;
 
 namespace Sudoku.Variants;
@@ -64,26 +57,14 @@ public class SlingshotVariantBuilder : VariantBuilder<int>
     }
 }
 
-public class SlingshotClueBuilder : IClueBuilder<int>
+public record SlingshotClueBuilder(Position CellPosition, CompassDirection FromDirection, CompassDirection ToDirection) : IClueBuilder<int>
 {
-    public SlingshotClueBuilder(Position cellPosition, CompassDirection fromDirection, CompassDirection toDirection)
-    {
-        CellPosition = cellPosition;
-        FromDirection = fromDirection;
-        ToDirection = toDirection;
-    }
 
     /// <inheritdoc />
     public string Name => "Slingshot";
 
     /// <inheritdoc />
     public int Level => 2;
-
-    public Position CellPosition { get; }
-
-    public CompassDirection FromDirection { get; }
-
-    public CompassDirection ToDirection { get; }
 
     /// <inheritdoc />
     public IEnumerable<IClue<int>> CreateClues(Position minPosition, Position maxPosition,

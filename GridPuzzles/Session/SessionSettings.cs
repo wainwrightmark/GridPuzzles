@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace GridPuzzles.Session;
+﻿namespace GridPuzzles.Session;
 
 public class SessionSettings
 {

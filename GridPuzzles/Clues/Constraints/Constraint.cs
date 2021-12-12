@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace GridPuzzles.Clues.Constraints;
+﻿namespace GridPuzzles.Clues.Constraints;
 
 public abstract class Constraint<T> : IEquatable<Constraint<T>> //TODO make constraints records
 {

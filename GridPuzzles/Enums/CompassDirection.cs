@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace GridPuzzles.Enums;
+﻿namespace GridPuzzles.Enums;
 
 public enum CompassDirection
 {

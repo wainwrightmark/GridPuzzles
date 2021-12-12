@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Drawing;
 using System.Linq;
 using GridPuzzles;
 using GridPuzzles.Clues;

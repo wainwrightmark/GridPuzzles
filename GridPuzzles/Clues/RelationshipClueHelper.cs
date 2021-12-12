@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics.Contracts;
-using System.Linq;
-using CSharpFunctionalExtensions;
+﻿using System.Diagnostics.Contracts;
 using GridPuzzles.Bifurcation;
-using GridPuzzles.Cells;
 
 namespace GridPuzzles.Clues;
 
@@ -73,7 +66,7 @@ public sealed class DynamicOverlayClueHelper<T> : ClueHelper<IDynamicOverlayClue
     public IEnumerable<CellOverlayWrapper> CreateCellOverlays(Grid<T> grid)
     {
         return Clues.SelectMany(x => x.GetCellOverlays(grid))
-            .Select(x=> new CellOverlayWrapper(x, Maybe<IClueBuilder>.None));
+            .Select(x=> new CellOverlayWrapper(x, CellOverlayMetadata.Empty));
     }
 }
 

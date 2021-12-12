@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace GridPuzzles.Clues.Constraints;
+﻿namespace GridPuzzles.Clues.Constraints;
 
 public class DifferByConstraint : CommutativeConstraint<int>
 {

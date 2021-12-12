@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using CSharpFunctionalExtensions;
-using GridPuzzles.Clues;
+﻿using GridPuzzles.Clues;
 
 namespace GridPuzzles.Reasons;
 

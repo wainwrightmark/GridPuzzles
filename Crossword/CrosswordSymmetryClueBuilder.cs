@@ -53,16 +53,11 @@ public enum RotationType
     Rotation4
 }
 
-public class CrosswordSymmetryClueBuilder : IClueBuilder<char>
+public record CrosswordSymmetryClueBuilder(RotationType RotationalType) : IClueBuilder<char>
 {
     public static CrosswordSymmetryClueBuilder Rotation2 = new(RotationType.Rotation2);
     public static CrosswordSymmetryClueBuilder Rotation4 = new(RotationType.Rotation4);
-    private CrosswordSymmetryClueBuilder(RotationType rotationalType)
-    {
-        RotationalType = rotationalType;
-    }
-
-    public RotationType RotationalType { get; }
+    
 
     /// <inheritdoc />
     public string Name => $"Box Symmetry - {RotationalType}";

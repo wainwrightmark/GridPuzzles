@@ -1,9 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using CSharpFunctionalExtensions;
-
-namespace GridPuzzles.VariantBuilderArguments;
+﻿namespace GridPuzzles.VariantBuilderArguments;
 
 public class ListPositionArgument : VariantBuilderArgument<IReadOnlyList<Position>>
 {

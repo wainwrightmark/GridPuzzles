@@ -1,11 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using GridPuzzles;
-using GridPuzzles.Bifurcation;
-using GridPuzzles.Cells;
-using GridPuzzles.Clues;
-using GridPuzzles.Reasons;
+﻿
 
 namespace Sudoku.Clues;
 

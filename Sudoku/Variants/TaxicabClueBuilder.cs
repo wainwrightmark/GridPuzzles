@@ -1,10 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using GridPuzzles;
-using GridPuzzles.Clues;
-using Sudoku.Clues;
-
-namespace Sudoku.Variants;
+﻿namespace Sudoku.Variants;
 
 public class TaxicabClueBuilder : NoArgumentVariantBuilder<int>
 {

@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using GridPuzzles.Clues;
-using GridPuzzles.VariantBuilderArguments;
+﻿using GridPuzzles.VariantBuilderArguments;
 
 namespace GridPuzzles;
 

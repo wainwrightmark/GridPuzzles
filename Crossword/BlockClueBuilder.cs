@@ -43,15 +43,8 @@ public class BlockVariantBuilder : VariantBuilder<char>
 }
 
 public enum BlockType  {  Odd, Even, NoBlocks }
-public class BlockClueBuilder : IClueBuilder<char>
+public record BlockClueBuilder(BlockType Blocks) : IClueBuilder<char>
 {
-    public BlockClueBuilder(BlockType blockType)
-    {
-        Blocks = blockType;
-    }
-
-    public BlockType Blocks { get; }
-
     /// <inheritdoc />
     public string Name => Blocks + " Blocks";
 

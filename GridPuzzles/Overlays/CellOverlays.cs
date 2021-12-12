@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using CSharpFunctionalExtensions;
+﻿using System.Drawing;
 using GridPuzzles.Enums;
 
 namespace GridPuzzles.Overlays;

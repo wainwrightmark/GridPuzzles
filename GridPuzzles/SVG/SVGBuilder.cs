@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Drawing;
-using System.Linq;
-using CSharpFunctionalExtensions;
+﻿using System.Drawing;
 using GridPuzzles.Clues;
 using GridPuzzles.Overlays;
-using GridPuzzles.Reasons;
 using GridPuzzles.Session;
 using GridPuzzles.VariantBuilderArguments;
 using SVGElements;
@@ -182,7 +176,7 @@ public sealed class VariantBuilderFormGridSVG : SVGBuilder
     /// <inheritdoc />
     public override bool IsSelected(IClueBuilder clueBuilder)
     {
-        return clueBuilder is InProgressClueBuilder;
+        return false;
     }
 
     /// <inheritdoc />
@@ -227,7 +221,7 @@ public sealed class VariantBuilderFormGridSVG : SVGBuilder
                 {
                     foreach (var cellOverlay in clueBuilder.GetOverlays(Position.Origin, Grid.MaxPosition))
                     {
-                        yield return new CellOverlayWrapper(cellOverlay, Maybe<IClueBuilder>.From(InProgressClueBuilder.Instance));
+                        yield return new CellOverlayWrapper(cellOverlay, new CellOverlayMetadata(Maybe<IClueBuilder>.None, true));
                     }
                 }
             }
@@ -238,28 +232,9 @@ public sealed class VariantBuilderFormGridSVG : SVGBuilder
                              .Where(x => x.IsSuccess)
                              .Select(x => x.Value))
                 {
-                    yield return new CellOverlayWrapper(new TextCellOverlay(kvp, 1, 1, "✓", Color.Black, Color.Transparent), Maybe<IClueBuilder>.None);
+                    yield return new CellOverlayWrapper(new TextCellOverlay(kvp, 1, 1, "✓", Color.Black, Color.Transparent), CellOverlayMetadata.Empty);
                 }
             }
-        }
-    }
-
-    private class InProgressClueBuilder : IClueBuilder
-    {
-        private InProgressClueBuilder() {}
-
-        public static IClueBuilder Instance { get; } = new InProgressClueBuilder();
-
-        /// <inheritdoc />
-        public string Name => "In Progress";
-
-        /// <inheritdoc />
-        public int Level => 100;
-
-        /// <inheritdoc />
-        public IEnumerable<ICellOverlay> GetOverlays(Position minPosition, Position maxPosition)
-        {
-            yield break;
         }
     }
 }
@@ -445,7 +420,7 @@ public abstract class SVGBuilder
         {
             if (wrapper.CellOverlay is ICellSVGElementOverlay svgElementOverlay)
             {
-                var selected = wrapper.ClueBuilder.HasValue && isSelected(wrapper.ClueBuilder.Value);
+                var selected = wrapper.Metadata.AlwaysSelected || (wrapper.Metadata.ClueBuilder.HasValue && isSelected(wrapper.Metadata.ClueBuilder.Value));
                 return (svgElementOverlay, selected);
             }
 

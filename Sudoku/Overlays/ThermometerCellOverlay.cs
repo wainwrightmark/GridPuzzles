@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using GridPuzzles;
+﻿using System.Drawing;
 using GridPuzzles.Overlays;
 using MoreLinq;
 using SVGElements;

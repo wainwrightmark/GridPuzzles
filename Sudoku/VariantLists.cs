@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using GridPuzzles;
-using Sudoku.Clues;
+﻿using Sudoku.Clues;
 using Sudoku.Variants;
 
 namespace Sudoku;

@@ -1,10 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Drawing;
-using System.Linq;
+﻿using System.Drawing;
 using CSharpFunctionalExtensions;
-using GridPuzzles;
-using GridPuzzles.Clues;
+using Generator.Equals;
 using GridPuzzles.Clues.Constraints;
 using GridPuzzles.Overlays;
 using GridPuzzles.VariantBuilderArguments;
@@ -12,7 +8,7 @@ using MoreLinq;
 
 namespace Sudoku.Variants;
 
-public class LockoutVariantBuilder : VariantBuilder<int>
+public partial class LockoutVariantBuilder : VariantBuilder<int>
 {
     private LockoutVariantBuilder()
     {
@@ -50,25 +46,15 @@ public class LockoutVariantBuilder : VariantBuilder<int>
         Positions
     };
 
-    public class LockoutClueBuilder : IClueBuilder<int>
+    [Equatable]
+    public partial record LockoutClueBuilder([property:OrderedEquality] ImmutableList<Position> AllPositions, int MinDifference) : IClueBuilder<int>
     {
-        /// <summary>
-        /// Cells on the line must be between the cells on the circles
-        /// </summary>
-        public LockoutClueBuilder(ImmutableList<Position> allPositions, int minDifference)
-        {
-            AllPositions = allPositions;
-            MinDifference = minDifference;
-        }
 
         /// <inheritdoc />
         public string Name => "Lockout";
 
         /// <inheritdoc />
         public int Level => 4;
-
-        public ImmutableList<Position> AllPositions { get; }
-        public int MinDifference { get; }
 
         /// <inheritdoc />
         public IEnumerable<IClue<int>> CreateClues(Position minPosition, Position maxPosition,

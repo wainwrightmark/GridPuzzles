@@ -1,8 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
-using CSharpFunctionalExtensions;
 using GridPuzzles.VariantBuilderArguments;
 
 namespace GridPuzzles.Clues;
@@ -60,9 +57,9 @@ public sealed class ClueSource<T> where T : notnull
 
         BifurcationClueHelper = new BifurcationClueHelper<T>(clues);
         DynamicOverlayClueHelper = new DynamicOverlayClueHelper<T>(clues);
-        FixedOverlays = ClueBuilders.SelectMany(x => 
-            x.GetOverlays(minPosition, maxPosition)
-            .Select(overlay=> new CellOverlayWrapper(overlay, Maybe<IClueBuilder>.From(x))) )
+        FixedOverlays = ClueBuilders.SelectMany(clueBuilder => 
+            clueBuilder.GetOverlays(minPosition, maxPosition)
+            .Select(overlay=> new CellOverlayWrapper(overlay, new CellOverlayMetadata(Maybe<IClueBuilder>.From(clueBuilder), false))) )
             .ToList();
     }
 

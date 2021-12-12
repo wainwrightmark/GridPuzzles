@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using CSharpFunctionalExtensions;
-using GridPuzzles.Overlays;
+﻿using GridPuzzles.Overlays;
 using GridPuzzles.VariantBuilderArguments;
 
 namespace GridPuzzles.Clues;

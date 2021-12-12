@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics.Contracts;
-using System.Linq;
+﻿using System.Diagnostics.Contracts;
 using System.Text.RegularExpressions;
-using CSharpFunctionalExtensions;
-using GridPuzzles.Cells;
 using GridPuzzles.Clues;
 using GridPuzzles.Overlays;
 
@@ -273,8 +267,12 @@ public class Grid<T> : IGrid where T :notnull
     public int GetPossibleValueCount(Position position) => GetCell(position).PossibleValues.Count;
 }
 
+public record CellOverlayMetadata(Maybe<IClueBuilder> ClueBuilder, bool AlwaysSelected)
+{
+    public static CellOverlayMetadata Empty { get; } = new (Maybe<IClueBuilder>.None, false);
+}
 
-public record CellOverlayWrapper(ICellOverlay CellOverlay, Maybe<IClueBuilder> ClueBuilder);
+public record CellOverlayWrapper(ICellOverlay CellOverlay, CellOverlayMetadata Metadata);
 
 public interface IGrid
 {

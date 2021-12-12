@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using GridPuzzles;
-using GridPuzzles.Cells;
-using GridPuzzles.Clues;
 using GridPuzzles.Enums;
 
 namespace Sudoku.Variants;

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using GridPuzzles.Reasons;
-
-namespace GridPuzzles.Bifurcation;
+﻿namespace GridPuzzles.Bifurcation;
 
 public interface IBifurcationOption<T>
 {

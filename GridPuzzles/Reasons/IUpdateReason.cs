@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace GridPuzzles.Reasons;
+﻿namespace GridPuzzles.Reasons;
 
 public interface IUpdateReason
 {

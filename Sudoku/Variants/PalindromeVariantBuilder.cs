@@ -1,10 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Drawing;
-using System.Linq;
+﻿using System.Drawing;
 using CSharpFunctionalExtensions;
-using GridPuzzles;
-using GridPuzzles.Clues;
+using Generator.Equals;
 using GridPuzzles.Clues.Constraints;
 using GridPuzzles.Overlays;
 using GridPuzzles.VariantBuilderArguments;
@@ -12,7 +8,7 @@ using MoreLinq;
 
 namespace Sudoku.Variants;
 
-public class PalindromeVariantBuilder<T> : VariantBuilder<T> where T : notnull
+public partial class PalindromeVariantBuilder<T> : VariantBuilder<T> where T : notnull
 {
     private PalindromeVariantBuilder()
     {
@@ -44,14 +40,9 @@ public class PalindromeVariantBuilder<T> : VariantBuilder<T> where T : notnull
         return l;
     }
 
-    private class PalindromeClueBuilder : IClueBuilder<T>
+    [Equatable]
+    private partial record PalindromeClueBuilder([property:OrderedEquality] ImmutableList<Position> Positions) : IClueBuilder<T>
     {
-        public PalindromeClueBuilder(ImmutableList<Position> positions)
-        {
-            Positions = positions;
-        }
-
-        public ImmutableList<Position> Positions { get; }
 
         /// <inheritdoc />
         public string Name => "Palindrome " + Positions.ToDelimitedString(", ");

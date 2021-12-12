@@ -1,6 +1,4 @@
-﻿using System.Collections.Immutable;
-
-namespace GridPuzzles.Clues;
+﻿namespace GridPuzzles.Clues;
 
 public sealed class UniquenessClue<T> : IUniquenessClue<T>
     where T : notnull

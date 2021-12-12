@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics.Contracts;
-using System.Linq;
+﻿using System.Diagnostics.Contracts;
 using GridPuzzles.Bifurcation;
 using GridPuzzles.Clues;
-using GridPuzzles.Reasons;
 
 namespace GridPuzzles.Cells;
 

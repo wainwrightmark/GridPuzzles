@@ -1,17 +1,13 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Drawing;
-using System.Linq;
+﻿using System.Drawing;
 using CSharpFunctionalExtensions;
-using GridPuzzles;
-using GridPuzzles.Clues;
+using Generator.Equals;
 using GridPuzzles.Clues.Constraints;
 using GridPuzzles.Overlays;
 using GridPuzzles.VariantBuilderArguments;
 
 namespace Sudoku.Variants;
 
-public class ConsecutiveGroupVariantBuilder : VariantBuilder<int>
+public partial class ConsecutiveGroupVariantBuilder : VariantBuilder<int>
 {
     private ConsecutiveGroupVariantBuilder()
     {
@@ -33,7 +29,7 @@ public class ConsecutiveGroupVariantBuilder : VariantBuilder<int>
 
         var l = new List<IClueBuilder<int>>
         {
-            new ConsecutiveGroupClueBuilder(pr.Value)
+            new ConsecutiveGroupClueBuilder(pr.Value.ToImmutableList())
         };
 
         return l;
@@ -50,14 +46,9 @@ public class ConsecutiveGroupVariantBuilder : VariantBuilder<int>
         2,
         8);
 
-    public class ConsecutiveGroupClueBuilder : IClueBuilder<int>
+    [Equatable]
+    public partial record ConsecutiveGroupClueBuilder([property:OrderedEquality] ImmutableList<Position> Positions) : IClueBuilder<int>
     {
-        public ConsecutiveGroupClueBuilder(IEnumerable<Position> positions)
-        {
-            Positions = positions.Distinct().ToImmutableList();
-        }
-
-        public ImmutableList<Position> Positions { get; }
 
         /// <inheritdoc />
         public string Name => "Consecutive Group";

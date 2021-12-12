@@ -1,12 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using CSharpFunctionalExtensions;
-using GridPuzzles;
-using GridPuzzles.Cells;
-using GridPuzzles.Clues;
+﻿using CSharpFunctionalExtensions;
+using Generator.Equals;
 using GridPuzzles.Overlays;
-using GridPuzzles.Reasons;
 using GridPuzzles.VariantBuilderArguments;
 using MoreLinq;
 using Sudoku.Clues;
@@ -16,7 +10,7 @@ namespace Sudoku.Variants;
 /// <summary>
 /// One of the numbers must be the sum of the other numbers
 /// </summary>
-public class AnySumVariantBuilder : VariantBuilder<int>
+public partial class AnySumVariantBuilder : VariantBuilder<int>
 {
     private AnySumVariantBuilder()
     {
@@ -50,21 +44,14 @@ public class AnySumVariantBuilder : VariantBuilder<int>
     private static readonly ListPositionArgument PositionArgument = new("Positions",
         4,
         4);
-
-    public class AnySumClueBuilder : IClueBuilder<int>
+    [Equatable]
+    public partial record AnySumClueBuilder([property:SetEquality] ImmutableSortedSet<Position> Positions) : IClueBuilder<int>
     {
-        public AnySumClueBuilder(ImmutableSortedSet<Position> positions)
-        {
-            Positions = positions;
-        }
-
         /// <inheritdoc />
         public string Name => "Cells Add up to";
 
         /// <inheritdoc />
         public int Level => 3;
-
-        public ImmutableSortedSet<Position> Positions { get; }
 
         /// <inheritdoc />
         public IEnumerable<IClue<int>> CreateClues(Position minPosition, Position maxPosition,

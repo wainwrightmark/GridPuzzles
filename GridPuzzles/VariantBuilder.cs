@@ -1,8 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
-using CSharpFunctionalExtensions;
 using GridPuzzles.VariantBuilderArguments;
 
 namespace GridPuzzles.Clues;

@@ -1,10 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using CSharpFunctionalExtensions;
 using GridPuzzles.Bifurcation;
 
 namespace GridPuzzles.Session.Actions;

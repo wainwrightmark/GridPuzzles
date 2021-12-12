@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using CSharpFunctionalExtensions;
-using GridPuzzles;
-using GridPuzzles.Clues;
+﻿using CSharpFunctionalExtensions;
 using GridPuzzles.Clues.Constraints;
 using GridPuzzles.Overlays;
 using GridPuzzles.VariantBuilderArguments;
@@ -41,12 +37,8 @@ public class UnconstrainedPairsMultipleVariantBuilder : VariantBuilder<int>
     private static readonly IntArgument AmountArgument = new("Amount", 1, 8, 1);
 }
 
-public class UnconstrainedPairsMultipleClueBuilder : IClueBuilder<int>
+public record UnconstrainedPairsMultipleClueBuilder(int Amount) : IClueBuilder<int>
 {
-    public int Amount { get; }
-
-    public UnconstrainedPairsMultipleClueBuilder(int amount) => Amount = amount;
-
     /// <inheritdoc />
     public string Name => $"Unconstrained Pairs cannot be {Amount} times";
 

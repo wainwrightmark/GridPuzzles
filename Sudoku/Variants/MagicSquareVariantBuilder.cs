@@ -1,16 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using CSharpFunctionalExtensions;
-using GridPuzzles;
-using GridPuzzles.Clues;
+﻿using CSharpFunctionalExtensions;
+using Generator.Equals;
 using GridPuzzles.Overlays;
 using GridPuzzles.VariantBuilderArguments;
 using Sudoku.Clues;
 
 namespace Sudoku.Variants;
 
-public class MagicSquareVariantBuilder : VariantBuilder<int>
+public partial class MagicSquareVariantBuilder : VariantBuilder<int>
 {
     private MagicSquareVariantBuilder()
     {
@@ -62,17 +58,12 @@ public class MagicSquareVariantBuilder : VariantBuilder<int>
         return cells;
     }
 
-    private static IReadOnlyCollection<IClueBuilder<int>> CreateMagicSquaresClues(IReadOnlyList<Position> positions) => new []{new MagicSquareClueBuilder(positions)};
+    private static IReadOnlyCollection<IClueBuilder<int>> CreateMagicSquaresClues(IReadOnlyList<Position> positions) => new []{new MagicSquareClueBuilder(positions.ToImmutableArray())};
 
 
-    public class MagicSquareClueBuilder : IClueBuilder<int>
+    [Equatable]
+    public partial record MagicSquareClueBuilder([property:OrderedEquality] ImmutableArray<Position> Positions) : IClueBuilder<int>
     {
-        public MagicSquareClueBuilder(IReadOnlyList<Position> positions)
-        {
-            Positions = positions;
-        }
-
-        public IReadOnlyList<Position> Positions { get; }
 
         /// <inheritdoc />
         public string Name => "Magic Square";

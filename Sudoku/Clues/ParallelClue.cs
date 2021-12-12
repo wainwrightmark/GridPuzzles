@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using GridPuzzles;
-
-namespace Sudoku.Clues;
+﻿namespace Sudoku.Clues;
 
 public abstract class ParallelClue<T> :BasicClue<T>, IParallelClue<T>where T : notnull
 {

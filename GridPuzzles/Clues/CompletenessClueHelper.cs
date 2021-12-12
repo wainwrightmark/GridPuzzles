@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using CSharpFunctionalExtensions;
-using GridPuzzles.Cells;
-using GridPuzzles.Reasons;
-
-namespace GridPuzzles.Clues;
+﻿namespace GridPuzzles.Clues;
 //public class ParallelClueHelper<T> : ClueTypeHelper<ICompletenessClue<T>, T>where T :notnull
 //{
 //    public ParallelClueHelper(IEnumerable<IClue<T>> clues)

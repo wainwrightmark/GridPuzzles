@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics.Contracts;
+﻿using System.Diagnostics.Contracts;
 using System.Drawing;
-using System.Linq;
-using CSharpFunctionalExtensions;
-using GridPuzzles.Cells;
 using GridPuzzles.Clues;
 using GridPuzzles.Overlays;
 using GridPuzzles.VariantBuilderArguments;

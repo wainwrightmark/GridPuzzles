@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using CSharpFunctionalExtensions;
-using GridPuzzles;
-using GridPuzzles.Clues;
+﻿using CSharpFunctionalExtensions;
 using GridPuzzles.Clues.Constraints;
 using GridPuzzles.Overlays;
 using GridPuzzles.VariantBuilderArguments;
@@ -45,12 +41,8 @@ public class UnconstrainedPairsDifferVariantBuilder : VariantBuilder<int>
         
 }
 
-public class UnconstrainedPairsDifferClueBuilder : IClueBuilder<int>
+public record UnconstrainedPairsDifferClueBuilder(int Amount) : IClueBuilder<int>
 {
-    public int Amount { get; }
-
-    public UnconstrainedPairsDifferClueBuilder(int amount) => Amount = amount;
-
     /// <inheritdoc />
     public string Name => $"Unconstrained Pairs cannot differ by {Amount}";
 

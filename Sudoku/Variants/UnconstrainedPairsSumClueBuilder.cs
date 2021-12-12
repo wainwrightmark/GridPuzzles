@@ -1,9 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using CSharpFunctionalExtensions;
-using GridPuzzles;
-using GridPuzzles.Clues;
+﻿using CSharpFunctionalExtensions;
+using Generator.Equals;
 using GridPuzzles.Clues.Constraints;
 using GridPuzzles.Overlays;
 using GridPuzzles.VariantBuilderArguments;
@@ -55,12 +51,9 @@ public class UnconstrainedPairsSumVariantBuilder : VariantBuilder<int>
     private static readonly StringArgument ValuesArgument = new("Values", "5,10");
 }
 
-public class UnconstrainedPairsSumClueBuilder : IClueBuilder<int>
+[Equatable]
+public partial record UnconstrainedPairsSumClueBuilder([property:SetEquality] ImmutableSortedSet<int> BadSums) : IClueBuilder<int>
 {
-    public ImmutableSortedSet<int> BadSums { get; }
-
-    public UnconstrainedPairsSumClueBuilder(ImmutableSortedSet<int> badSums) => BadSums = badSums;
-
     /// <inheritdoc />
     public string Name => "Unconstrained Pairs Sum";
 

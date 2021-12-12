@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Drawing;
-using System.Linq;
 using CSharpFunctionalExtensions;
-using GridPuzzles;
-using GridPuzzles.Clues;
+using Generator.Equals;
 using GridPuzzles.Clues.Constraints;
 using GridPuzzles.Enums;
 using GridPuzzles.Overlays;
@@ -16,7 +12,7 @@ using Sudoku.Overlays;
 
 namespace Sudoku.Variants;
 
-public class ThermometerVariantBuilder : VariantBuilder<int>
+public partial class ThermometerVariantBuilder : VariantBuilder<int>
 {
     private ThermometerVariantBuilder()
     {
@@ -45,24 +41,15 @@ public class ThermometerVariantBuilder : VariantBuilder<int>
     /// <inheritdoc />
     public override IReadOnlyList<VariantBuilderArgument> Arguments => new[] { Positions };
 
-    public class ThermometerClueBuilder : IClueBuilder<int>
+    [Equatable]
+    public partial record ThermometerClueBuilder([property:OrderedEquality] ImmutableList<Position> Positions) : IClueBuilder<int>
     {
-        /// <summary>
-        /// Create a thermometer. The fist position will have the lowest value.
-        /// </summary>
-        /// <param name="positions"></param>
-        public ThermometerClueBuilder(ImmutableList<Position> positions)
-        {
-            Positions = positions;
-        }
 
         /// <inheritdoc />
         public string Name => "Thermometer";
 
         /// <inheritdoc />
         public int Level => 2;
-
-        public ImmutableList<Position> Positions { get; }
 
         /// <inheritdoc />
         public IEnumerable<IClue<int>> CreateClues(Position minPosition, Position maxPosition,

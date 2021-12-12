@@ -1,18 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Drawing;
-using System.Linq;
-using CSharpFunctionalExtensions;
-using GridPuzzles;
-using GridPuzzles.Clues;
-using GridPuzzles.Clues.Constraints;
-using GridPuzzles.Overlays;
-using GridPuzzles.VariantBuilderArguments;
-using MoreLinq;
-
+﻿
 namespace Sudoku.Variants;
 
-public class WhispersVariantBuilder : VariantBuilder<int>
+public partial class WhispersVariantBuilder : VariantBuilder<int>
 {
     private WhispersVariantBuilder() { }
 
@@ -44,26 +33,15 @@ public class WhispersVariantBuilder : VariantBuilder<int>
     /// <inheritdoc />
     public override IReadOnlyList<VariantBuilderArgument> Arguments => new VariantBuilderArgument[]  {MinDistance, Positions};
 
-    public class WhispersClueBuilder : IClueBuilder<int>
+    [Equatable]
+    public partial record  WhispersClueBuilder([property:OrderedEquality] ImmutableList<Position> Positions, int MinimumDistance) : IClueBuilder<int>
     {
-        /// <summary>
-        /// Create a German Whispers line. Adjacent cells must differ by at least 5
-        /// </summary>
-        /// <param name="positions"></param>
-        public WhispersClueBuilder(ImmutableList<Position> positions, int MinimumDistance)
-        {
-            Positions = positions;
-            this.MinimumDistance = MinimumDistance;
-        }
 
         /// <inheritdoc />
         public string Name  => "Whispers";
 
         /// <inheritdoc />
         public int Level => 2;
-
-        public ImmutableList<Position> Positions { get; }
-        public int MinimumDistance { get; }
 
         /// <inheritdoc />
         public IEnumerable<IClue<int>> CreateClues(Position minPosition, Position maxPosition, IValueSource<int> valueSource,

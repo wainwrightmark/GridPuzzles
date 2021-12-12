@@ -80,7 +80,7 @@ public enum DictionaryWordType
     ProperNouns
 }
 
-public class WordsClueBuilder : IClueBuilder<char>
+public record WordsClueBuilder(string Name, ushort Priority, IReadOnlyCollection<string> Words) : IClueBuilder<char>
 {
     public static WordsClueBuilder RareWords(DictionaryHelper dh)=> new("Rare Words", 2, dh.AllWords.Value);
     public static WordsClueBuilder ProperNouns(DictionaryHelper dh)=> new("Proper Nouns",2, dh.ProperNouns.Value);
@@ -90,21 +90,7 @@ public class WordsClueBuilder : IClueBuilder<char>
     public static WordsClueBuilder FromFile(string path) => new("From File",4, File.ReadAllLines(path).ToList());
 
     public static WordsClueBuilder FromText(string separator, string text) => new("From Text",5, text.Split(separator));
-
-    public WordsClueBuilder(string name, ushort priority, IReadOnlyCollection<string> words)
-    {
-        Priority = priority;
-        Words = words;
-        Name = name;
-    }
-
-
-    public ushort Priority { get; }
-    public IReadOnlyCollection<string> Words { get; }
-
-    /// <inheritdoc />
-    public string Name { get; }
-
+    
     /// <inheritdoc />
     public int Level => 1;
 

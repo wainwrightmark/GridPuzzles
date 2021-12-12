@@ -1,7 +1,4 @@
-﻿using System.Collections.Immutable;
-using System.Drawing;
-using CSharpFunctionalExtensions;
-using GridPuzzles.Cells;
+﻿using System.Drawing;
 
 namespace GridPuzzles.Clues;
 

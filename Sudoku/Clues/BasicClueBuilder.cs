@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Drawing;
-using System.Linq;
 using CSharpFunctionalExtensions;
-using GridPuzzles;
-using GridPuzzles.Clues;
 using GridPuzzles.Overlays;
 using GridPuzzles.VariantBuilderArguments;
 using Sudoku.Variants;
@@ -84,14 +79,8 @@ public class CompleteRectangularBoxVariantBuilder<T> :VariantBuilder<T> where T:
         _boxWidthArgument
     };
 
-    private class CompleteRectangularBoxClueBuilder : IClueBuilder<T>
+    private record CompleteRectangularBoxClueBuilder(ushort BoxWidth) : IClueBuilder<T>
     {
-        public ushort BoxWidth { get; }
-
-        public CompleteRectangularBoxClueBuilder(ushort boxWidth)
-        {
-            BoxWidth = boxWidth;
-        }
 
         /// <inheritdoc />
         public string Name => $"Complete Boxes Width {BoxWidth}";

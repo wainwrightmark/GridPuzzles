@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-
-namespace GridPuzzles.Clues.Constraints;
+﻿namespace GridPuzzles.Clues.Constraints;
 
 public class MultipleConstraint<T> : Constraint<T>
 {

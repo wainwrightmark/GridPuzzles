@@ -1,17 +1,13 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Drawing;
-using System.Linq;
+﻿using System.Drawing;
 using CSharpFunctionalExtensions;
-using GridPuzzles;
-using GridPuzzles.Clues;
+using Generator.Equals;
 using GridPuzzles.Overlays;
 using GridPuzzles.VariantBuilderArguments;
 using MoreLinq;
 
 namespace Sudoku.Variants;
 
-public class NexusVariantBuilder : VariantBuilder<int>
+public partial class NexusVariantBuilder : VariantBuilder<int>
 {
     private NexusVariantBuilder()
     {
@@ -41,24 +37,15 @@ public class NexusVariantBuilder : VariantBuilder<int>
     /// <inheritdoc />
     public override IReadOnlyList<VariantBuilderArgument> Arguments => new VariantBuilderArgument[] { Positions };
 
-    public class NexusClueBuilder : IClueBuilder<int>
+    [Equatable]
+    public partial record NexusClueBuilder(ImmutableList<Position> AllPositions) : IClueBuilder<int>
     {
-        /// <summary>
-        /// Cells on the line must be between the cells on the circles
-        /// </summary>
-        /// <param name="allPositions"></param>
-        public NexusClueBuilder(ImmutableList<Position> allPositions)
-        {
-            AllPositions = allPositions;
-        }
 
         /// <inheritdoc />
         public string Name => "Nexus";
 
         /// <inheritdoc />
         public int Level => 2;
-
-        public ImmutableList<Position> AllPositions { get; }
 
         /// <inheritdoc />
         public IEnumerable<IClue<int>> CreateClues(Position minPosition, Position maxPosition,

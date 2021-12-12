@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using GridPuzzles;
-using Sudoku.Clues;
+﻿using Sudoku.Clues;
 
 namespace Sudoku.Variants;
 

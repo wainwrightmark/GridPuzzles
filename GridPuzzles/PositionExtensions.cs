@@ -1,9 +1,4 @@
-﻿using CSharpFunctionalExtensions;
-using GridPuzzles.Enums;
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
+﻿using GridPuzzles.Enums;
 
 namespace GridPuzzles;
 

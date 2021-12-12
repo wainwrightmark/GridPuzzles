@@ -1,6 +1,4 @@
-﻿using GridPuzzles.Reasons;
-
-namespace GridPuzzles.Cells;
+﻿namespace GridPuzzles.Cells;
 
 public sealed record CellUpdate<T>(
     Cell<T> NewCell, 

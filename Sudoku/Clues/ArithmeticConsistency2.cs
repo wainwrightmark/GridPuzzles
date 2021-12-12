@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Diagnostics.Contracts;
-using System.Linq;
 using System.Text;
 using CSharpFunctionalExtensions;
-using GridPuzzles;
-using GridPuzzles.Clues;
 using GridPuzzles.Clues.Constraints;
 using Sudoku.Variants;
 

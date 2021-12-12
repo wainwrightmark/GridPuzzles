@@ -1,11 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using CSharpFunctionalExtensions;
-using GridPuzzles;
-using GridPuzzles.Cells;
-using GridPuzzles.Clues;
-using GridPuzzles.Reasons;
+﻿using CSharpFunctionalExtensions;
 
 namespace Sudoku.Variants;
 ///// <summary>

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Immutable;
-
-namespace GridPuzzles.Reasons;
+﻿namespace GridPuzzles.Reasons;
 
 public static class UpdateReasonHelper
 {

@@ -1,10 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Drawing;
-using System.Linq;
+﻿using System.Drawing;
 using CSharpFunctionalExtensions;
-using GridPuzzles;
-using GridPuzzles.Clues;
+using Generator.Equals;
 using GridPuzzles.Overlays;
 using GridPuzzles.VariantBuilderArguments;
 using Sudoku.Clues;
@@ -91,23 +87,15 @@ public class RestrictValuesVariantBuilder<T> : VariantBuilder<T> where T : notnu
         };
 }
 
-public class RestrictValuesClueBuilder<T> : IClueBuilder<T>where T :notnull
+[Equatable]
+public partial record RestrictValuesClueBuilder<T>([property:SetEquality] ImmutableSortedSet<Position> Positions,[property:SetEquality] ImmutableHashSet<T> Values ) : IClueBuilder<T>where T :notnull
 {
-    public RestrictValuesClueBuilder(ImmutableSortedSet<Position> positions, ImmutableHashSet<T> values)
-    {
-        Positions = positions;
-        Values = values;
-    }
 
     /// <inheritdoc />
     public string Name => "Restrict Values";
 
     /// <inheritdoc />
     public int Level => 2;
-
-    public ImmutableSortedSet<Position> Positions { get; }
-
-    public ImmutableHashSet<T> Values { get; }
 
     /// <inheritdoc />
     public IEnumerable<IClue<T>> CreateClues(Position minPosition, Position maxPosition, IValueSource<T> valueSource,

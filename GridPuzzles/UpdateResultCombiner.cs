@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using GridPuzzles.Bifurcation;
-using GridPuzzles.Cells;
+﻿using GridPuzzles.Bifurcation;
 
 namespace GridPuzzles;
 

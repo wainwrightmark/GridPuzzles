@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using CSharpFunctionalExtensions;
-using GridPuzzles.Clues;
+﻿using GridPuzzles.Clues;
 using MoreLinq;
 
 namespace GridPuzzles.Reasons;

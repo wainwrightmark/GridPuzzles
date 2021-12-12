@@ -1,11 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics.Contracts;
+﻿using System.Diagnostics.Contracts;
 using GridPuzzles.Bifurcation;
-using GridPuzzles.Cells;
 using GridPuzzles.Clues.Constraints;
 using GridPuzzles.Overlays;
-using GridPuzzles.Reasons;
 
 namespace GridPuzzles.Clues;
 

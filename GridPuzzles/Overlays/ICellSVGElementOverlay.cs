@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using SVGElements;
+﻿using SVGElements;
 
 namespace GridPuzzles.Overlays;
 

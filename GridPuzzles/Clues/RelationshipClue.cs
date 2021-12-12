@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Immutable;
-using System.Linq;
-using GridPuzzles.Clues.Constraints;
-using GridPuzzles.Reasons;
+﻿using GridPuzzles.Clues.Constraints;
 
 namespace GridPuzzles.Clues;
 

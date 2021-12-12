@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using GridPuzzles.Cells;
-using GridPuzzles.Reasons;
-
-namespace GridPuzzles;
+﻿namespace GridPuzzles;
 
 public sealed record Contradiction(IUpdateReason Reason, IReadOnlyList<Position> Positions) : ICellChangeResult
 {

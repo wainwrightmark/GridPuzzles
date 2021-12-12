@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-
-namespace GridPuzzles.Clues.Constraints;
+﻿namespace GridPuzzles.Clues.Constraints;
 
 public class NonMultipleConstraint : CommutativeConstraint<int>
 {

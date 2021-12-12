@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using CSharpFunctionalExtensions;
-
-namespace GridPuzzles.VariantBuilderArguments;
+﻿namespace GridPuzzles.VariantBuilderArguments;
 
 public abstract class VariantBuilderArgument
 {

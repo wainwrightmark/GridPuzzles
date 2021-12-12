@@ -1,9 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
+﻿using System.Drawing;
 using CSharpFunctionalExtensions;
-using GridPuzzles;
-using GridPuzzles.Clues;
 using GridPuzzles.Clues.Constraints;
 using GridPuzzles.Overlays;
 using GridPuzzles.VariantBuilderArguments;
@@ -52,20 +48,8 @@ public class MultipleOfVariantBuilder : VariantBuilder<int>
         2);
         
 
-    private class MultipleOfClueBuilder : IClueBuilder<int>
+    private record MultipleOfClueBuilder(Position Position1,Position Position2,int Amount ) : IClueBuilder<int>
     {
-        public MultipleOfClueBuilder(Position position1, Position position2, int amount)
-        {
-            Position1 = position1;
-            Position2 = position2;
-            Amount = amount;
-        }
-
-        public Position Position1 { get; }
-        public Position Position2 { get; }
-
-        public int Amount { get; }
-
         /// <inheritdoc />
         public string Name => "Multiple";
 

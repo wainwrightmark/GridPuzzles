@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using GridPuzzles.Overlays;
+﻿using GridPuzzles.Overlays;
 
 namespace GridPuzzles.Clues;
 

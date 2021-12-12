@@ -1,14 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Drawing;
-using System.Linq;
 using CSharpFunctionalExtensions;
-using GridPuzzles;
-using GridPuzzles.Clues;
 using GridPuzzles.Overlays;
 using GridPuzzles.VariantBuilderArguments;
-using Sudoku.Variants;
 
 namespace Sudoku.Clues;
 
@@ -53,20 +47,13 @@ public class CompleteDiagonalVariantBuilder<T> : VariantBuilder<T>where T :notnu
     }
 }
 
-public class DiagonalClueBuilder<T> : IClueBuilder<T>where T :notnull
+public record DiagonalClueBuilder<T>(bool TopToBottom) : IClueBuilder<T>where T :notnull
 {
-    public static DiagonalClueBuilder<T> TopLeft = new("Top Left Diagonal", true);
-    public static DiagonalClueBuilder<T> TopRight = new("Top Right Diagonal", false);
+    public static DiagonalClueBuilder<T> TopLeft = new( true);
+    public static DiagonalClueBuilder<T> TopRight = new(false);
+    public string Name => TopToBottom? "Top Left Diagonal":"Top Right Diagonal";
 
-    private DiagonalClueBuilder(string name, bool topToBottom)
-    {
-        Name = name;
-        TopToBottom = topToBottom;
-    }
-    public string Name { get; }
-
-    public bool TopToBottom { get; }
-
+    
     /// <inheritdoc />
     public int Level => 2;
 
@@ -147,22 +134,15 @@ public class CompleteOffsetDiagonalVariantBuilder<T> : VariantBuilder<T>where T 
     }
 }
 
-public class OffsetDiagonalClueBuilder<T> : IClueBuilder<T>where T :notnull
+public record OffsetDiagonalClueBuilder<T>(bool TopIsLeft) : IClueBuilder<T>where T :notnull
 {
-    public static OffsetDiagonalClueBuilder<T> TopLeft = new("Top Left Near Diagonal", true);
-    public static OffsetDiagonalClueBuilder<T> TopRight = new("Top Right Near Diagonal", false);
+    public static OffsetDiagonalClueBuilder<T> TopLeft = new(true);
+    public static OffsetDiagonalClueBuilder<T> TopRight = new(false);
 
-    private OffsetDiagonalClueBuilder(string name, bool topIsLeft)
-    {
-        Name = name;
-        TopIsLeft = topIsLeft;
-    }
 
 
     /// <inheritdoc />
-    public string Name { get; }
-
-    public bool TopIsLeft { get; }
+    public string Name => TopIsLeft ? "Top Left Near Diagonal" : "Top Right Near Diagonal";
 
     /// <inheritdoc />
     public int Level => 2;

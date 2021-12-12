@@ -1,8 +1,4 @@
-﻿using System.Collections.Immutable;
-using System.Linq;
-using GridPuzzles;
-
-namespace Sudoku.Clues;
+﻿namespace Sudoku.Clues;
 
 public class BoxClue<T> : BasicClue<T>  where T: notnull
 {

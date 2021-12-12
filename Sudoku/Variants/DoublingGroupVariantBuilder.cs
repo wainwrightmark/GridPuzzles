@@ -1,20 +1,14 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Drawing;
-using System.Linq;
+﻿using System.Drawing;
 using CSharpFunctionalExtensions;
-using GridPuzzles;
-using GridPuzzles.Cells;
-using GridPuzzles.Clues;
+using Generator.Equals;
 using GridPuzzles.Clues.Constraints;
 using GridPuzzles.Overlays;
-using GridPuzzles.Reasons;
 using GridPuzzles.VariantBuilderArguments;
 using MoreLinq.Experimental;
 
 namespace Sudoku.Variants;
 
-public class DoublingGroupVariantBuilder<T> : VariantBuilder<T> where T : notnull
+public partial class DoublingGroupVariantBuilder<T> : VariantBuilder<T> where T : notnull
 {
     private DoublingGroupVariantBuilder()
     {
@@ -41,7 +35,7 @@ public class DoublingGroupVariantBuilder<T> : VariantBuilder<T> where T : notnul
 
         var l = new List<IClueBuilder<T>>
         {
-            new DoublingGroupClueBuilder(pr.Value)
+            new DoublingGroupClueBuilder(pr.Value.ToImmutableList())
         };
 
         return l;
@@ -56,16 +50,9 @@ public class DoublingGroupVariantBuilder<T> : VariantBuilder<T> where T : notnul
     private static readonly ListPositionArgument PositionArgument = new("Positions",
         2, 18);
 
-
-    private class DoublingGroupClueBuilder : IClueBuilder<T>
+    [Equatable]
+    private partial record DoublingGroupClueBuilder([property:OrderedEquality] ImmutableList<Position> Positions) : IClueBuilder<T>
     {
-        public DoublingGroupClueBuilder(IEnumerable<Position> positions)
-        {
-            Positions = positions.Distinct().ToImmutableList();
-        }
-
-        public ImmutableList<Position> Positions { get; }
-
         /// <inheritdoc />
         public string Name => "Doubling Group";
 

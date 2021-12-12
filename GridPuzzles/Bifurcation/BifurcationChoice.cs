@@ -1,7 +1,4 @@
-﻿using System;
-using GridPuzzles.Cells;
-
-namespace GridPuzzles.Bifurcation;
+﻿namespace GridPuzzles.Bifurcation;
 
 public interface IBifurcationChoice<T> : IComparable<IBifurcationChoice<T>>
 {

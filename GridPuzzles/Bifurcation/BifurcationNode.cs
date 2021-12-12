@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using CSharpFunctionalExtensions;
-using GridPuzzles.Cells;
-using GridPuzzles.Reasons;
-using MoreLinq;
+﻿using MoreLinq;
 
 namespace GridPuzzles.Bifurcation;
 

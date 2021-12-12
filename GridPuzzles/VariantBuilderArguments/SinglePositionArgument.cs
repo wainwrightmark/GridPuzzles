@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using CSharpFunctionalExtensions;
-
-namespace GridPuzzles.VariantBuilderArguments;
+﻿namespace GridPuzzles.VariantBuilderArguments;
 
 public class SinglePositionArgument : VariantBuilderArgument<Position>
 {

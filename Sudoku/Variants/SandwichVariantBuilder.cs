@@ -1,15 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Drawing;
-using System.Linq;
 using CSharpFunctionalExtensions;
-using GridPuzzles;
-using GridPuzzles.Cells;
-using GridPuzzles.Clues;
 using GridPuzzles.Overlays;
-using GridPuzzles.Reasons;
 using GridPuzzles.VariantBuilderArguments;
 using MoreLinq;
 
@@ -57,19 +50,8 @@ public class SandwichVariantBuilder : VariantBuilder<int>
     public readonly IntArgument SumArgument = new("Sandwich Sum", 0, 45, Maybe<int>.None);
         
 
-    public class SandwichClueBuilder : IClueBuilder<int>
+    public record SandwichClueBuilder(int ParallelIndex, Parallel Parallel, int SandwichSum) : IClueBuilder<int>
     {
-        public SandwichClueBuilder(int parallelIndex, Parallel parallel, int sandwichSum)
-        {
-            ParallelIndex = parallelIndex;
-            Parallel = parallel;
-            SandwichSum = sandwichSum;
-        }
-
-        public int ParallelIndex { get; }
-        public Parallel Parallel { get; }
-
-        public int SandwichSum { get; }
 
         /// <inheritdoc />
         public string Name => "Sandwich";
@@ -82,7 +64,7 @@ public class SandwichVariantBuilder : VariantBuilder<int>
             IValueSource<int> valueSource,
             IReadOnlyCollection<IClue<int>> lowerLevelClues)
         {
-            Position[] positions = Parallel switch
+            var positions = Parallel switch
             {
                 Parallel.Row => Enumerable.Range(minPosition.Column, maxPosition.Column)
                     .Select(c => new Position(c, ParallelIndex))

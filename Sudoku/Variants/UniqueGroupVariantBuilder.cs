@@ -1,9 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Drawing;
+﻿using System.Drawing;
 using CSharpFunctionalExtensions;
-using GridPuzzles;
-using GridPuzzles.Clues;
+using Generator.Equals;
 using GridPuzzles.Overlays;
 using GridPuzzles.VariantBuilderArguments;
 using MoreLinq;
@@ -11,7 +8,7 @@ using Sudoku.Overlays;
 
 namespace Sudoku.Variants;
 
-public class UniqueGroupVariantBuilder<T> : VariantBuilder<T> where T : notnull
+public partial class UniqueGroupVariantBuilder<T> : VariantBuilder<T> where T : notnull
 {
     private UniqueGroupVariantBuilder()
     {
@@ -43,14 +40,9 @@ public class UniqueGroupVariantBuilder<T> : VariantBuilder<T> where T : notnull
         return l;
     }
 
-    private class UniqueClueBuilder : IClueBuilder<T>
+    [Equatable]
+    private partial record UniqueClueBuilder([property:SetEquality] ImmutableSortedSet<Position> Positions) : IClueBuilder<T>
     {
-        public UniqueClueBuilder(ImmutableSortedSet<Position> positions)
-        {
-            Positions = positions;
-        }
-
-        public ImmutableSortedSet<Position> Positions { get; }
 
         /// <inheritdoc />
         public string Name => "Unique Group " + Positions.ToDelimitedString(", ");
