@@ -1,0 +1,71 @@
+﻿#https://www.youtube.com/watch?v=gxU_q1Hl4TE&ab_channel=CrackingTheCryptic
+Columns: 9
+Rows: 9
+Grid: >-
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	6
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	6	-	-	-	-	-
+Variants:
+- Name: Complete Columns
+- Name: Complete Rows
+- Name: Complete Square Boxes
+- Name: Arithmetic Consistency
+- Name: Any Sum
+  Arguments:
+    Positions: F1; G1; G2; F2
+- Name: Any Sum
+  Arguments:
+    Positions: F2; G2; G3; F3
+- Name: Any Sum
+  Arguments:
+    Positions: H1; I1; I2; H2
+- Name: Any Sum
+  Arguments:
+    Positions: B2; C2; C3; B3
+- Name: Any Sum
+  Arguments:
+    Positions: A5; B5; B6; A6
+- Name: Any Sum
+  Arguments:
+    Positions: D4; E4; E5; D5
+- Name: Any Sum
+  Arguments:
+    Positions: D5; E5; E6; D6
+- Name: Any Sum
+  Arguments:
+    Positions: E4; F4; F5; E5
+- Name: Any Sum
+  Arguments:
+    Positions: H4; I4; I5; H5
+- Name: Any Sum
+  Arguments:
+    Positions: G4; H4; H5; G5
+- Name: Any Sum
+  Arguments:
+    Positions: C6; D6; D7; C7
+- Name: Any Sum
+  Arguments:
+    Positions: D8; D9; C9; C8
+- Name: Any Sum
+  Arguments:
+    Positions: D8; E8; E9; D9
+- Name: Any Sum
+  Arguments:
+    Positions: G7; H7; H8; G8
+- Name: Any Sum
+  Arguments:
+    Positions: H7; I7; I8; H8

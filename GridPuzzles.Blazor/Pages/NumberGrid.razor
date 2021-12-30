@@ -2,7 +2,12 @@
 @page "/numbergrid/{Size:int}"
 @using Sudoku
 
-<GridPage T="int" Columns="@Size" Rows="@Size" GridCreator="SudokuGridCreator.Instance" GridText="@GridText"/>
+<GridPage T="int" 
+          Columns="@Size" 
+          Rows="@Size" 
+          GridCreator="SudokuGridCreator.Instance" 
+          GridText="@GridText" 
+          Examples="@Sudoku.Examples.ExampleHelper.SudokuExamples.ToList()"/>
 
 @code {
 

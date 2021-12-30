@@ -1,0 +1,157 @@
+﻿@using System.Reactive.Subjects
+@using System.Reactive.Linq
+@using System.Linq
+@using System.Diagnostics.PerformanceData;
+@using System.Diagnostics
+@using System.Reactive
+@implements IDisposable
+
+
+<div>
+    
+    <MudSlider @bind-Value="_seriesLength" Min="1" Max="100" Step="1" Color="Color.Primary"  />
+    
+    
+    <MudExpansionPanels MultiExpansion="true">
+        @foreach (var counter in _performanceCounters)
+        {
+            <MudExpansionPanel Text="@counter.FullName">
+                <MudChart ChartType="ChartType.Line" ChartSeries="@counter.GetSeries()" Width="100%" Height="350px" ChartOptions="_chartOptions"/>
+            </MudExpansionPanel>
+        }
+    </MudExpansionPanels>
+    
+    
+
+</div>
+
+
+
+@code {
+
+    /// <inheritdoc />
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        
+
+        Observable.Interval(_interval)
+            .TakeUntil(_disposed)
+            .Select(_ =>
+            {
+                UpdateData();
+
+                InvokeAsync(() => StateHasChanged());
+                return Unit.Default;
+            })
+            .Subscribe();
+    }
+
+    private void UpdateData()
+    {
+        foreach (var counter in _performanceCounters)
+        {
+            var latest = counter.PerformanceCounter.NextValue();
+            var newData = counter.Data.Append(latest).TakeLast(_seriesLength).ToArray();
+
+            counter.Data = newData;
+        }
+    }
+
+    private static IEnumerable<Counter> GetPerformanceCounters()
+    {
+        var desiredCategories = new HashSet<string> {"Process", "Memory"};
+
+        var thisProcess = SanitizeProcessName(AppDomain.CurrentDomain.FriendlyName);
+
+        foreach (var category in PerformanceCounterCategory.GetCategories())
+        {
+            if (!desiredCategories.Contains(category.CategoryName)) continue;
+            PerformanceCounter[] counters;
+
+            try
+            {
+                if (category.InstanceExists(thisProcess))
+                {
+                    counters = category.GetCounters(thisProcess);
+                }
+                else
+                {
+                    counters = category.GetCounters();
+                }
+            }
+            catch
+            {
+                counters = Array.Empty<PerformanceCounter>();
+            }
+
+
+            foreach (var counter in counters)
+            {
+                yield return new Counter()
+                {
+                    PerformanceCounter = counter,
+                    CategoryName = category.CategoryName,
+                    CounterName = counter.CounterName,
+                    Max = 1,
+                };
+            }
+        }
+
+        static string SanitizeProcessName(string name)
+        {
+            return name
+                .Replace('(', '[')
+                .Replace(')', ']')
+                .Replace('#', '_')
+                .Replace('/', '_')
+                ;
+        }
+    }
+
+
+    private readonly TimeSpan _interval =  new (0,0,0,0,500);
+
+    private int _seriesLength = 120;
+
+    private readonly ChartOptions _chartOptions = new () { XAxisLines = true, YAxisLines = true, DisableLegend = true,};
+
+    private readonly IReadOnlyList<Counter> _performanceCounters = GetPerformanceCounters().ToList();
+
+
+    private Subject<bool> _disposed = new();
+    public void Dispose()
+    {
+        _disposed.OnNext(true);
+    }
+
+    private class Counter
+    {
+        public string CategoryName { get; init; }
+        public string CounterName { get; init; }
+
+        public PerformanceCounter PerformanceCounter { get; init; }
+
+        public double[] Data { get; set; } = Array.Empty<double>();
+
+        public double Max { get; set; } = 0;
+
+        public bool Display { get; set; } = false;
+
+        public string FullName => $"{CategoryName} {CounterName}";
+
+
+        public List<ChartSeries> GetSeries()
+        {
+            return new List<ChartSeries>()
+            {
+                new ()
+                {
+                    Data = Data,
+                    Name = FullName,
+                }
+            };
+        }
+    }
+
+}

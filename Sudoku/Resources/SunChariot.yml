@@ -1,0 +1,91 @@
+﻿#https://www.youtube.com/watch?v=lgFzP5oPr6c&ab_channel=CrackingTheCryptic
+# Sun Chariot by Miky
+Columns: 9
+Rows: 9
+Grid: >-
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+Variants:
+- Name: Complete Columns
+- Name: Complete Rows
+- Name: Complete Square Boxes
+- Name: Arithmetic Consistency
+- Name: Knight
+- Name: Sum
+  Arguments:
+    Unique: True
+    Sum: 45
+    Positions: E2; F2; F3; E3; F4; G4; H4; H5; G5
+- Name: Sum
+  Arguments:
+    Unique: False
+    Sum: 32
+    Positions: F1; E2; D3; C4; B5; A6
+- Name: Sum
+  Arguments:
+    Sum: 23
+    Unique: False
+    Positions: A5; B6; C7; D8; E9
+- Name: Multiple
+  Arguments:
+    Amount: 2
+    Positions: E1; F1
+- Name: Multiple
+  Arguments:
+    Amount: 2
+    Positions: G1; G2
+- Name: Multiple
+  Arguments:
+    Amount: 2
+    Positions: G7; H7
+- Name: Multiple
+  Arguments:
+    Amount: 2
+    Positions: G7; G8
+- Name: Multiple
+  Arguments:
+    Amount: 2
+    Positions: I4; I5
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: H6; I7
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: D5; C4
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: D6; E7
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: D6; C5
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: D6; E5; E4; F5
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: D6; D7; D8; D9
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: D6; C6; B6; A6

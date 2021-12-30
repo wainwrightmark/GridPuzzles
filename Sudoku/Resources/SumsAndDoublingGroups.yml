@@ -1,0 +1,95 @@
+﻿#https://www.youtube.com/watch?v=Midwp36q7Js&ab_channel=CrackingTheCryptic
+Columns: 9
+Rows: 9
+Grid: >-
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+Variants:
+- Name: Complete Columns
+- Name: Complete Rows
+- Name: Complete Square Boxes
+- Name: Arithmetic Consistency
+- Name: Doubling Group
+  Arguments:
+    Positions: A4; B3; C2; D1
+- Name: Doubling Group
+  Arguments:
+    Positions: E1; F2; G2; H1
+- Name: Doubling Group
+  Arguments:
+    Positions: I2; H3; H4; I5
+- Name: Doubling Group
+  Arguments:
+    Positions: I6; H7; G8; F9
+- Name: Doubling Group
+  Arguments:
+    Positions: B9; C8; D8; E9
+- Name: Doubling Group
+  Arguments:
+    Positions: A5; B6; B7; A8
+- Name: Sum
+  Arguments:
+    Unique: True
+    Sum: 22
+    Positions: A1; B1; B2; A2
+- Name: Sum
+  Arguments:
+    Sum: 12
+    Unique: True
+    Positions: C1; D1; D2; C2
+- Name: Sum
+  Arguments:
+    Sum: 18
+    Unique: True
+    Positions: A3; B3; B4; A4
+- Name: Sum
+  Arguments:
+    Sum: 21
+    Unique: True
+    Positions: D4; E4; E5; D5
+- Name: Sum
+  Arguments:
+    Sum: 19
+    Unique: True
+    Positions: C6; D6; D7; C7
+- Name: Sum
+  Arguments:
+    Sum: 15
+    Unique: True
+    Positions: B8; C8; C9; B9
+- Name: Sum
+  Arguments:
+    Sum: 10
+    Unique: True
+    Positions: H8; I8; I9; H9
+- Name: Sum
+  Arguments:
+    Sum: 16
+    Unique: True
+    Positions: F3; G3; G4; F4
+- Name: Sum
+  Arguments:
+    Sum: 14
+    Unique: True
+    Positions: H2; I2; I3; H3
+- Name: UniqueGroup
+  Arguments:
+    Positions: H6; I6; I7; H7
+- Name: UniqueGroup
+  Arguments:
+    Positions: F8; G8; G9; F9

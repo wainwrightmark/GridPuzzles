@@ -3,7 +3,13 @@
 @page "/{Size:int}"
 @using Sudoku
 
-<GridPage T="int" Columns="@Size" Rows="@Size" GridCreator="SudokuGridCreator.Instance" GridText="@GridText"/>
+<GridPage T="int"
+          Columns="@Size" 
+          Rows="@Size"
+          GridCreator="SudokuGridCreator.Instance" 
+          GridText="@GridText"
+          Examples="@Examples.ExampleHelper.SudokuExamples.ToList()"
+          />
 
 @code {
 

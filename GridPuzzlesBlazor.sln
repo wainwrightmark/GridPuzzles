@@ -19,6 +19,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SVGHelper", "SVGHelper\SVGH
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{98F1C21E-EBF5-49E3-903B-CF8C05A300A0}"
 	ProjectSection(SolutionItems) = preProject
+		Readme.md = Readme.md
 		Tasks.md = Tasks.md
 	EndProjectSection
 EndProject
@@ -26,9 +27,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sudoku", "Sudoku\Sudoku.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SVGSourceGenerator", "SVGSourceGenerator\SVGSourceGenerator.csproj", "{E6ED0CEF-15EF-4F46-88BC-4ED423838760}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sudoku.Blazor", "Sudoku.Blazor\Sudoku.Blazor.csproj", "{7B2D8CCF-227A-4541-87AA-A6B124CB84A2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sudoku.Blazor", "Sudoku.Blazor\Sudoku.Blazor.csproj", "{7B2D8CCF-227A-4541-87AA-A6B124CB84A2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GridComponents", "GridComponents\GridComponents.csproj", "{A99D226B-19A5-449C-B695-EBC646E7192F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GridComponents", "GridComponents\GridComponents.csproj", "{A99D226B-19A5-449C-B695-EBC646E7192F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

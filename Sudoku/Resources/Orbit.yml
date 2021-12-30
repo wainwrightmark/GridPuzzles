@@ -1,0 +1,106 @@
+﻿#https://www.youtube.com/watch?v=VfTFtnCBtOQ&ab_channel=CrackingTheCryptic
+Columns: 9
+Rows: 9
+Grid: >-
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+Variants:
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: G5; F4
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: C3; B4; A5; B6
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: E7; F6
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: C5; D6
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: G3; F2; E1; D2
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: C7; D8; E9; F8
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: G7; H6; I5; H4
+- Name: Arrow
+  Arguments:
+    Head Size: 1
+    Positions: E3; D4
+- Name: Complete Columns
+- Name: Complete Rows
+- Name: Complete Square Boxes
+- Name: Arithmetic Consistency
+- Name: Restrict Values
+  Arguments:
+    Positions: A9; I1
+    Allowed Values (Comma Separated): 1,3,5,7,9
+- Name: Restrict Values
+  Arguments:
+    Positions: A1; I9
+    Allowed Values (Comma Separated): 2,4,6,8
+- Name: Sum
+  Arguments:
+    Unique: False
+    Positions: H1; I2
+    Sum: 7
+- Name: Sum
+  Arguments:
+    Unique: False
+    Positions: A4; B5; C6; D7; E8; F9
+    Sum: 43
+- Name: Sum
+  Arguments:
+    Unique: False
+    Positions: I6; H5; G4; F3; E2; D1
+    Sum: 47
+- Name: Sum
+  Arguments:
+    Unique: False
+    Positions: F1; E2; D3; C4; B5; A6
+    Sum: 38
+- Name: Sum
+  Arguments:
+    Unique: False
+    Positions: D9; E8; F7; G6; H5; I4
+    Sum: 42
+- Name: Sum
+  Arguments:
+    Unique: False
+    Positions: H9; I8
+    Sum: 8
+- Name: Sum
+  Arguments:
+    Unique: False
+    Positions: A8; B9
+    Sum: 9
+- Name: Sum
+  Arguments:
+    Unique: False
+    Positions: B1; A2
+    Sum: 6

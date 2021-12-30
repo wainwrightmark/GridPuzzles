@@ -1,0 +1,26 @@
+﻿#https://www.youtube.com/watch?v=SDTtcipqw7M&ab_channel=CrackingTheCryptic
+Columns: 9
+Rows: 9
+Grid: >-
+  -	2	3	-	6	5	-	8	9
+
+  9	-	-	-	-	4	-	-	5
+
+  5	-	-	9	-	-	-	-	-
+
+  6	-	-	3	-	-	-	1	8
+
+  3	8	-	5	9	-	-	-	2
+
+  -	-	-	-	8	6	3	-	-
+
+  2	3	-	-	-	-	-	-	6
+
+  8	-	7	-	2	-	-	-	3
+
+  -	9	6	-	5	3	8	2	-
+Variants:
+- Name: Complete Rows
+- Name: Complete Columns
+- Name: Complete Square Boxes
+- Name: Arithmetic Consistency

@@ -1,0 +1,71 @@
+Columns: 9
+Rows: 9
+Grid: >-
+  4	2	-	-	-	-	-	-	-
+
+  6	3	-	-	-	-	-	-	-
+
+  7	9	-	-	-	-	-	-	-
+
+  8	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+Variants:
+- Name: Complete Columns
+- Name: Complete Rows
+- Name: Complete Square Boxes
+- Name: Arithmetic Consistency
+- Name: Complete Diagonal
+  Arguments:
+    Type: topleft
+- Name: Complete Diagonal
+  Arguments:
+    Type: topright
+- Name: Sum
+  Arguments:
+    Positions: A2; A3; A4; B4; C4; C5; C6
+    Sum: 42
+    Unique: true
+- Name: Sum
+  Arguments:
+    Positions: A5; A6; A7; B7; B8; C7; C8
+    Sum: 33
+    Unique: true
+- Name: Sum
+  Arguments:
+    Positions: B9; C9; D7; D8; D9; E7; F7
+    Sum: 38
+    Unique: true
+- Name: Sum
+  Arguments:
+    Positions: E9; F9; G7; G8; G9; H7; H8
+    Sum: 31
+    Unique: true
+- Name: Sum
+  Arguments:
+    Positions: G4; G5; G6; H6; I6; I7; I8
+    Sum: 28
+    Unique: true
+- Name: Sum
+  Arguments:
+    Positions: G2; G3; H2; H3; I3; I4; I5
+    Sum: 37
+    Unique: true
+- Name: Sum
+  Arguments:
+    Positions: D3; E3; F1; F2; F3; G1; H1
+    Sum: 32
+    Unique: true
+- Name: Sum
+  Arguments:
+    Positions: B2; B3; C1; C2; C3; D1; E1
+    Sum: 39
+    Unique: true

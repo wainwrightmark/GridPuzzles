@@ -1,0 +1,1 @@
+﻿public record Example(string Name, string Yaml);

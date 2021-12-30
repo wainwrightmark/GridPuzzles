@@ -1,0 +1,88 @@
+﻿Columns: 9
+Rows: 9
+Grid: >-
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	5	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+Variants:
+- Name: Complete Columns
+- Name: Complete Rows
+- Name: Complete Square Boxes
+- Name: Arithmetic Consistency
+- Name: Magic Square
+  Arguments:
+    Center of Magic Square: E5
+- Name: Sum
+  Arguments:
+    Positions: C2; B2; B3
+    Sum: 16
+    Unique: true
+- Name: Sum
+  Arguments:
+    Positions: D2; D3; C3
+    Sum: 12
+    Unique: true
+- Name: Sum
+  Arguments:
+    Positions: B4; C4
+    Sum: 10
+    Unique: true
+- Name: Sum
+  Arguments:
+    Positions: B7;  B6; C6; B8
+    Sum: 22
+    Unique: true
+- Name: Sum
+  Arguments:
+    Sum: 15
+    Positions: C7; C8
+    Unique: true
+- Name: Sum
+  Arguments:
+    Sum: 14
+    Positions: D7; D8
+    Unique: true
+- Name: Sum
+  Arguments:
+    Positions: F7; F8
+    Sum: 7
+    Unique: true
+- Name: Sum
+  Arguments:
+    Positions: F2; F3
+    Sum: 16
+    Unique: true
+- Name: Sum
+  Arguments:
+    Positions: G2; G3; H2
+    Sum: 10
+    Unique: true
+- Name: Sum
+  Arguments:
+    Positions: H3; H4; G4
+    Sum: 20
+    Unique: true
+- Name: Sum
+  Arguments:
+    Positions: G6; G7; H6
+    Sum: 16
+    Unique: true
+- Name: Sum
+  Arguments:
+    Positions: H7; H8; G8
+    Sum: 24
+    Unique: true

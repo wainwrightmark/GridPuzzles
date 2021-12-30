@@ -14,4 +14,19 @@
     <ProjectReference Include="..\SVGElements\SVGElements.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="Examples\ExampleResource.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ExampleResource.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Examples\ExampleResource.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>ExampleResource.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
 </Project>

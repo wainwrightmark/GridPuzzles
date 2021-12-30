@@ -1,0 +1,60 @@
+﻿# https://www.youtube.com/watch?v=LT2NrAgT-rs&ab_channel=CrackingTheCryptic
+# Phoenix Knights by apiyo
+Columns: 9
+Rows: 9
+Grid: >-
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+Variants:
+- Name: Arithmetic Consistency
+- Name: Complete Columns
+- Name: Complete Rows
+- Name: Complete Square Boxes
+- Name: Differ By
+  Arguments:
+    Amount: 1
+    Positions: H5; I5
+- Name: Knight
+- Name: Multiple
+  Arguments:
+    Amount: 2
+    Positions: G5; H5
+- Name: Whispers
+  Arguments:
+    Minimum Distance: 5
+    Positions: E4; E3; F2
+- Name: Whispers
+  Arguments:
+    Minimum Distance: 5
+    Positions: F4; G3; G4; G5; G6; G7; F6
+- Name: Whispers
+  Arguments:
+    Minimum Distance: 5
+    Positions: E6; E7; D8
+- Name: Whispers
+  Arguments:
+    Minimum Distance: 5
+    Positions: D4; C3; C4; C5; C6; C7; D6
+- Name: Whispers
+  Arguments:
+    Minimum Distance: 5
+    Positions: A2; B1
+- Name: Whispers
+  Arguments:
+    Minimum Distance: 5
+    Positions: H9; I8

@@ -1,0 +1,66 @@
+﻿Columns: 9
+Rows: 9
+Grid: >-
+  1	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	2
+Variants:
+- Name: Complete Columns
+- Name: Complete Rows
+- Name: Complete Square Boxes
+- Name: Arithmetic Consistency
+- Name: Sum
+  Arguments:
+    Unique: True
+    Sum: 24
+    Positions: B4; B3; B2; C2
+- Name: Sum
+  Arguments:
+    Sum: 29
+    Unique: True
+    Positions: D2; D3; E3; F3
+- Name: Sum
+  Arguments:
+    Unique: True
+    Sum: 19
+    Positions: F2; G2; H2; H3
+- Name: Sum
+  Arguments:
+    Unique: True
+    Sum: 22
+    Positions: H4; G4; G5; G6
+- Name: Sum
+  Arguments:
+    Sum: 24
+    Unique: True
+    Positions: H6; H7; H8; G8
+- Name: Sum
+  Arguments:
+    Sum: 27
+    Unique: True
+    Positions: D7; E7; F7; F8
+- Name: Sum
+  Arguments:
+    Sum: 19
+    Unique: True
+    Positions: B7; B8; C8; D8
+- Name: Sum
+  Arguments:
+    Sum: 22
+    Unique: True
+    Positions: C4; C5; C6; B6
+- Name: Knight

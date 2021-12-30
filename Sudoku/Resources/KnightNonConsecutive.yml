@@ -1,0 +1,27 @@
+Columns: 9
+Rows: 9
+Grid: >-
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	4	-	7	-	-	-
+
+  -	-	6	-	-	-	5	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	4	-	-	-	3	-	-
+
+  -	-	-	2	-	5	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+Variants:
+- Name: Complete Columns
+- Name: Complete Rows
+- Name: Complete Square Boxes
+- Name: Arithmetic Consistency
+- Name: Knight
+- Name: Non Consecutive

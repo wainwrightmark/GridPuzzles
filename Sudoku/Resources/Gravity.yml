@@ -1,0 +1,47 @@
+﻿#https://www.youtube.com/watch?v=-kym5UAVA7I&ab_channel=CrackingTheCryptic
+Columns: 9
+Rows: 9
+Grid: >-
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+Variants:
+- Name: Thermometer
+  Arguments:
+    Positions: H4; I3; I2; I1
+- Name: Thermometer
+  Arguments:
+    Positions: E8; D8; C9; B9; A9
+- Name: Complete Rows
+- Name: Thermometer
+  Arguments:
+    Positions: A6; B7; C7; C8; D9
+- Name: Thermometer
+  Arguments:
+    Positions: C4; D5; E6; E7
+- Name: Complete Square Boxes
+- Name: Arithmetic Consistency
+- Name: Thermometer
+  Arguments:
+    Positions: D3; E4; F5; G5
+- Name: Thermometer
+  Arguments:
+    Positions: E1; F1; G2; G3; H3; I4; I5
+- Name: Complete Columns
+- Name: Thermometer
+  Arguments:
+    Positions: D1; C2; B2

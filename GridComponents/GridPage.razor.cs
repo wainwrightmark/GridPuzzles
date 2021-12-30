@@ -58,6 +58,9 @@ public partial class GridPage<T> where T : notnull
     [EditorRequired]
     [Parameter] public GridCreator<T> GridCreator { get; set; }
 
+    [Parameter]
+    public IReadOnlyList<Example>? Examples { get; set; }
+
     [Parameter] public Func<Grid<T>, string>? GetExtraFunc { get; set; }
 
     private MudChip[] _selectedVariantBuilderChips = Array.Empty<MudChip>();
@@ -195,6 +198,23 @@ public partial class GridPage<T> where T : notnull
         try
         {
             var yaml = await _clipboardService.ReadTextAsync();
+            var result = await ImportYamlAsync(yaml, MyGridSession.SolveState.Grid.ClueSource.ValueSource,
+                GridCreator.VariantBuilderList.ToDictionary(x=>x.Name));
+
+            if (result.IsFailure)
+                await MyGridSession.ReportError(result.Error, TimeSpan.Zero);
+        }
+        catch (Exception e)
+        {
+            await MyGridSession.ReportError(e.Message, TimeSpan.Zero);
+        }
+    }
+
+    private async Task ImportExample(Example example)
+    {
+        try
+        {
+            var yaml = example.Yaml;
             var result = await ImportYamlAsync(yaml, MyGridSession.SolveState.Grid.ClueSource.ValueSource,
                 GridCreator.VariantBuilderList.ToDictionary(x=>x.Name));
 

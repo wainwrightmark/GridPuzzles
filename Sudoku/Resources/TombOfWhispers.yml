@@ -1,0 +1,74 @@
+﻿#https://www.youtube.com/watch?v=toRVKc3uty4&ab_channel=CrackingTheCryptic
+Columns: 9
+Rows: 9
+Grid: >-
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+Variants:
+- Name: Complete Square Boxes
+- Name: Arithmetic Consistency
+- Name: Sum
+  Arguments:
+    Sum: 20
+    Positions: F8; G8; H8; H7; H6
+    Unique: True
+- Name: Whispers
+  Arguments:
+    Positions: D6; C5; D4; E3; F4; G5; F6
+    Minimum Distance: 5
+- Name: Complete Rows
+- Name: Whispers
+  Arguments:
+    Positions: G2; H2; H3; H4
+    Minimum Distance: 5
+- Name: Sum
+  Arguments:
+    Sum: 21
+    Positions: B6; B7; B8; C8; D8
+    Unique: True
+- Name: Sum
+  Arguments:
+    Sum: 21
+    Positions: B4; B3; B2; C2; D2
+    Unique: True
+- Name: Whispers
+  Arguments:
+    Positions: F8; G8; H8; H7
+    Minimum Distance: 5
+- Name: Whispers
+  Arguments:
+    Positions: B6; B7; B8; C8
+    Minimum Distance: 5
+- Name: Whispers
+  Arguments:
+    Positions: A2; A3; A4
+    Minimum Distance: 5
+- Name: Whispers
+  Arguments:
+    Positions: B3; B2; C2; D2
+    Minimum Distance: 5
+- Name: Complete Columns
+- Name: Whispers
+  Arguments:
+    Positions: I2; I3; I4
+    Minimum Distance: 5
+- Name: Sum
+  Arguments:
+    Sum: 19
+    Positions: F2; G2; H2; H3; H4
+    Unique: True

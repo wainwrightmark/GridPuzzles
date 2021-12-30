@@ -1,0 +1,87 @@
+﻿Columns: 9
+Rows: 9
+Grid: >-
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	2	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+
+  -	-	-	-	-	-	-	-	-
+Variants:
+- Name: Arrow
+  Arguments:
+    Positions: B1; A2; A3
+    Head Size: 1
+- Name: Arrow
+  Arguments:
+    Positions: D6; D5; E4
+    Head Size: 1
+- Name: Arrow
+  Arguments:
+    Positions: I6; H6; G6
+    Head Size: 1
+- Name: Arrow
+  Arguments:
+    Positions: G5; F6; E6
+    Head Size: 1
+- Name: Arrow
+  Arguments:
+    Positions: H1; I2; I3
+    Head Size: 1
+- Name: Arrow
+  Arguments:
+    Positions: E1; E2; F3
+    Head Size: 1
+- Name: Arrow
+  Arguments:
+    Positions: G3; F4
+    Head Size: 1
+- Name: Arrow
+  Arguments:
+    Positions: B9; A8; A7
+    Head Size: 1
+- Name: Arrow
+  Arguments:
+    Positions: B5; A5; A6
+    Head Size: 1
+- Name: Arrow
+  Arguments:
+    Positions: C7; B7; C6
+    Head Size: 1
+- Name: Arrow
+  Arguments:
+    Positions: C2; C3; C4
+    Head Size: 1
+- Name: Arrow
+  Arguments:
+    Positions: H9; I8; I7
+    Head Size: 1
+- Name: Arrow
+  Arguments:
+    Positions: F9; F8; F7
+    Head Size: 1
+- Name: Complete Columns
+- Name: Complete Rows
+- Name: Complete Square Boxes
+- Name: Arithmetic Consistency
+- Name: Sum
+  Arguments:
+    Positions: A4; B5; C6; D7; E8; F9
+    Sum: 30
+    Unique: False
+- Name: Sum
+  Arguments:
+    Positions: D1; E2; F3; G4; H5; I6
+    Sum: 30
+    Unique: False

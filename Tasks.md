@@ -52,6 +52,7 @@
 - [ ] Allow Updates to contain new clues
 - [ ] Add 'or' clues
 - [ ] Improve Reason Text / add more variety of reasons
-- [ ] Examples Page
+- [x] Examples Page
 - [ ] Tooltips for all buttons
-- [ ] Add Readme
+- [x] Add Readme
+- [ ] Improve Readme

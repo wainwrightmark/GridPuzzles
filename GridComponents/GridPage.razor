@@ -14,7 +14,8 @@
 
         <MudItem xs="10" lg="5" Style="position: relative; height: 100%; width: 100%;">
             <GridSVGComponent SVGBuilder="GetSVGBuilder()" />
-            <MudPaper Class="d-flex justify-start py-2 px-1">
+            
+            <MudButtonGroup Variant="Variant.Outlined" Size="Size.Medium">
                 <MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="MyGridSession.Clear" Icon="@Icons.Filled.LayersClear" Title="Clear" />
                 <MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="MyGridSession.ClearAll" Icon="@Icons.Filled.FormatClear" Title="Clear All" />
                 <MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="MyGridSession.UndoLastManualChange" Icon="@Icons.Filled.Undo" Title="Undo" />
@@ -38,7 +39,7 @@
 
                 <MudIconButton Disabled="@(!MyGridSession.ButtonsDisabled)" OnClick="MyGridSession.Cancel" Icon="@Icons.Filled.Cancel" Title="Cancel" />
 
-            </MudPaper>
+            </MudButtonGroup>
             <MudPaper Class="d-flex justify-start py-2 px-1">
                 <MudNumericField T="int" FullWidth="false" Min="1" Max="MyGridSession.SolveState.Grid.ClueSource.ValueSource.AllValues.Count"
                                  Variant="Variant.Outlined"
@@ -159,10 +160,17 @@
                 }
                 <MudIconButton Icon="@Icons.Filled.PowerSettingsNew" OnClick="ChangeSize" Title="Change Size" />
             </MudPaper>
-
-        
-
         </MudItem>
-
+        
+        @if (Examples is not null)
+        {
+            <MudMenu Label="Examples" MaxHeight="300" TransformOrigin="Origin.BottomLeft" AnchorOrigin="Origin.TopLeft">
+                @foreach (var example in Examples)
+                {
+                    <MudMenuItem OnClick="() => ImportExample(example)">@example.Name</MudMenuItem>
+                }
+            </MudMenu>
+        }
+        
     </MudGrid>
 }
