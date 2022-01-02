@@ -187,29 +187,17 @@ public partial class GridPage<T> where T : notnull
 
         var svg = svgBuilder.ComposeSVG();
 
-        var text = ConvertToFormat(svg, DownloadFormat);
+        var fileName = $"{DownloadFileName}.{DownloadFormat.ToString().ToLower()}";
+        var data = SVGFormatHelper.GetImageData(svg, DownloadFormat);
 
-        var result = await _blazorDownloadFileService.DownloadFileFromText(
-            $"{DownloadFileName}.{DownloadFormat.ToString().ToLower()}", 
-            text,
-            Encoding.UTF8, 
-            "text/plain");
+        var result = await _blazorDownloadFileService
+            .DownloadFile(fileName, data, "application/octet-stream");
 
 
         if (!result.Succeeded)
         {
             await MyGridSession.ReportError(result.ErrorMessage, TimeSpan.Zero);
         }
-    }
-
-    private string ConvertToFormat(SVG svg, DownloadFormat downloadFormat)
-    {
-        return downloadFormat switch
-        {
-            DownloadFormat.SVG => svg.RenderString(),
-            DownloadFormat.BMP => svg.RenderString(),
-            _ => throw new ArgumentOutOfRangeException(nameof(downloadFormat), downloadFormat, null)
-        };
     }
 
     //private void SolveToFile() //TODO change this a lot!
@@ -345,8 +333,3 @@ public partial class GridPage<T> where T : notnull
         }
     }
 }
-
-public enum DownloadFormat
-{
-    SVG, BMP
-};
