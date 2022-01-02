@@ -1,10 +1,14 @@
 ﻿@using GridPuzzles.Session
 @using GridPuzzles.VariantBuilderArguments
+@using BlazorDownloadFile
 @typeparam T
 @namespace GridComponents
 
 @inject ClipboardService _clipboardService
 @inject IDialogService _dialogService
+@inject IBlazorDownloadFileService _blazorDownloadFileService;
+
+
 
 @* ReSharper disable once ConditionIsAlwaysTrueOrFalse *@
 @if (MyGridSession != null)
@@ -26,7 +30,7 @@
                 <MudTooltip Text="Solve"><MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="MyGridSession.RandomSolve" Icon="@Icons.Filled.Cake" /></MudTooltip>
                 <MudTooltip Text="Export"><MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="Export" Icon="@Icons.Filled.ContentCopy" /></MudTooltip>
                 <MudTooltip Text="Import"><MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="Import" Icon="@Icons.Filled.ContentPaste" /></MudTooltip>
-                <MudTooltip Text="SolveToFile"><MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="SolveToFile" Icon="@Icons.Filled.Download" /></MudTooltip>
+                <MudTooltip Text="Download"><MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="Download" Icon="@Icons.Filled.Download" /></MudTooltip>
 
 
                 <MudTooltip Text="@(MyGridSession.SessionSettings.GoToFinalStateOnKeyPress ? "Do automatic updates" : "Do not do automatic updates")">

@@ -3,12 +3,67 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using Microsoft.AspNetCore.Components.Rendering;
 
 namespace SVGHelper;
 
 public static class SvgHelper
 {
+
+    public static string RenderString(this SVGElement svgElement)
+    {
+        var builder = new StringBuilder();
+        RenderString(svgElement, builder);
+
+        return builder.ToString();
+    }
+
+    private static void RenderString(this SVGElement svgElement, StringBuilder builder)
+    {
+        builder.Append($"<{svgElement.ElementName}");
+        foreach (var (propertyName, index, value) in svgElement.GetProperties())
+        {
+            string? valueString;
+            
+
+            if (value is double d)
+                valueString = Math.Round(d, 2).ToString("R");
+            else if (value is Enum e)
+                valueString =
+                    e.GetType().GetMember(e.ToString()).First().GetCustomAttribute<DisplayAttribute>()?.Name ??
+                    e.ToString();
+            else
+                valueString = value?.ToString();
+
+            if (string.IsNullOrWhiteSpace(valueString)) continue;
+
+
+            builder.Append($" {propertyName}=\"{valueString}\"");
+        }
+
+        if (svgElement.Content is null && svgElement.Children is null)
+        {
+            builder.AppendLine("/>");
+            return;
+        }
+
+        //Ignore Event Handlers
+        builder.AppendLine(">");
+
+
+            
+
+        if (svgElement.Content is not null) builder.AppendLine(svgElement.Content);
+
+        if (svgElement.Children is not null)
+            foreach (var svgElementChild in svgElement.Children)
+                svgElementChild.RenderString(builder);
+
+        builder.AppendLine($"</{svgElement.ElementName}>");
+    }
+
+
     public static void Render(this SVG svgElement, int k, RenderTreeBuilder builder, object eventReceiver)
     {
         RenderElement(svgElement, k, builder, eventReceiver);

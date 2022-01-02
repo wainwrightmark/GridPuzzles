@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.Text;
 using CSharpFunctionalExtensions;
 using GridPuzzles;
 using GridPuzzles.Bifurcation;
@@ -10,6 +11,8 @@ using GridPuzzles.Yaml;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using MudBlazor;
+using SVGElements;
+using SVGHelper;
 using Position = GridPuzzles.Position;
 
 namespace GridComponents;
@@ -169,28 +172,43 @@ public partial class GridPage<T> where T : notnull
 
     private string? GetExtra(Grid<T> grid) => GetExtraFunc?.Invoke(grid);
 
-    private void SolveToFile() //TODO change this a lot!
+    private async Task Download()
     {
-        const string folder = @"Exported";
+        var svgBuilder = new GridPageGridSVG(
+            MyGridSession.SolveState,
+            SelectedClueBuilders,
+            position => ImmutableStack<ISVGEventHandler>.Empty,
+            MyGridSession.SessionSettings);
 
-        for (var i = 0; i < 10; i++)
-        {
-            while (true)
-            {
-                var fileName = Path.Combine(Environment.CurrentDirectory, folder, Guid.NewGuid() + ".txt");
-                var result = MyGridSession.SolveState.Grid.RandomSolve(new Random());
+        var svg = svgBuilder.ComposeSVG();
 
-                if (result.HasNoValue)
-                    continue;
+        var text = svg.RenderString();
 
-                var text = result.Value.ToSerializable(GetExtra, MyGridSession.SolveState.VariantBuilders)
-                    .Serialize();
-                File.WriteAllText(fileName, text);
-
-                break;
-            }
-        }
+        var result = await _blazorDownloadFileService.DownloadFileFromText("Puzzle.svg", text, Encoding.UTF8, "text/plain");
     }
+
+    //private void SolveToFile() //TODO change this a lot!
+    //{
+    //    const string folder = @"Exported";
+
+    //    for (var i = 0; i < 10; i++)
+    //    {
+    //        while (true)
+    //        {
+    //            var fileName = Path.Combine(Environment.CurrentDirectory, folder, Guid.NewGuid() + ".txt");
+    //            var result = MyGridSession.SolveState.Grid.RandomSolve(new Random());
+
+    //            if (result.HasNoValue)
+    //                continue;
+
+    //            var text = result.Value.ToSerializable(GetExtra, MyGridSession.SolveState.VariantBuilders)
+    //                .Serialize();
+    //            File.WriteAllText(fileName, text);
+
+    //            break;
+    //        }
+    //    }
+    //}
 
 
     private async Task Import()

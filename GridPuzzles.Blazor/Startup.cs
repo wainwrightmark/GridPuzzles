@@ -1,3 +1,4 @@
+using BlazorDownloadFile;
 using GridComponents;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -25,6 +26,9 @@ public class Startup
         services.AddServerSideBlazor();
         services.AddMudServices();
         services.AddScoped<ClipboardService>();
+        services.AddBlazorDownloadFile();
+
+
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
