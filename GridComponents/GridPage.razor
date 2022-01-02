@@ -30,7 +30,22 @@
                 <MudTooltip Text="Solve"><MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="MyGridSession.RandomSolve" Icon="@Icons.Filled.Cake" /></MudTooltip>
                 <MudTooltip Text="Export"><MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="Export" Icon="@Icons.Filled.ContentCopy" /></MudTooltip>
                 <MudTooltip Text="Import"><MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="Import" Icon="@Icons.Filled.ContentPaste" /></MudTooltip>
-                <MudTooltip Text="Download"><MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="Download" Icon="@Icons.Filled.Download" /></MudTooltip>
+                
+                <div>
+                    <MudTooltip Text="Download"><MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="()=> DownloadPopoverOpen = !DownloadPopoverOpen" Icon="@Icons.Filled.Download" /></MudTooltip>
+                
+                    <MudPopover Open="@DownloadPopoverOpen" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter">
+                        <MudTextField @bind-Value="DownloadFileName" Label="File Name"  Variant="Variant.Text" ></MudTextField>
+                        <MudSelect T="DownloadFormat" @bind-Value="@DownloadFormat">
+                            @foreach (var item in Enum.GetValues<DownloadFormat>())
+                            {
+                                <MudSelectItem Value="@item"/>
+                            }
+                        </MudSelect>
+                        <MudButton OnClick="@Download">Download</MudButton>
+                    </MudPopover>
+                </div>
+
 
 
                 <MudTooltip Text="@(MyGridSession.SessionSettings.GoToFinalStateOnKeyPress ? "Do automatic updates" : "Do not do automatic updates")">

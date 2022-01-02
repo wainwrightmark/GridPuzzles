@@ -172,6 +172,11 @@ public partial class GridPage<T> where T : notnull
 
     private string? GetExtra(Grid<T> grid) => GetExtraFunc?.Invoke(grid);
 
+
+    private bool DownloadPopoverOpen { get; set; } = false;
+    private string DownloadFileName { get; set; } = "Puzzle";
+    private DownloadFormat DownloadFormat { get; set; } = DownloadFormat.SVG;
+
     private async Task Download()
     {
         var svgBuilder = new GridPageGridSVG(
@@ -182,9 +187,29 @@ public partial class GridPage<T> where T : notnull
 
         var svg = svgBuilder.ComposeSVG();
 
-        var text = svg.RenderString();
+        var text = ConvertToFormat(svg, DownloadFormat);
 
-        var result = await _blazorDownloadFileService.DownloadFileFromText("Puzzle.svg", text, Encoding.UTF8, "text/plain");
+        var result = await _blazorDownloadFileService.DownloadFileFromText(
+            $"{DownloadFileName}.{DownloadFormat.ToString().ToLower()}", 
+            text,
+            Encoding.UTF8, 
+            "text/plain");
+
+
+        if (!result.Succeeded)
+        {
+            await MyGridSession.ReportError(result.ErrorMessage, TimeSpan.Zero);
+        }
+    }
+
+    private string ConvertToFormat(SVG svg, DownloadFormat downloadFormat)
+    {
+        return downloadFormat switch
+        {
+            DownloadFormat.SVG => svg.RenderString(),
+            DownloadFormat.BMP => svg.RenderString(),
+            _ => throw new ArgumentOutOfRangeException(nameof(downloadFormat), downloadFormat, null)
+        };
     }
 
     //private void SolveToFile() //TODO change this a lot!
@@ -320,3 +345,8 @@ public partial class GridPage<T> where T : notnull
         }
     }
 }
+
+public enum DownloadFormat
+{
+    SVG, BMP
+};
