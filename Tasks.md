@@ -53,6 +53,10 @@
 - [ ] Add 'or' clues
 - [ ] Improve Reason Text / add more variety of reasons
 - [x] Examples Page
-- [ ] Tooltips for all buttons
+- [x] Tooltips for all buttons, and better icon choices
 - [x] Add Readme
 - [ ] Improve Readme
+- [ ] Only show relevant buttons
+- [ ] On Crossword, allow typing whole words
+- [ ] Help Section
+- [ ] Export to printable format

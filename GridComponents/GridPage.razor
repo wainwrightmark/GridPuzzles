@@ -16,28 +16,31 @@
             <GridSVGComponent SVGBuilder="GetSVGBuilder()" />
             
             <MudButtonGroup Variant="Variant.Outlined" Size="Size.Medium">
-                <MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="MyGridSession.Clear" Icon="@Icons.Filled.LayersClear" Title="Clear" />
-                <MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="MyGridSession.ClearAll" Icon="@Icons.Filled.FormatClear" Title="Clear All" />
-                <MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="MyGridSession.UndoLastManualChange" Icon="@Icons.Filled.Undo" Title="Undo" />
-                <MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="MyGridSession.PreviousGrid" Icon="@Icons.Filled.ArrowBack" Title="Previous" />
-                <MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="MyGridSession.NextGrid" Icon="@Icons.Filled.ArrowForward" Title="Next" />
-                <MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="MyGridSession.FinalGrid" Icon="@Icons.Filled.LastPage" Title="Final" />
-                <MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="MyGridSession.RandomChange" Icon="@Icons.Filled.Casino" Title="Random" />
-                <MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="MyGridSession.RandomSolve" Icon="@Icons.Filled.Cake" Title="Solve" />
-                <MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="Export" Icon="@Icons.Filled.Download" Title="Export" />
-                <MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="Import" Icon="@Icons.Filled.Upload" Title="Import" />
-                <MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="SolveToFile" Icon="@Icons.Filled.Calculate" Title="SolveToFile" />
+                <MudTooltip Text="Clear"><MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="MyGridSession.Clear" Icon="@Icons.Filled.LayersClear" /></MudTooltip>
+                <MudTooltip Text="Clear All"><MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="MyGridSession.ClearAll" Icon="@Icons.Filled.FormatClear" /></MudTooltip>
+                <MudTooltip Text="Undo"><MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="MyGridSession.UndoLastManualChange" Icon="@Icons.Filled.Undo" /></MudTooltip>
+                <MudTooltip Text="Previous"><MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="MyGridSession.PreviousGrid" Icon="@Icons.Filled.ArrowBack" /></MudTooltip>
+                <MudTooltip Text="Next"><MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="MyGridSession.NextGrid" Icon="@Icons.Filled.ArrowForward" /></MudTooltip>
+                <MudTooltip Text="Final"><MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="MyGridSession.FinalGrid" Icon="@Icons.Filled.LastPage" /></MudTooltip>
+                <MudTooltip Text="Random"><MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="MyGridSession.RandomChange" Icon="@Icons.Filled.Casino" /></MudTooltip>
+                <MudTooltip Text="Solve"><MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="MyGridSession.RandomSolve" Icon="@Icons.Filled.Cake" /></MudTooltip>
+                <MudTooltip Text="Export"><MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="Export" Icon="@Icons.Filled.ContentCopy" /></MudTooltip>
+                <MudTooltip Text="Import"><MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="Import" Icon="@Icons.Filled.ContentPaste" /></MudTooltip>
+                <MudTooltip Text="SolveToFile"><MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="SolveToFile" Icon="@Icons.Filled.Download" /></MudTooltip>
 
 
                 <MudTooltip Text="@(MyGridSession.SessionSettings.GoToFinalStateOnKeyPress ? "Do automatic updates" : "Do not do automatic updates")">
-                    <MudCheckBox Disabled="@MyGridSession.ButtonsDisabled" T="bool" CheckedIcon="@Icons.Filled.FastForward" UncheckedIcon="@Icons.Filled.Pause" @bind-Checked="MyGridSession.SessionSettings.GoToFinalStateOnKeyPress" />
+                    <MudCheckBox Disabled="@MyGridSession.ButtonsDisabled" T="bool" CheckedIcon="@Icons.Filled.PlayArrow" UncheckedIcon="@Icons.Filled.PlayDisabled" @bind-Checked="MyGridSession.SessionSettings.GoToFinalStateOnKeyPress" />
                 </MudTooltip>
 
                 <MudTooltip Text="@(MyGridSession.SessionSettings.SingleStep ? "Single Step" : "Combined Steps")">
-                    <MudCheckBox Disabled="@MyGridSession.ButtonsDisabled" T="bool" CheckedIcon="@Icons.Filled.DoNotStep" UncheckedIcon="@Icons.Filled.Fastfood" @bind-Checked="MyGridSession.SessionSettings.SingleStep" />
+                    <MudCheckBox Disabled="@MyGridSession.ButtonsDisabled" T="bool" CheckedIcon="@Icons.Filled.SlowMotionVideo" UncheckedIcon="@Icons.Filled.FastForward" @bind-Checked="MyGridSession.SessionSettings.SingleStep" />
                 </MudTooltip>
-
-                <MudIconButton Disabled="@(!MyGridSession.ButtonsDisabled)" OnClick="MyGridSession.Cancel" Icon="@Icons.Filled.Cancel" Title="Cancel" />
+                
+                <MudTooltip Text="Cancel">
+                    <MudIconButton Disabled="@(!MyGridSession.ButtonsDisabled)" OnClick="MyGridSession.Cancel" Icon="@Icons.Filled.Cancel"/>
+                </MudTooltip>
+                
 
             </MudButtonGroup>
             <MudPaper Class="d-flex justify-start py-2 px-1">
@@ -53,11 +56,19 @@
                            @bind-Value="MyGridSession.SessionSettings.MaxFinalIntervalMS">
                     @($"Step: {MyGridSession.SessionSettings.MaxFinalIntervalMS}ms")
                 </MudSlider>
+                
+                <MudTooltip Text="Rotate">
+                    <MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="_=>MyGridSession.Transform(1,false, false)" Icon="@Icons.Filled.RotateRight"  />
+                </MudTooltip>
+                
+                <MudTooltip Text="Flip Horizontal">
+                    <MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="_=>MyGridSession.Transform(0,true, false)" Icon="@Icons.Filled.SwapHorizontalCircle"/>
+                </MudTooltip>
 
-                <MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="_=>MyGridSession.Transform(1,false, false)" Icon="@Icons.Filled.RotateRight" Title="Rotate" />
-                <MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="_=>MyGridSession.Transform(0,true, false)" Icon="@Icons.Filled.SwapHorizontalCircle" Title="Flip Horizontal" />
-                <MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="_=>MyGridSession.Transform(0,false, true)" Icon="@Icons.Filled.SwapVerticalCircle" Title="Flip Vertical" />
+                <MudTooltip Text="Flip Vertical">
 
+                <MudIconButton Disabled="@MyGridSession.ButtonsDisabled" OnClick="_=>MyGridSession.Transform(0,false, true)" Icon="@Icons.Filled.SwapVerticalCircle" />
+                </MudTooltip>
 
             </MudPaper>
 
@@ -158,7 +169,11 @@
                 {
                     <MudNumericField HelperText="Rows" @bind-Value="SelectedRows" Min="GridCreator.MinSize" Max="GridCreator.MaxSize" />
                 }
-                <MudIconButton Icon="@Icons.Filled.PowerSettingsNew" OnClick="ChangeSize" Title="Change Size" />
+                
+                <MudTooltip Text="Change Size">
+                    <MudIconButton Icon="@Icons.Filled.PowerSettingsNew" OnClick="ChangeSize"/>
+                </MudTooltip>
+                
             </MudPaper>
         </MudItem>
         

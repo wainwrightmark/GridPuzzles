@@ -3,18 +3,21 @@
 @page "/{Size:int}"
 @using Sudoku
 
+
 <GridPage T="int"
-          Columns="@Size" 
-          Rows="@Size"
-          GridCreator="SudokuGridCreator.Instance" 
+          Columns="@_size"
+          Rows="@_size"
+          GridCreator="SudokuGridCreator.Instance"
           GridText="@GridText"
-          Examples="@Examples.ExampleHelper.SudokuExamples.ToList()"
-          />
+          Examples="@Examples.ExampleHelper.SudokuExamples.ToList()"/>
+
 
 @code {
 
     [Parameter]
-    public int Size { get; set; } = 9;
+    public int Size { get; set; }
+
+    private int _size => Size == default ? 9 : Size;
 
     [Parameter]
     public string? GridText { get; set; }
