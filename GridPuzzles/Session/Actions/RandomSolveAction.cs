@@ -62,7 +62,7 @@ public class RandomSolveAction<T> : IGridViewAction<T> where T :notnull
         return results.Zip(MyTimer(settings), (x,_)=>x);
     }
 
-    static async IAsyncEnumerable<int> MyTimer(SessionSettings settings)
+    private static async IAsyncEnumerable<int> MyTimer(SessionSettings settings)
     {
         var i = 0;
         while (true)

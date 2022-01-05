@@ -76,8 +76,11 @@ public class SumClue : IRuleClue<int>
         var assignedValues = ImmutableList<PositionValue>.Empty;
         var usedValues = allUnique ? new HashSet<int>() : Maybe<HashSet<int>>.None;
 
+        //TODO check degrees of freedom and abort early if DOF is too high
 
         //TODO maybe get rid of all this - should be handled by earlier clues
+
+        //Group cells with the same set of possible values together
         foreach (var grouping in cells.GroupBy(x => x.Value, x => x.Key))
         {
             var count = grouping.Count();
@@ -87,6 +90,7 @@ public class SumClue : IRuleClue<int>
                 ? cell.PossibleValues.Except(usedValues.Value)
                 : cell.PossibleValues;
 
+            //If cells of this type only have one possible value, assign that value
             if (newPossibleValues.Count == 1)
             {
                 if (usedValues.HasValue)
@@ -139,10 +143,16 @@ public class SumClue : IRuleClue<int>
             }
         }
 
-        //TODO assign cells which can be assigned here
-        //TODO check min and max values
 
-        //TODO group remainingValues in some way
+        if (!SumChecker.IsLegalSumPlausible(assignedValues, pvsToCheck))
+        {
+            yield return (new Contradiction(
+                new SumReason(this),
+                Positions));
+            yield break;
+        }
+
+        //TODO Check pvs using symmetry if there are no additional restrictions
 
         var unassignedValues = unassignedValuesBuilder.ToImmutable();
 
@@ -165,6 +175,18 @@ public class SumClue : IRuleClue<int>
 
         var cellPossibleValues = possiblePositionValues.ToLookup(x => x.Position, x => x.Value);
 
+        if (cellPossibleValues.All(x => x.Count() == 1))
+        {
+            if (!SumChecker.IsLegalSum(possiblePositionValues))
+            {
+                yield return (new Contradiction(
+                    new SumReason(this),
+//                        $"{Name} is impossible",
+                    Positions));
+                yield break;
+            }
+        }
+
         foreach (var cell in cells)
         {
             var possibleValues = cellPossibleValues[cell.Key];
@@ -186,18 +208,6 @@ public class SumClue : IRuleClue<int>
                     //$"{Name} restricts values"
                 ));
             // ReSharper restore PossibleMultipleEnumeration
-        }
-
-        if (cellPossibleValues.All(x => x.Count() == 1))
-        {
-            if (!SumChecker.IsLegalSum(possiblePositionValues))
-            {
-                yield return (new Contradiction(
-                    new SumReason(this),
-//                        $"{Name} is impossible",
-                    Positions));
-                yield break;
-            }
         }
     }
 
@@ -306,6 +316,8 @@ public class SumClue : IRuleClue<int>
 
         ImmutableSortedSet<int> Sums { get; }
 
+        public bool IsLegalSumPlausible(IEnumerable<PositionValue> assignedPositionValues, IEnumerable<PositionValue> possiblePositionValues);
+
         /// <summary>
         /// True is any total outside the allowed sums leads to a contradiction
         /// </summary>
@@ -334,6 +346,27 @@ public class SumClue : IRuleClue<int>
             var sum = pairs.Sum(x => x.Value);
             return CorrectSumsAreLegal == Sums.Contains(sum);
         }
+
+        /// <inheritdoc />
+        public bool IsLegalSumPlausible(IEnumerable<PositionValue> assignedPositionValues, IEnumerable<PositionValue> possiblePositionValues)
+        {
+            if (!CorrectSumsAreLegal) return true; //Always plausible if we're just trying to avoid particular numbers
+            var assignedAmount = assignedPositionValues.Select(x=>x.Value).DefaultIfEmpty(0).Sum();
+
+            var maxSoFar = assignedAmount;
+            var minSoFar = assignedAmount;
+            if (minSoFar > Sums.Max) return false;
+
+            foreach (var group in possiblePositionValues.GroupBy(x=>x.Position, x=>x.Value))
+            {
+                minSoFar += group.Min();
+                if (minSoFar > Sums.Max) return false; //The minimum amount is greater than the highest allowed sum
+                maxSoFar += group.Max();
+            }
+
+            if (maxSoFar < Sums.Min) return false;//The maximum amount is less than the highest allowed sum
+            return true;
+        }
     }
 
 
@@ -342,6 +375,38 @@ public class SumClue : IRuleClue<int>
         public ImmutableDictionary<Position, int> Multipliers { get; }
 
         public ImmutableSortedSet<int> Sums { get; }
+
+        /// <inheritdoc />
+        public bool IsLegalSumPlausible(IEnumerable<PositionValue> assignedPositionValues, IEnumerable<PositionValue> possiblePositionValues)
+        {
+            if (!CorrectSumsAreLegal) return true; //Always plausible if we're just trying to avoid particular numbers
+            
+            var assignedAmount = assignedPositionValues.Select(x=>
+                Multipliers[x.Position] * x.Value).DefaultIfEmpty(0).Sum();
+
+            var maxSoFar = assignedAmount;
+            var minSoFar = assignedAmount;
+
+            foreach (var group in possiblePositionValues.GroupBy(x=>x.Position, x=>x.Value))
+            {
+                var multiplier = Multipliers[group.Key];
+                if (multiplier > 0)
+                {
+                    minSoFar += multiplier * group.Min();
+                    maxSoFar += multiplier * group.Max();
+                }
+                else
+                {
+                    minSoFar += multiplier * group.Max();
+                    maxSoFar += multiplier * group.Min();
+                }
+            }
+
+            if (minSoFar > Sums.Max) return false; //The minimum amount is greater than the highest allowed sum
+            if (maxSoFar < Sums.Min) return false;//The maximum amount is less than the highest allowed sum
+            return true;
+        }
+
         public bool CorrectSumsAreLegal { get; }
 
         /// <inheritdoc />
