@@ -1,7 +1,9 @@
 ﻿using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Threading.Tasks;
 using GridPuzzles.Bifurcation;
+using MoreLinq;
 
 namespace GridPuzzles.Session.Actions;
 
@@ -17,24 +19,70 @@ public class RandomSolveAction<T> : IGridViewAction<T> where T :notnull
     public string Name => "Random Solve";
 
     /// <inheritdoc />
-    public async IAsyncEnumerable<ActionResult<T>> Execute(ImmutableStack<SolveState<T>> history,
-        SessionSettings settings, [EnumeratorCancellation] CancellationToken cancellation)
+    public IAsyncEnumerable<ActionResult<T>> Execute(ImmutableStack<SolveState<T>> history,
+        SessionSettings settings, CancellationToken cancellation)
     {
-        var currentState = history.Peek();
+        var originalState = history.Peek();
         var sw = Stopwatch.StartNew();
-        var grid = await currentState.Grid.RandomSolveAsync();
-        sw.Stop();
-        if (grid.HasValue) //TODO give incremental results
+
+
+        var results =
+            originalState.Grid
+                .RandomSolveIncremental(null, cancellation)
+                .Prepend((originalState.Grid, UpdateResult<T>.Empty))
+                .Pairwise((previous, current) =>
+                    CreateActionResult(
+                        current.Grid, 
+                        current.Item2,
+                        originalState, 
+                        previous.Grid, sw))
+                .ToAsyncEnumerable();
+
+                
+
+
+        //await foreach (var incrementalGrid in currentState.Grid.RandomSolveIncremental(null).WithCancellation(cancellation))
+        //{
+        //    var solveState = new SolveState<T>(incrementalGrid,
+        //        currentState.VariantBuilders,
+        //        UpdateResult<T>.Empty,
+        //        ChangeType.RandomMove,
+        //        "Random Solve",
+        //        sw.Elapsed,
+        //        currentState.FixedValues,
+        //        currentState.Grid);
+        //    yield return (ActionResult<T>)solveState;
+        //}
+        //sw.Stop();
+
+
+        if (settings.MaxFinalInterval == TimeSpan.Zero)
+            return results;
+
+        return results.Zip(MyTimer(settings), (x,_)=>x);
+    }
+
+    static async IAsyncEnumerable<int> MyTimer(SessionSettings settings)
+    {
+        var i = 0;
+        while (true)
         {
-            var solveState = new SolveState<T>(grid.Value,
-                currentState.VariantBuilders,
-                UpdateResult<T>.Empty,
-                ChangeType.RandomMove,
-                "Random Solve",
-                sw.Elapsed,
-                currentState.FixedValues,
-                currentState.Grid);
-            yield return (ActionResult<T>)solveState;
+            yield return i++;
+            await Task.Delay(settings.MaxFinalInterval);
         }
+    }
+
+    private static ActionResult<T> CreateActionResult(Grid<T> latestGrid, UpdateResult<T> updateResult, SolveState<T> originalState, Grid<T> previousGrid, Stopwatch sw)
+    {
+        var solveState = new SolveState<T>(latestGrid,
+            originalState.VariantBuilders,
+            updateResult,
+            ChangeType.RandomMove,
+            updateResult.Message,
+            sw.Elapsed,
+            originalState.FixedValues,
+            previousGrid);
+        sw.Reset();
+        return(ActionResult<T>) solveState;
     }
 }

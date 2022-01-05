@@ -242,7 +242,6 @@ public sealed class VariantBuilderFormGridSVG : SVGBuilder
 public abstract class SVGBuilder
 {
     protected SVGBuilder(ISolveState solveState,
-
         Func<Position, IEnumerable<ISVGEventHandler>> getEventHandlers)
     {
         SolveState = solveState;

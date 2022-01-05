@@ -59,4 +59,7 @@
 - [ ] Only show relevant buttons
 - [ ] On Crossword, allow typing whole words
 - [ ] Help Section
-- [ ] Export to printable format
+- [x] Export to SVG
+- [ ] Export to BMP
+- [ ] Try using Hyperlinq https://github.com/NetFabric/NetFabric.Hyperlinq
+- [ ] Try using Misnomer https://github.com/qbit86/misnomer

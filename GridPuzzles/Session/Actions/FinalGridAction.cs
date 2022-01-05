@@ -30,7 +30,7 @@ public class FinalGridAction<T> : IGridViewAction<T> where T: notnull
 
     static async IAsyncEnumerable<int> MyTimer(SessionSettings settings)
     {
-        int i = 0;
+        var i = 0;
         while (true)
         {
             yield return i++;

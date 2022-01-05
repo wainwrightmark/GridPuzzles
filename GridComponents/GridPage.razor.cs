@@ -130,15 +130,10 @@ public partial class GridPage<T> where T : notnull
     public SVGBuilder GetSVGBuilder() =>
         new GridPageGridSVG(MyGridSession.ChosenState,
             SelectedClueBuilders,
-            
-            
-            
             p => new[]
         {
-            SVGHelper.SVGEventHandler.OnKeyPressAsync(kea => KeyWasPressed(kea, p))
+            SVGEventHandler.OnKeyPressAsync(kea => KeyWasPressed(kea, p))
         }, MyGridSession.SessionSettings);
-
-
 
     private async Task KeyWasPressed(KeyboardEventArgs kea, Position position)
     {
@@ -146,8 +141,9 @@ public partial class GridPage<T> where T : notnull
             .Match(x => x, _ => Maybe<T>.None);
 
         await MyGridSession.SetCell(result, position);
-    }
 
+        //TODO set focus
+    }
 
     public async Task RemoveVariantBuilder(VariantBuilderArgumentPair<T> variantBuilderArgumentPair)
     {

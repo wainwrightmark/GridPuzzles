@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using MoreLinq;
 
 namespace GridPuzzles.Bifurcation;
@@ -68,6 +69,85 @@ public static class RandomSolver
         public override string ToString() => $"{Grid} ({RemainingUpdates.Count}/{OriginalUpdates} Options Remain)";
     }
 
+    public static IEnumerable<(Grid<T> Grid, UpdateResult<T> UpdateResult)> RandomSolveIncremental<T>(this Grid<T> initialGrid, Random? random, CancellationToken cancellation)
+        where T : notnull
+    {
+        UpdateResult<T> initialUpdateResult;
+
+        (initialGrid, initialUpdateResult) = initialGrid.IterateRepeatedly(UpdateResultCombiner<T>.Fast);
+
+        if (initialUpdateResult.HasContradictions)
+            yield break;
+
+        var rand = random ?? new Random();
+
+        var sn1 = SolveNode<T>.TryCreate(initialGrid, rand);
+
+        if (sn1.HasNoValue)
+            yield break;
+
+        var triedGrids = new Dictionary<Grid<T>, SolveNode<T>>()
+        {
+            { initialGrid, sn1.Value }
+        };
+        var nodesToTry = new Stack<SolveNode<T>>();
+
+        var backlogNodes = new Stack<SolveNode<T>>();
+
+        nodesToTry.Push(sn1.Value);
+
+        const uint triesBeforeBackTrack = 3;
+
+        while (nodesToTry.TryPop(out var currentNode))
+        {
+            if(cancellation.IsCancellationRequested)
+                yield break;
+
+            if (!nodesToTry.Any() && backlogNodes.Any())
+            {
+                nodesToTry = new Stack<SolveNode<T>>(backlogNodes);
+                backlogNodes = new Stack<SolveNode<T>>();
+            }
+
+            currentNode.Hits++;
+            if (currentNode.Hits > 0 && (currentNode.Hits % triesBeforeBackTrack == 0) && nodesToTry.Any())
+            {
+                backlogNodes.Push(currentNode);
+                continue;
+            }
+
+            if (currentNode.RemainingUpdates.TryPop(out var updateResult))
+            {
+                if (currentNode.RemainingUpdates.Any())
+                    nodesToTry.Push(currentNode);
+
+                var (newGrid, newUpdateResult) = currentNode.Grid.IterateRepeatedly(UpdateResultCombiner<T>.Fast,updateResult);
+
+                if (newUpdateResult.HasContradictions)
+                {
+                    continue;
+                }
+
+                if (newGrid.IsComplete)
+                {
+                    yield return (newGrid, newUpdateResult);
+                    yield break;
+                }
+
+                if (triedGrids.ContainsKey(newGrid))
+                    continue;
+
+                var newSolveNode = SolveNode<T>.TryCreate(newGrid, rand);
+
+                if (newSolveNode.HasValue)
+                {
+                    triedGrids.Add(newGrid, newSolveNode.Value);
+                    nodesToTry.Push(newSolveNode.Value);
+                    yield return (newGrid, newUpdateResult);
+                }
+            }
+        }
+    }
 
     public static Maybe<Grid<T>> RandomSolve<T>(this Grid<T> initialGrid, Random? random) where T:notnull
     {
