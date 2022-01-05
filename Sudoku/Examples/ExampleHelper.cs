@@ -17,15 +17,17 @@ public static class ExampleHelper
             {
                 if (entry.Value is byte[] ba)
                 {
-
-                    var yaml = Encoding.UTF8.GetString(ba);
-                    yaml = yaml.TrimStart(new char[]{'\uFEFF'});
-                   yield return new Example(entry.Key?.ToString(), yaml);
+                    var yaml = GetYaml(ba);
+                    yield return new Example(entry.Key?.ToString(), yaml);
                 }
-
-
-                
             }
         }
+    }
+
+    public static string GetYaml(byte[] ba)
+    {
+        var yaml = Encoding.UTF8.GetString(ba);
+        yaml = yaml.TrimStart(new char[] { '\uFEFF' });
+        return yaml;
     }
 }

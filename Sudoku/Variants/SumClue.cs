@@ -144,7 +144,7 @@ public class SumClue : IRuleClue<int>
         }
 
 
-        if (!SumChecker.IsLegalSumPlausible(assignedValues, pvsToCheck))
+        if (ExperimentalFeatures.EnablePlausibleSumChecking && !SumChecker.IsLegalSumPlausible(assignedValues, pvsToCheck))
         {
             yield return (new Contradiction(
                 new SumReason(this),

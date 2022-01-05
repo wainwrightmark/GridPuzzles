@@ -88,11 +88,8 @@
 
             foreach (var counter in counters)
             {
-                yield return new Counter()
+                yield return new Counter( category.CategoryName, counter.CounterName,counter)
                 {
-                    PerformanceCounter = counter,
-                    CategoryName = category.CategoryName,
-                    CounterName = counter.CounterName,
                     Max = 1,
                 };
             }
@@ -127,10 +124,17 @@
 
     private class Counter
     {
-        public string CategoryName { get; init; }
-        public string CounterName { get; init; }
+        public Counter(string categoryName, string counterName, PerformanceCounter performanceCounter)
+        {
+            CategoryName = categoryName;
+            CounterName = counterName;
+            PerformanceCounter = performanceCounter;
+        }
 
-        public PerformanceCounter PerformanceCounter { get; init; }
+        public string CategoryName { get; }
+        public string CounterName { get;  }
+
+        public PerformanceCounter PerformanceCounter { get;  }
 
         public double[] Data { get; set; } = Array.Empty<double>();
 
