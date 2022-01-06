@@ -10,7 +10,7 @@ public class NotXTimesConstraint : CommutativeConstraint<int>
     public override string Name => "Not " + Multiple + " Times";
 
     /// <inheritdoc />
-    public override bool IsValid(int t1, int t2) => t1 * Multiple != t2 && t2 * Multiple != t1;
+    public override bool IsMet(int t1, int t2) => t1 * Multiple != t2 && t2 * Multiple != t1;
 
     /// <inheritdoc />
     public override bool IsSuperConstraint(Constraint<int> other) => other is NotXTimesConstraint fc && fc.Multiple == Multiple;

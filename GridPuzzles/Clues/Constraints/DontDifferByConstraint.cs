@@ -10,7 +10,7 @@ public class DontDifferByConstraint : CommutativeConstraint<int>
     public override string Name => $"Don't differ by {Amount}";
 
     /// <inheritdoc />
-    public override bool IsValid(int t1, int t2) => Math.Abs(t1 - t2) != Amount;
+    public override bool IsMet(int t1, int t2) => Math.Abs(t1 - t2) != Amount;
 
     /// <inheritdoc />
     public override bool IsSuperConstraint(Constraint<int> other) => other is DontDifferByConstraint dbc && dbc.Amount == Amount;

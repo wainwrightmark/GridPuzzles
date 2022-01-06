@@ -63,3 +63,4 @@
 - [ ] Export to BMP
 - [ ] Try using Hyperlinq https://github.com/NetFabric/NetFabric.Hyperlinq
 - [ ] Try using Misnomer https://github.com/qbit86/misnomer
+- [ ] RelationshipClueHelper combine clues

@@ -76,7 +76,7 @@ public partial record UnconstrainedPairsSumClueBuilder([property:SetEquality] Im
 
             foreach (var adjacent in adjacentHigherPositions)
                 if (constrainedPairs.Add((lowerPosition, adjacent)))
-                    yield return SumClue.Create(name, BadSums, false, dict.Add(adjacent, 1));
+                    yield return SumClue.Create(name, BadSums, false, dict.Add(adjacent, 1), false);
         }
     }
 

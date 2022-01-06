@@ -42,11 +42,15 @@ public class MultipleConstraint<T> : Constraint<T>
 #pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
     {
         Constraints = constraints;
+        IsCommutative = constraints.All(x => x.IsCommutative);
     }
 
     public ImmutableSortedSet<Constraint<T>> Constraints { get; }
 
     private Constraint<T> FlippedConstraintPrivate { get; set; }
+
+    /// <inheritdoc />
+    public override bool IsCommutative { get; }
 
     public override Constraint<T> FlippedConstraint => FlippedConstraintPrivate;
 
@@ -55,7 +59,7 @@ public class MultipleConstraint<T> : Constraint<T>
 
 
     /// <inheritdoc />
-    public override bool IsValid(T t1, T t2) => Constraints.All(c => c.IsValid(t1, t2));
+    public override bool IsMet(T t1, T t2) => Constraints.All(c => c.IsMet(t1, t2));
 
     /// <inheritdoc />
     public override bool IsSuperConstraint(Constraint<T> other)

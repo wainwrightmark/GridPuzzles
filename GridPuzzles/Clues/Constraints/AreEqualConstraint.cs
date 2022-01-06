@@ -10,7 +10,7 @@ public sealed class AreEqualConstraint<T> : CommutativeConstraint<T> where T : n
     public override string Name => "Are Equal";
 
     /// <inheritdoc />
-    public override bool IsValid(T t1, T t2)
+    public override bool IsMet(T t1, T t2)
     {
         return t1.Equals(t2);
     }

@@ -22,16 +22,21 @@ public class SudokuBenchmark
 {
     private static byte[][] examplesToTest = new[]
     {
-        ExampleResource.EasySudoku,
-        ExampleResource.HardSudoku,
-        ExampleResource.TatooineSunset,
-        ExampleResource.ArrowKiller,
-        //ExampleResource.Miracle2,
-        //ExampleResource.BubbleBath,
-        ExampleResource.Syzgy,
-        //ExampleResource.MonstrousKiller,
-        //ExampleResource.Miracle1,
-        ExampleResource.ThermoArrows,
+        ExampleResource.KillerXXL,
+        ExampleResource.MonstrousKiller,
+        ExampleResource.SumsAndDoublingGroups,
+        ExampleResource.SumsAndUniqueSums,
+        ExampleResource.MoreHardArrows
+        //ExampleResource.EasySudoku,
+        //ExampleResource.HardSudoku,
+        //ExampleResource.TatooineSunset,
+        //ExampleResource.ArrowKiller,
+        ////ExampleResource.Miracle2,
+        ////ExampleResource.BubbleBath,
+        //ExampleResource.Syzgy,
+        ////ExampleResource.MonstrousKiller,
+        ////ExampleResource.Miracle1,
+        //ExampleResource.ThermoArrows,
     };
 
     private static Grid<int> GetGrid(byte[] ba)
@@ -57,13 +62,17 @@ public class SudokuBenchmark
         if (Grids.Count == 0) throw new Exception("Grids is empty");
     }
 
-    [Params(true, false)]
+    [Params(true)]
     public bool EnablePlausibleSumChecking { get; set; }
+    
+    [Params(2,10)]
+    public int MinSizeToEnablePositionGrouping { get; set; }
 
     [Benchmark]
     public bool TestSudoku()
     {
         ExperimentalFeatures.EnablePlausibleSumChecking = EnablePlausibleSumChecking;
+        ExperimentalFeatures.MinSizeToEnablePositionGrouping = MinSizeToEnablePositionGrouping;
 
         foreach (var grid in Grids)
         {

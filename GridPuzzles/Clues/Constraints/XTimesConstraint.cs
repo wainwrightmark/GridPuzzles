@@ -10,7 +10,7 @@ public class XTimesConstraint : CommutativeConstraint<int>
     public override string Name => Multiple + " Times";
 
     /// <inheritdoc />
-    public override bool IsValid(int t1, int t2) => t1 * Multiple == t2 || t2 * Multiple == t1;
+    public override bool IsMet(int t1, int t2) => t1 * Multiple == t2 || t2 * Multiple == t1;
 
     /// <inheritdoc />
     public override bool IsSuperConstraint(Constraint<int> other) => other is XTimesConstraint fc && fc.Multiple == Multiple;

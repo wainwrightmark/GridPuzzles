@@ -87,7 +87,7 @@ public partial class ArrowVariantBuilder : VariantBuilder<int>
                 .ToImmutableDictionary();
 
 
-            yield return SumClue.Create("Arrow", ImmutableSortedSet.Create(0), true, multipliers);
+            yield return SumClue.Create("Arrow", ImmutableSortedSet.Create(0), true, multipliers, false);
         }
 
 

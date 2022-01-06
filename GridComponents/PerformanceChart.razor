@@ -33,7 +33,6 @@
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        
 
         Observable.Interval(_interval)
             .TakeUntil(_disposed)
@@ -41,7 +40,7 @@
             {
                 UpdateData();
 
-                InvokeAsync(() => StateHasChanged());
+                InvokeAsync(StateHasChanged);
                 return Unit.Default;
             })
             .Subscribe();

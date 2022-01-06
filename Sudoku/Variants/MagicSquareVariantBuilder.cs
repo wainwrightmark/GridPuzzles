@@ -103,7 +103,7 @@ public partial class MagicSquareVariantBuilder : VariantBuilder<int>
                         .ToImmutableDictionary();
 
 
-                yield return SumClue.Create("Magic Square", fifteenSum, true, multipliers);
+                yield return SumClue.Create("Magic Square", fifteenSum, true, multipliers, true);
             }
 
             var pairs = new List<(int a, int b)>
@@ -118,7 +118,7 @@ public partial class MagicSquareVariantBuilder : VariantBuilder<int>
                         .ToImmutableDictionary();
 
 
-                yield return SumClue.Create("Magic Square", tenSum, true, multipliers);
+                yield return SumClue.Create("Magic Square", tenSum, true, multipliers, true);
             }
         }
 

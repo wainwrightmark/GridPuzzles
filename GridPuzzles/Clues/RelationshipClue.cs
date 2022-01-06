@@ -2,6 +2,26 @@
 
 namespace GridPuzzles.Clues;
 
+public class RelationshipCluePosition1AgnosticComparer<T> : IEqualityComparer<IRelationshipClue<T>>where T : notnull
+{
+    private RelationshipCluePosition1AgnosticComparer()
+    {
+    }
+
+    public static IEqualityComparer<IRelationshipClue<T>> Instance { get; } = new RelationshipCluePosition1AgnosticComparer<T>();
+
+    public bool Equals(IRelationshipClue<T>? x, IRelationshipClue<T>? y)
+    {
+        if (ReferenceEquals(x, y)) return true;
+        if (x is null) return false;
+        if (y is null) return false;
+        if (x.GetType() != y.GetType()) return false;
+        return x.Position2.Equals(y.Position2) && x.Constraint.Equals(y.Constraint);
+    }
+
+    public int GetHashCode(IRelationshipClue<T> obj) => HashCode.Combine(obj.Position2, obj.Constraint);
+}
+
 public class RelationshipClue<T> : IRelationshipClue<T> where T : notnull
 {
     public RelationshipClue(Position position1, Position position2, Constraint<T> constraint) :
@@ -58,7 +78,7 @@ public class RelationshipClue<T> : IRelationshipClue<T> where T : notnull
     }
 
     /// <inheritdoc />
-    public bool IsValidCombination(T p1Value, T p2Value) => Constraint.IsValid(p1Value, p2Value);
+    public bool IsValidCombination(T p1Value, T p2Value) => Constraint.IsMet(p1Value, p2Value);
 
 
     public Constraint<T> Constraint { get; }
@@ -93,7 +113,7 @@ public class RelationshipClue<T> : IRelationshipClue<T> where T : notnull
 
             foreach (var val1 in Set1)
             {
-                if (Set2.Any(val2 => (!IsUnique || !val1.Equals(val2)) && Constraint.IsValid(val1, val2))) continue;
+                if (Set2.Any(val2 => (!IsUnique || !val1.Equals(val2)) && Constraint.IsMet(val1, val2))) continue;
                 newSet1 = newSet1.Remove(val1);
                 changed = true;
             }
@@ -101,7 +121,7 @@ public class RelationshipClue<T> : IRelationshipClue<T> where T : notnull
 
             foreach (var val2 in Set2)
             {
-                if (newSet1.Any(val1 => (!IsUnique || !val1.Equals(val2)) && Constraint.IsValid(val1, val2))) continue;
+                if (newSet1.Any(val1 => (!IsUnique || !val1.Equals(val2)) && Constraint.IsMet(val1, val2))) continue;
                 newSet2 = newSet2.Remove(val2);
                 changed = true;
             }

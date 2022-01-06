@@ -10,7 +10,7 @@ public class SumConstraint : CommutativeConstraint<int>
     public int Sum { get; }
 
     /// <inheritdoc />
-    public override bool IsValid(int t1, int t2) => t1 + t2 == Sum;
+    public override bool IsMet(int t1, int t2) => t1 + t2 == Sum;
 
     /// <inheritdoc />
     public override bool IsSuperConstraint(Constraint<int> other) => other is SumConstraint s && Sum == s.Sum;

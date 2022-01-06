@@ -10,7 +10,7 @@ public class NonConsecutiveConstraint : CommutativeConstraint<int>
     public override string Name => "Non Consecutive";
 
     /// <inheritdoc />
-    public override bool IsValid(int t1, int t2) => Math.Abs(t1 - t2) > 1;
+    public override bool IsMet(int t1, int t2) => Math.Abs(t1 - t2) > 1;
 
     /// <inheritdoc />
     public override bool IsSuperConstraint(Constraint<int> other) => other is NonSumConstraint;

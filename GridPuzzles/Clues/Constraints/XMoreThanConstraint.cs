@@ -13,7 +13,10 @@ public class XMoreThanConstraint : Constraint<int>
     public int Amount { get; }
 
     /// <inheritdoc />
-    public override bool IsValid(int t1, int t2) => t1 + Amount >= t2;
+    public override bool IsCommutative => false;
+
+    /// <inheritdoc />
+    public override bool IsMet(int t1, int t2) => t1 + Amount >= t2;
 
     /// <inheritdoc />
     public override bool IsSuperConstraint(Constraint<int> other)

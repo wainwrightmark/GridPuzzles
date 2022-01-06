@@ -4,9 +4,14 @@ public abstract class Constraint<T> : IEquatable<Constraint<T>> //TODO make cons
 {
     public abstract string Name { get; }
 
+    /// <summary>
+    /// Iff IsValid(a,b) then IsValid(b,a)
+    /// </summary>
+    public abstract bool IsCommutative { get; }
+
     public abstract Constraint<T> FlippedConstraint { get; }
 
-    public abstract bool IsValid(T t1, T t2);
+    public abstract bool IsMet(T t1, T t2);
 
     public abstract bool IsSuperConstraint(Constraint<T> other);
 

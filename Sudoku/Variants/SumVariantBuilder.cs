@@ -64,21 +64,22 @@ public partial class SumVariantBuilder : VariantBuilder<int>
             IReadOnlyCollection<IClue<int>> lowerLevelClues)
         {
             var dict = Positions.Select(x => new KeyValuePair<Position, int>(x, 1)).ToImmutableDictionary();
-
+            var unique = Unique;
             if (Sum == valueSource.AllValues.Sum()) //Special case for sums to 45
             {
-                var unique = Unique;
-                if (!unique)
-                {
-                    var clueHelper = new UniquenessClueHelper<int>(lowerLevelClues);
-                    unique =  clueHelper.ArePositionsMutuallyUnique(Positions);
-                }
+                
 
                 yield return new UniqueCompleteClue<int>($"Sum to {Sum}", Positions);
                 yield break;
             }
 
-            yield return SumClue.Create($"Sum to {Sum}", ImmutableSortedSet.Create(Sum), true, dict);
+            if (!unique)
+            {
+                var clueHelper = new UniquenessClueHelper<int>(lowerLevelClues);
+                unique =  clueHelper.ArePositionsMutuallyUnique(Positions);
+            }
+
+            yield return SumClue.Create($"Sum to {Sum}", ImmutableSortedSet.Create(Sum), true, dict, unique);
 
             if (Unique)
                 yield return new UniquenessClue<int>(Positions, Name);

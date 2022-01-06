@@ -8,12 +8,15 @@ public class XLessThanConstraint : Constraint<int>
     public override string Name => $"{Amount} less than";
 
     /// <inheritdoc />
+    public override bool IsCommutative => false;
+
+    /// <inheritdoc />
     public override Constraint<int> FlippedConstraint => new XMoreThanConstraint(Amount);
 
     public int Amount { get; }
 
     /// <inheritdoc />
-    public override bool IsValid(int t1, int t2) => t1 + Amount <= t2;
+    public override bool IsMet(int t1, int t2) => t1 + Amount <= t2;
 
     /// <inheritdoc />
     public override bool IsSuperConstraint(Constraint<int> other) => other is XLessThanConstraint xl && Amount >= xl.Amount;

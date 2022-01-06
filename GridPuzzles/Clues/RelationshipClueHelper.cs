@@ -96,19 +96,23 @@ public sealed class RuleClueHelper<T> : ClueHelper<IRuleClue<T>, T>, IClueUpdate
     }
 }
 
-public sealed class RelationshipClueHelper<T> : ClueHelper<IRelationshipClue<T>, T>, IClueUpdateHelper<T>
+public sealed class RelationshipClueHelper<T> : ClueHelper<IRelationshipClue<T>, T>, IClueUpdateHelper<T>//TODO special helper for if lookup is empty
     where T: notnull
 {
     /// <inheritdoc />
     public RelationshipClueHelper(UniquenessClueHelper<T> uniquenessClueHelper, IEnumerable<IClue<T>> allClues) : base(allClues)
     {
         //TODO combine clues
+        //Note this does not include uniqueness clues
         Lookup = Clues
             .Select(c=> uniquenessClueHelper.ArePositionsMutuallyUnique(c.Position1, c.Position2)? c.UniqueVersion : c)
             .SelectMany(x => new[] {x, x.Flipped})
             .ToLookup(x=>x.Position1);
     }
 
+    /// <summary>
+    /// Lookup from positions to clues where Position1 is that position
+    /// </summary>
     public ILookup<Position, IRelationshipClue<T>> Lookup { get; }
 
     /// <inheritdoc />
@@ -141,16 +145,47 @@ public sealed class RelationshipClueHelper<T> : ClueHelper<IRelationshipClue<T>,
         }
     }
 
+    public bool DoAnyRelationshipsExist(IReadOnlyList<Position> positions)
+    {
+        if (!Lookup.Any()) return false;
+        for (var index = 0; index < positions.Count; index++)
+        {
+            var position1 = positions[index];
+            for (var i = index + 1; i < positions.Count; i++)
+            {
+                var position2 = positions[i];
+                var clues = GetClues(position1, position2);
+                if (clues.Any()) return true;
+            }
+        }
+
+        return false;
+    }
 
     public bool AreValuesValid(Position p1, Position p2, T v1, T v2)
     {
-        var clues = _pairWiseCluesConcurrentDictionary.GetOrAdd((p1, p2), GetPairwiseClues);
+        var clues = GetClues(p1, p2);
 
         return clues.All(c => c.IsValidCombination(v1, v2));
+    }
 
-        IReadOnlyList<IRelationshipClue<T>> GetPairwiseClues((Position p1, Position p2) pair) =>
+    public IEnumerable<bool> CheckRelationship(Position p1, Position p2, Func<IRelationshipClue<T>, bool> func)
+    {
+        var clues = GetClues(p1, p2);
+
+        return clues.Select(func);
+    }
+
+    private IReadOnlyCollection<IRelationshipClue<T>> GetClues(Position p1, Position p2)
+    {
+        if (!Lookup.Any()) return ArraySegment<IRelationshipClue<T>>.Empty;
+        var clues = _pairWiseCluesConcurrentDictionary.GetOrAdd((p1, p2), FindPairwiseClues);
+        return clues;
+        IReadOnlyList<IRelationshipClue<T>> FindPairwiseClues((Position p1, Position p2) pair) =>
             Lookup[pair.p1].Where(x => x.Position2 == pair.p2).ToList();
     }
+
+    
 
     private readonly ConcurrentDictionary<(Position p1, Position p2), IReadOnlyCollection<IRelationshipClue<T>>>
         _pairWiseCluesConcurrentDictionary = new();

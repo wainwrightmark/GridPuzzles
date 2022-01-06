@@ -20,7 +20,6 @@ public interface IClue<T> : IClue where T: notnull {}
 /// <summary>
 /// A clue that says cell values in affected positions must be unique
 /// </summary>
-/// <typeparam name="T"></typeparam>
 public interface IUniquenessClue<T> : IClue<T> where T : notnull
 {
     string Domain { get; }
@@ -43,7 +42,9 @@ public interface IRelationshipClue<T> :
     /// </summary>
     IRelationshipClue<T> UniqueVersion { get; }
 
-
+    /// <summary>
+    /// Get valid values for this relationship
+    /// </summary>
     (bool changed, ImmutableSortedSet<T> newSet1, ImmutableSortedSet<T> newSet2) GetValidValues(
         ImmutableSortedSet<T> set1, ImmutableSortedSet<T> set2);
 
@@ -52,23 +53,29 @@ public interface IRelationshipClue<T> :
     ISingleReason Reason { get; }
 
     Constraint<T> Constraint { get; }
+
 }
 
 /// <summary>
 /// A clue that also give bifurcation options
 /// </summary>
-/// <typeparam name="T"></typeparam>
 public interface IBifurcationClue<T> : IClue<T>where T: notnull
 {
     IEnumerable<IBifurcationOption<T>> GetBifurcationOptions(Grid<T> grid, int maxChoices);
 }
 
+/// <summary>
+/// A clue that gives cell updates
+/// </summary>
 public interface IRuleClue<T> : IClue<T>where T: notnull
 {
     [Pure]
     IEnumerable<ICellChangeResult> GetCellUpdates(Grid<T> grid);
 }
 
+/// <summary>
+/// A clue that displays a dynamic overlay
+/// </summary>
 public interface IDynamicOverlayClue<T> : IClue<T> where T: notnull
 {
     [Pure]

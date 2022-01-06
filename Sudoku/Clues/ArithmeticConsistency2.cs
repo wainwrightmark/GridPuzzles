@@ -161,7 +161,9 @@ public record Equation(ImmutableSortedDictionary<Position, int> CellMultiples, i
         }
 
         return SumClue.Create($"Virtual Sum to {Sum}", ImmutableSortedSet<int>.Empty.Add(Sum),
-            true, CellMultiples.ToImmutableDictionary(x => x.Key, x => x.Value)
+            true, 
+            CellMultiples.ToImmutableDictionary(x => x.Key, x => x.Value),
+            false
         );
     }
 

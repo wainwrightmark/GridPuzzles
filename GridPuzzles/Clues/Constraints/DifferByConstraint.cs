@@ -11,7 +11,7 @@ public class DifferByConstraint : CommutativeConstraint<int>
     public override string Name => $"Differ by exactly {Amount}";
 
     /// <inheritdoc />
-    public override bool IsValid(int t1, int t2) => Math.Abs(t1 - t2) == Amount;
+    public override bool IsMet(int t1, int t2) => Math.Abs(t1 - t2) == Amount;
 
     /// <inheritdoc />
     public override bool IsSuperConstraint(Constraint<int> other) => other is DifferByConstraint dbc && dbc.Amount == Amount;
@@ -38,7 +38,7 @@ public class DifferByAtMostConstraint : CommutativeConstraint<int>
     public override string Name => $"Differ By At Most {Amount}";
 
     /// <inheritdoc />
-    public override bool IsValid(int t1, int t2)
+    public override bool IsMet(int t1, int t2)
     {
         return Math.Abs(t1 - t2) <= Amount;
     }
@@ -72,7 +72,7 @@ public class DifferByAtLeastConstraint : CommutativeConstraint<int>
     public override string Name => $"Differ By At Least {Amount}";
 
     /// <inheritdoc />
-    public override bool IsValid(int t1, int t2)
+    public override bool IsMet(int t1, int t2)
     {
         return Math.Abs(t1 - t2) >= Amount;
     }

@@ -11,7 +11,7 @@ public class NonSumConstraint : CommutativeConstraint<int>
     public override string Name => $"Do not sum to {string.Join(", ", DisallowedSums)}";
 
     /// <inheritdoc />
-    public override bool IsValid(int t1, int t2)
+    public override bool IsMet(int t1, int t2)
     {
         var s = t1 + t2;
         return !DisallowedSums.Contains(s);

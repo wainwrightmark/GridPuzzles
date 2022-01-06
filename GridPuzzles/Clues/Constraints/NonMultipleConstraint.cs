@@ -10,7 +10,7 @@ public class NonMultipleConstraint : CommutativeConstraint<int>
     public override string Name => "Non Multiple";
 
     /// <inheritdoc />
-    public override bool IsValid(int t1, int t2) => !MultiplesDictionary[t1].Contains(t2);
+    public override bool IsMet(int t1, int t2) => !MultiplesDictionary[t1].Contains(t2);
 
     /// <inheritdoc />
     public override bool IsSuperConstraint(Constraint<int> other) => other is NonMultipleConstraint;
