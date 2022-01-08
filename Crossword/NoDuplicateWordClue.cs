@@ -52,7 +52,7 @@ public class NoDuplicateWordClue : IRuleClue<char>
     public ImmutableSortedSet<Position> Positions { get; }
 
     /// <inheritdoc />
-    public IEnumerable<ICellChangeResult> GetCellUpdates(Grid<char> grid)
+    public IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid<char> grid)
     {
         var parallels =
             grid.MaxPosition.GetPositionsUpTo(true)

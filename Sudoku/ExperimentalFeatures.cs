@@ -9,5 +9,5 @@ public static class ExperimentalFeatures
 
     //public static bool EnableDOFCheckInSum { get; set; } = true;
 
-    public static bool EnableArithmeticConsistency { get; set; } = false;
+    public static bool EnableArithmeticConsistency { get; set; } = true;
 }

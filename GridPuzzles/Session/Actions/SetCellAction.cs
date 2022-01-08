@@ -58,7 +58,7 @@ public class SetCellAction<T> : IGridViewAction<T> where T : notnull
         else
         {
             var (_, contradictionCheck) =
-                newState.Grid.Iterate(UpdateResultCombiner<T>.Default, 0, Maybe<IReadOnlyCollection<Position>>.None);
+                newState.Grid.Iterate(UpdateResultCombiner<T>.Default, 0, Maybe<IReadOnlySet<Position>>.None);
 
             if (contradictionCheck.HasContradictions)
             {

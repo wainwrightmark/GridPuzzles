@@ -24,7 +24,7 @@ public abstract class BasicClue<T> :
 
 
     /// <inheritdoc />
-    public IEnumerable<IBifurcationOption<T>> GetBifurcationOptions(Grid<T> grid, int maxChoices)
+    public IEnumerable<IBifurcationOption<T>> FindBifurcationOptions(Grid<T> grid, int maxChoices)
     {
         var groups = Positions
             .Select(grid.GetCellKVP)

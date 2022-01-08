@@ -27,7 +27,7 @@ public sealed class BetweenClue : IUniquenessClue<int>, IRuleClue<int>
     public ImmutableSortedSet<Position> MiddlePositions { get; }
 
     /// <inheritdoc />
-    public IEnumerable<ICellChangeResult> GetCellUpdates(Grid<int> grid)
+    public IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid<int> grid)
     {
         var cellAlpha = grid.GetCellKVP(PAlpha);
         var cellOmega = grid.GetCellKVP(POmega);

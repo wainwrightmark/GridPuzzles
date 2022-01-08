@@ -20,7 +20,7 @@ public class RestrictedValuesClue<T> : IRuleClue<T>  where T :notnull
     public ImmutableHashSet<T> PossibleValues { get; }
 
     /// <inheritdoc />
-    public IEnumerable<ICellChangeResult> GetCellUpdates(Grid<T> grid)
+    public IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid<T> grid)
     {
         foreach (var cell in Positions.Select(grid.GetCellKVP))
             yield return cell.CloneWithOnlyValues(PossibleValues, new RestrictedValuesReason<T>(this));

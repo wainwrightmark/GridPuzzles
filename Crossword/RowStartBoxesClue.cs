@@ -29,7 +29,7 @@ public class RowStartBoxesClue : IRuleClue<char>
     public ImmutableSortedSet<Position> Positions { get; }
 
     /// <inheritdoc />
-    public IEnumerable<ICellChangeResult> GetCellUpdates(Grid<char> grid)
+    public IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid<char> grid)
     {
         var cell1 = grid.GetCellKVP(Position1);
         var cell2 = grid.GetCellKVP(Position2);

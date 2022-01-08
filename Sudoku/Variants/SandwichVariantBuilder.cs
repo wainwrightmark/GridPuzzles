@@ -132,7 +132,7 @@ public class SandwichVariantBuilder : VariantBuilder<int>
             public int OutsideSum { get; }
 
             /// <inheritdoc />
-            public IEnumerable<ICellChangeResult> GetCellUpdates(Grid<int> grid)
+            public IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid<int> grid)
             {
                 var cells = _orderedPositions.Select(grid.GetCellKVP).ToImmutableDictionary(x => x.Key);
 

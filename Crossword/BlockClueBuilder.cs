@@ -89,7 +89,7 @@ public record BlockClueBuilder(BlockType Blocks) : IClueBuilder<char>
         public static BlocksAreBlackClue Instance { get; } = new ();
 
         /// <inheritdoc />
-        public IEnumerable<ICellOverlay> GetCellOverlays(Grid<char> grid)
+        public IEnumerable<ICellOverlay> CreateCellOverlays(Grid<char> grid)
         {
             foreach (var keyValuePair in grid.AllCells)
             {

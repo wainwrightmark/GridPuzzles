@@ -15,6 +15,7 @@ public interface IClue
     ImmutableSortedSet<Position> Positions { get; }
 }
 
+// ReSharper disable once UnusedTypeParameter
 public interface IClue<T> : IClue where T: notnull {}
 
 /// <summary>
@@ -45,7 +46,7 @@ public interface IRelationshipClue<T> :
     /// <summary>
     /// Get valid values for this relationship
     /// </summary>
-    (bool changed, ImmutableSortedSet<T> newSet1, ImmutableSortedSet<T> newSet2) GetValidValues(
+    (bool changed, ImmutableSortedSet<T> newSet1, ImmutableSortedSet<T> newSet2) FindValidValues(
         ImmutableSortedSet<T> set1, ImmutableSortedSet<T> set2);
 
     bool IsValidCombination(T p1Value, T p2Value);
@@ -61,7 +62,7 @@ public interface IRelationshipClue<T> :
 /// </summary>
 public interface IBifurcationClue<T> : IClue<T>where T: notnull
 {
-    IEnumerable<IBifurcationOption<T>> GetBifurcationOptions(Grid<T> grid, int maxChoices);
+    IEnumerable<IBifurcationOption<T>> FindBifurcationOptions(Grid<T> grid, int maxChoices);
 }
 
 /// <summary>
@@ -69,15 +70,23 @@ public interface IBifurcationClue<T> : IClue<T>where T: notnull
 /// </summary>
 public interface IRuleClue<T> : IClue<T> where T: notnull
 {
+    /// <summary>
+    /// Calculate cell updates based on this rule
+    /// </summary>
     [Pure]
-    IEnumerable<ICellChangeResult> GetCellUpdates(Grid<T> grid);
+    IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid<T> grid);
 }
 
 /// <summary>
 /// A clue which gives cell updates but affects the entire grid
 /// </summary>
-public interface IMetaRuleClue<T> : IRuleClue<T> where T : notnull
+public interface IMetaClue<T> : IClue<T> where T : notnull
 {
+    /// <summary>
+    /// Creates clues based on the current grid state
+    /// </summary>
+    IEnumerable<IClue<T>> CreateClues(Grid<T> grid, Maybe<IReadOnlySet<Position>> positions);
+
     /// <inheritdoc />
     ImmutableSortedSet<Position> IClue.Positions => ImmutableSortedSet<Position>.Empty;
 }
@@ -87,6 +96,9 @@ public interface IMetaRuleClue<T> : IRuleClue<T> where T : notnull
 /// </summary>
 public interface IDynamicOverlayClue<T> : IClue<T> where T: notnull
 {
+    /// <summary>
+    /// Create Cell overlays from this clue
+    /// </summary>
     [Pure]
-    IEnumerable<ICellOverlay> GetCellOverlays(Grid<T> grid);
+    IEnumerable<ICellOverlay> CreateCellOverlays(Grid<T> grid);
 }

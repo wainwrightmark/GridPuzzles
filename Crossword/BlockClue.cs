@@ -21,7 +21,7 @@ public class BlockClue : IRuleClue<char>
     public ImmutableSortedSet<Position> Positions { get; }
 
     /// <inheritdoc />
-    public IEnumerable<ICellChangeResult> GetCellUpdates(Grid<char> grid)
+    public IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid<char> grid)
     {
         var updates = Positions.Select(grid.GetCellKVP)
             .Select(x => x.CloneWithOnlyValue(CrosswordValueSource.BlockChar,

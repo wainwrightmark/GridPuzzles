@@ -68,7 +68,7 @@ public class RelationshipClue<T> : IRelationshipClue<T> where T : notnull
     }
 
     /// <inheritdoc />
-    public (bool changed, ImmutableSortedSet<T> newSet1, ImmutableSortedSet<T> newSet2) GetValidValues(ImmutableSortedSet<T> set1, ImmutableSortedSet<T> set2)
+    public (bool changed, ImmutableSortedSet<T> newSet1, ImmutableSortedSet<T> newSet2) FindValidValues(ImmutableSortedSet<T> set1, ImmutableSortedSet<T> set2)
     {
         var key = new Key(Constraint, set1, set2, Unique);
 

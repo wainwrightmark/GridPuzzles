@@ -127,7 +127,7 @@ public partial class DoublingGroupVariantBuilder<T> : VariantBuilder<T> where T 
         }
 
         /// <inheritdoc />
-        public IEnumerable<ICellChangeResult> GetCellUpdates(Grid<T> grid)
+        public IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid<T> grid)
         {
             var cells = Positions.Select(grid.GetCellKVP).ToList();
 

@@ -31,7 +31,7 @@ public class PivotArrowClue : IRuleClue<int>
     public ImmutableSortedSet<Position> Positions { get; }
 
     /// <inheritdoc />
-    public IEnumerable<ICellChangeResult> GetCellUpdates(Grid<int> grid)
+    public IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid<int> grid)
     {
 
         throw new NotImplementedException("Pivot arrows are not yet supported");

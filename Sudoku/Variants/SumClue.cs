@@ -47,6 +47,9 @@ public class SumClue : IRuleClue<int>
 
     public string Name { get; }
 
+    /// <inheritdoc />
+    public override string ToString() => Name;
+
     public ISumChecker SumChecker { get; }
 
     public bool AlwaysAllUnique { get; }
@@ -60,7 +63,7 @@ public class SumClue : IRuleClue<int>
 
 
     /// <inheritdoc />
-    public IEnumerable<ICellChangeResult> GetCellUpdates(Grid<int> grid)
+    public IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid<int> grid)
     {
         var updates = GetCellUpdates1(grid);
         return updates;

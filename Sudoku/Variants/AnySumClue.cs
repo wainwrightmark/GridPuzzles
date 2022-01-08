@@ -125,7 +125,7 @@ public class AnySumClue : IRuleClue<int>
     public ImmutableSortedSet<Position> Positions { get; }
     public bool Unique { get; }
 
-    public IEnumerable<ICellChangeResult> GetCellUpdates(Grid<int> grid)
+    public IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid<int> grid)
     {
         var cells = Positions.Select(grid.GetCellKVP).OrderBy(x => x.Value.PossibleValues.Count).ToArray();
         var solution = Solve(cells,

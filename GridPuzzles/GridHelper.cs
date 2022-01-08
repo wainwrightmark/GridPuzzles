@@ -28,7 +28,7 @@ public static class GridHelper
             (grid.ClueSource.UniquenessClueHelper, initialPositions.ToHashSet()),
             (grid.ClueSource.CompletenessClueHelper, initialPositions.ToHashSet()),
 
-            (grid.ClueSource.RelationshipClueHelper, initialPositions.ToHashSet()),
+            (grid.ClueSource.RelationshipClueHelper,initialPositions.ToHashSet()),
             (grid.ClueSource.RuleClueHelper, initialPositions.ToHashSet()),
             (grid.ClueSource.MetaRuleClueHelper, initialPositions.ToHashSet()),
             // ReSharper restore PossibleMultipleEnumeration
@@ -42,7 +42,7 @@ public static class GridHelper
 
             var positionsToCheck = remainingPositions.Any()
                 ? remainingPositions
-                : Maybe<IReadOnlyCollection<Position>>.None;
+                : Maybe<IReadOnlySet<Position>>.None;
             var newUpdate = combiner.Combine(clueHelper.CalculateUpdates(gridSoFar, bifurcationDepth, positionsToCheck));
 
             updateSoFar = updateSoFar.Combine(newUpdate, out var hasChanges);
@@ -69,7 +69,7 @@ public static class GridHelper
     private static UpdateResult<T> CalculateUpdateResult<T>(this Grid<T> grid,
         UpdateResultCombiner<T> combiner,
         int bifurcationDepth,
-        Maybe<IReadOnlyCollection<Position>> positions)  where T: notnull
+        Maybe<IReadOnlySet<Position>> positions)  where T: notnull
     {
             
         var changes =
@@ -93,7 +93,7 @@ public static class GridHelper
     public static (Grid<T> grid, UpdateResult<T> updateResult) Iterate<T>(this Grid<T> grid,
         UpdateResultCombiner<T> combiner,
         int bifurcationDepth,
-        Maybe<IReadOnlyCollection<Position>> positionsToUpdate) where T: notnull
+        Maybe<IReadOnlySet<Position>> positionsToUpdate) where T: notnull
     {
         var updateResult = CalculateUpdateResult(grid, combiner, bifurcationDepth, positionsToUpdate);
 
@@ -108,7 +108,7 @@ public static class GridHelper
         this Grid<T> grid,
         UpdateResultCombiner<T> combiner,
         int bifurcationDepth,
-        Maybe<IReadOnlyCollection<Position>> positionsToUpdate) where T: notnull
+        Maybe<IReadOnlySet<Position>> positionsToUpdate) where T: notnull
     {
         var r = await Task.Run(() => grid.Iterate(combiner, bifurcationDepth, positionsToUpdate)).ConfigureAwait(false);
 

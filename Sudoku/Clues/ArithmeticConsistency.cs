@@ -1,20 +1,17 @@
 ﻿using Sudoku.Variants;
 using System;
-using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Text;
 
 namespace Sudoku.Clues
 {
-    public sealed class ArithmeticConsistencyClue : IMetaRuleClue<int>
+    public sealed class ArithmeticConsistencyClue : IMetaClue<int>
     {
         /// <inheritdoc />
-        public IEnumerable<ICellChangeResult> GetCellUpdates(Grid<int> grid)
+        public IEnumerable<IClue<int>> CreateClues(Grid<int> grid, Maybe<IReadOnlySet<Position>> positions)
         {
-
             if(!ExperimentalFeatures.EnableArithmeticConsistency)
                 yield break;
-            var sw = Stopwatch.StartNew();
             var completenessClueValue = grid.ClueSource.ValueSource.AllValues.Sum();
 
             var constants = grid.Cells.Where(x => x.Value.HasFixedValue)
@@ -49,33 +46,18 @@ namespace Sudoku.Clues
                     maxEquationSize, newEquations);
             }
 
-
-            var relationshipClues = new List<IRelationshipClue<int>>();
-            foreach (var clue in newEquations.Select(x=>x.ToClue()))
+            
+            foreach (var equation in newEquations)
             {
-                if (clue is IRuleClue<int> ruleClue)
-                {
-                    foreach (var r in ruleClue.GetCellUpdates(grid))
-                    {
-                        yield return r;
-                    }
-                }
-                else if(clue is IRelationshipClue<int> relationshipClue)
-                {
-                    relationshipClues.Add(relationshipClue);   
-                }
-            }
+                //To improve performance. We are only interested in equations which are unexpected. This is a heuristic
+                var expectedValue = equation.CalculateExpectedValue(grid);
+                var difference = Math.Abs(equation.Sum - expectedValue);
+                if (difference * 2 < equation.TotalCells)
+                    continue;
 
-            if (relationshipClues.Any())
-            {
-                var helper = new RelationshipClueHelper<int>(grid.ClueSource.UniquenessClueHelper, relationshipClues);
-
-                foreach (var update in helper.CalculateUpdates(grid, 0, Maybe<IReadOnlyCollection<Position>>.None))
-                {
-                    yield return update;
-                }
+                if(positions.HasNoValue || positions.Value.Count == grid.AllPositions.Length || positions.Value.Overlaps(equation.CellMultiples.Keys))
+                    yield return equation.ToClue(grid);
             }
-            sw.Stop();
         }
 
         /// <inheritdoc />
@@ -154,7 +136,9 @@ public record Equation(ImmutableSortedDictionary<Position, int> CellMultiples, i
     {
         if (CellMultiples.Count > 4)
         {
-            return $"{TotalCells} Cells = {Sum}";
+            var totalAmount = CellMultiples.Values.DefaultIfEmpty(0).Sum();
+
+            return $"{TotalCells} ({totalAmount} weight) Cells = {Sum}";
         }
 
         var sb = new StringBuilder();
@@ -187,7 +171,7 @@ public record Equation(ImmutableSortedDictionary<Position, int> CellMultiples, i
         return sb.ToString();
     }
 
-    public IClue<int> ToClue()
+    public IClue<int> ToClue(Grid<int> grid)
     {
         if (CellMultiples.Count == 2)
         {
@@ -202,11 +186,28 @@ public record Equation(ImmutableSortedDictionary<Position, int> CellMultiples, i
             }
         }
 
+        var mutuallyUnique = grid.ClueSource.UniquenessClueHelper.ArePositionsMutuallyUnique(CellMultiples.Keys.ToImmutableSortedSet());
+
         return SumClue.Create($"Virtual Sum to {Sum}", ImmutableSortedSet<int>.Empty.Add(Sum),
             true, 
             CellMultiples.ToImmutableDictionary(x => x.Key, x => x.Value),
-            false
+            mutuallyUnique
         );
+    }
+
+    public int CalculateExpectedValue(Grid<int> grid)
+    {
+        var total = 0;
+        foreach (var (position, multiple) in CellMultiples)
+        {
+            var cell =grid.GetCell(position);
+            total += cell.PossibleValues.Min * multiple;
+            total += cell.PossibleValues.Max * multiple;
+        }
+
+        total = total / 2;
+
+        return total;
     }
 
     public Equation NormalizePolarity()

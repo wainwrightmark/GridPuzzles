@@ -106,7 +106,7 @@ public sealed class UniquenessClueHelper<T> : ClueHelper<IUniquenessClue<T>, T>,
 
     public IEnumerable<ICellChangeResult> CalculateUpdates(Grid<T> grid,
         int bifurcationLevel,
-        Maybe<IReadOnlyCollection<Position>> positions)
+        Maybe<IReadOnlySet<Position>> positions)
     {
         var clues =
             positions.HasValue ? positions.Value.SelectMany(p => Lookup[p]).Distinct() : Clues;

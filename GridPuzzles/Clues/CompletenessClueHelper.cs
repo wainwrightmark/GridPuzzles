@@ -55,7 +55,7 @@ public sealed class CompletenessClueHelper<T> : ClueHelper<ICompletenessClue<T>,
         
     public IEnumerable<ICellChangeResult> CalculateUpdates(Grid<T> grid,
         int bifurcationLevel,
-        Maybe<IReadOnlyCollection<Position>> positionsToLookAt)
+        Maybe<IReadOnlySet<Position>> positionsToLookAt)
     {
         var clues =
             positionsToLookAt.HasValue?

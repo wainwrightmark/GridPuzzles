@@ -149,7 +149,7 @@ public class SlingshotClue : IRuleClue<int>
     public ImmutableSortedSet<Position> Positions { get; }
 
     /// <inheritdoc />
-    public IEnumerable<ICellChangeResult> GetCellUpdates(Grid<int> grid)
+    public IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid<int> grid)
     {
         var centreCell = grid.GetCellKVP(CellPosition);
 

@@ -33,7 +33,7 @@ public abstract class VirtualClue //TODO this can completely change. We should g
         }
 
         /// <inheritdoc />
-        public IEnumerable<ICellOverlay> GetCellOverlays(Grid<T> grid)
+        public IEnumerable<ICellOverlay> CreateCellOverlays(Grid<T> grid)
         {
             return CellOverlays;
         }
@@ -57,10 +57,10 @@ public abstract class VirtualClue //TODO this can completely change. We should g
         public IRelationshipClue<T> UniqueVersion => Underlying.UniqueVersion;
 
         /// <inheritdoc />
-        public (bool changed, ImmutableSortedSet<T> newSet1, ImmutableSortedSet<T> newSet2) GetValidValues(ImmutableSortedSet<T> set1,
+        public (bool changed, ImmutableSortedSet<T> newSet1, ImmutableSortedSet<T> newSet2) FindValidValues(ImmutableSortedSet<T> set1,
             ImmutableSortedSet<T> set2)
         {
-            return Underlying.GetValidValues(set1, set2);
+            return Underlying.FindValidValues(set1, set2);
         }
 
         /// <inheritdoc />
@@ -90,13 +90,13 @@ public abstract class VirtualClue //TODO this can completely change. We should g
         public IReadOnlyCollection<ICellOverlay> CellOverlays { get; }
 
         /// <inheritdoc />
-        public IEnumerable<ICellChangeResult> GetCellUpdates(Grid<T> grid)
+        public IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid<T> grid)
         {
-            return Underlying.GetCellUpdates(grid);
+            return Underlying.CalculateCellUpdates(grid);
         }
 
         /// <inheritdoc />
-        public IEnumerable<ICellOverlay> GetCellOverlays(Grid<T> grid)
+        public IEnumerable<ICellOverlay> CreateCellOverlays(Grid<T> grid)
         {
             return CellOverlays;
         }

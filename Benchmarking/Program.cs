@@ -24,7 +24,7 @@ public class SudokuBenchmark
 {
     private static byte[][] examplesToTest = new[]
     {
-        //ExampleResource.TenKnights
+        ExampleResource.TenKnights
         //ExampleResource.KillerXXL,
         //ExampleResource.MonstrousKiller,
         //ExampleResource.SumsAndDoublingGroups,
@@ -36,8 +36,7 @@ public class SudokuBenchmark
         //ExampleResource.ArrowKiller,
         ////ExampleResource.Miracle2,
         ////ExampleResource.BubbleBath,
-        ExampleResource.Syzgy,
-        //ampleResource.MonstrousKiller,
+        //ExampleResource.Syzgy,
         ////ExampleResource.Miracle1,
         //ExampleResource.ThermoArrows,
     };

@@ -51,7 +51,7 @@ public class ParallelWordClue : IRuleClue<char>, IBifurcationClue<char>
     }
 
     /// <inheritdoc />
-    public IEnumerable<ICellChangeResult> GetCellUpdates(Grid<char> grid)
+    public IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid<char> grid)
     {
         var cells = PositionList.Select(grid.GetCellKVP).ToList();
 
@@ -83,7 +83,7 @@ public class ParallelWordClue : IRuleClue<char>, IBifurcationClue<char>
     }
 
     /// <inheritdoc />
-    public IEnumerable<IBifurcationOption<char>> GetBifurcationOptions(Grid<char> grid, int maxChoices)
+    public IEnumerable<IBifurcationOption<char>> FindBifurcationOptions(Grid<char> grid, int maxChoices)
     {
         var cells = PositionList.Select(grid.GetCellKVP).ToList();
 

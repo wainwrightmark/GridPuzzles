@@ -26,10 +26,10 @@ public class NextGridAction<T> : IGridViewAction<T> where T: notnull
         var currentState = history.Peek();
         var combiner = settings.SingleStep ? UpdateResultCombiner<T>.SingleStep : UpdateResultCombiner<T>.Default;
         var updatePositions = settings.SingleStep ?
-            Maybe<IReadOnlyCollection<Position>>.None : 
+            Maybe<IReadOnlySet<Position>>.None : 
             currentState.UpdateResult.UpdatedPositions.Any()?
-                Maybe<IReadOnlyCollection<Position>>.From(currentState.UpdateResult.UpdatedPositions.ToImmutableArray()) : 
-                Maybe<IReadOnlyCollection<Position>>.None;
+                Maybe<IReadOnlySet<Position>>.From(currentState.UpdateResult.UpdatedPositions.ToHashSet()) : 
+                Maybe<IReadOnlySet<Position>>.None;
 
         Stopwatch sw = Stopwatch.StartNew();
 

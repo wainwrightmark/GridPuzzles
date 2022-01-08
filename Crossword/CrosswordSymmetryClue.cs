@@ -19,7 +19,7 @@ public abstract class CrosswordSymmetryClue : IRuleClue<char>
     public abstract ImmutableSortedSet<Position> Positions { get; }
 
     /// <inheritdoc />
-    public abstract IEnumerable<ICellChangeResult> GetCellUpdates(Grid<char> grid);
+    public abstract IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid<char> grid);
 }
 
 public class CrosswordSymmetryClueRotational4 : CrosswordSymmetryClue
@@ -69,7 +69,7 @@ public class CrosswordSymmetryClueRotational4 : CrosswordSymmetryClue
     public override ImmutableSortedSet<Position> Positions { get; }
 
     /// <inheritdoc />
-    public override IEnumerable<ICellChangeResult> GetCellUpdates(Grid<char> grid)
+    public override IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid<char> grid)
     {
         var cells = Positions.Select(grid.GetCellKVP).ToList();
 
@@ -151,7 +151,7 @@ public class CrosswordSymmetryClueRotational2 : CrosswordSymmetryClue
     public override ImmutableSortedSet<Position> Positions { get; }
 
     /// <inheritdoc />
-    public override IEnumerable<ICellChangeResult> GetCellUpdates(Grid<char> grid)
+    public override IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid<char> grid)
     {
         var cell1 = grid.GetCellKVP(Position1);
         var cell2 = grid.GetCellKVP(Position2);
