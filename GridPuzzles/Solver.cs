@@ -8,7 +8,9 @@ namespace GridPuzzles;
 
 public static class Solver
 {
-    public static async Task<SolveResult<T>> TrySolveAsync<T>(string gridYaml, int maxBifurcationDepth,
+    public static async Task<SolveResult<T>> TrySolveAsync<T>(string gridYaml,
+        int currentBifurcationDepth,
+        int maxBifurcationDepth,
         Func<(int columns, int rows), IValueSource<T>> getValueSource,
         IReadOnlyDictionary<string, IVariantBuilder<T>> variantBuilders, CancellationToken cancellation) where T:notnull
     {
@@ -20,19 +22,19 @@ public static class Solver
         if(deserializationResult.IsFailure)
             throw new Exception(deserializationResult.Error);
 
-        return Solve(deserializationResult.Value, maxBifurcationDepth);
+        return Solve(deserializationResult.Value, currentBifurcationDepth, maxBifurcationDepth);
     }
 
-    public static SolveResult<T> Solve<T>(Grid<T> grid, int maxBifurcationDepth) where T:notnull
+    public static SolveResult<T> Solve<T>(Grid<T> grid, int currentBifurcationDepth, int maxBifurcationDepth) where T:notnull
     {
         var current = grid;
 
-        UpdateResult<T> mostRecentUpdate = UpdateResult<T>.Empty;
+        var mostRecentUpdate = UpdateResult<T>.Empty;
 
 
         while (true)
         {
-            (current, mostRecentUpdate) = current.IterateRepeatedly(UpdateResultCombiner<T>.Fast, mostRecentUpdate);
+            (current, mostRecentUpdate) = current.IterateRepeatedly(UpdateResultCombiner<T>.Fast, currentBifurcationDepth, mostRecentUpdate);
 
             if(mostRecentUpdate.Contradictions.Any())
                 return new SolveResult<T>(current,  mostRecentUpdate.Contradictions, null);
@@ -41,7 +43,7 @@ public static class Solver
             if (current.IsComplete)
                 return new SolveResult<T>(current, null, new[] {current});
 
-            if (maxBifurcationDepth <= 0)
+            if (maxBifurcationDepth <= currentBifurcationDepth)
                 break;
 
 

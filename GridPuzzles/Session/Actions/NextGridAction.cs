@@ -33,7 +33,7 @@ public class NextGridAction<T> : IGridViewAction<T> where T: notnull
 
         Stopwatch sw = Stopwatch.StartNew();
 
-        var (newGrid, updateResult) = await currentState.Grid.IterateAsync(combiner, updatePositions);
+        var (newGrid, updateResult) = await currentState.Grid.IterateAsync(combiner,0, updatePositions);
         sw.Stop();
         if (updateResult.IsNotEmpty)
             yield return (ActionResult<T>)new SolveState<T>(newGrid,

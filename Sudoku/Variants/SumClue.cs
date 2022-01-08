@@ -26,7 +26,7 @@ public class SumClue : IRuleClue<int>
 
         if (allOnes)
         {
-            sumChecker = new AllOnesSumChecker(sums, sumsGivenAreValid);
+            sumChecker = new KillerSumChecker(sums, sumsGivenAreValid);
 
             if (multipliers.Count == 2)
             {
@@ -51,7 +51,7 @@ public class SumClue : IRuleClue<int>
 
     public bool AlwaysAllUnique { get; }
 
-    public Maybe<int> SimpleTotalSum => SumChecker is AllOnesSumChecker { CorrectSumsAreLegal: true } checker
+    public Maybe<int> SimpleTotalSum => SumChecker is KillerSumChecker { CorrectSumsAreLegal: true, Sums.Count: 1} checker
         ? checker.Sums.Single()
         : Maybe<int>.None;
 
@@ -60,38 +60,35 @@ public class SumClue : IRuleClue<int>
 
 
     /// <inheritdoc />
-    public IEnumerable<ICellChangeResult> GetCellUpdates(Grid<int> grid) => GetCellUpdates1(grid);
+    public IEnumerable<ICellChangeResult> GetCellUpdates(Grid<int> grid)
+    {
+        var updates = GetCellUpdates1(grid);
+        return updates;
+    }
 
 
     private IEnumerable<ICellChangeResult> GetCellUpdates1(Grid<int> grid)
     {
         var cells = Positions.Select(grid.GetCellKVP).ToList();
 
-        if (SumChecker.SumIsAlwaysPossible(cells))
-            yield break;
-        
-        
+
         var allUnique = AlwaysAllUnique || grid.ClueSource.UniquenessClueHelper.ArePositionsMutuallyUnique(Positions);
         var anyRelations = grid.ClueSource.RelationshipClueHelper.DoAnyRelationshipsExist(Positions);
-        var valueChecker = new SimpleValueChecker(
-            !anyRelations? Maybe<RelationshipClueHelper<int>>.None :
-                grid.ClueSource.RelationshipClueHelper,
-           allUnique? Maybe<UniquenessClueHelper<int>>.None : 
-            grid.ClueSource.UniquenessClueHelper);
-
+        var relationshipChecker = new SimpleRelationshipChecker(
+            !anyRelations ? Maybe<RelationshipClueHelper<int>>.None : grid.ClueSource.RelationshipClueHelper,
+            allUnique ? Maybe<UniquenessClueHelper<int>>.None : grid.ClueSource.UniquenessClueHelper);
 
         var pvsToCheck = new HashSet<PositionValue>();
         var unassignedValuesBuilder =
             ImmutableSortedDictionary<Position, ImmutableSortedSet<int>>.Empty.ToBuilder();
         var possiblePositionValues = new HashSet<PositionValue>();
         var assignedValues = ImmutableList<PositionValue>.Empty;
-        var usedValues = allUnique ? new HashSet<int>() : Maybe<HashSet<int>>.None;
 
-        //TODO check degrees of freedom and abort early if DOF is too high
         
         //Group cells with the same set of possible values together
         foreach (var grouping in cells.GroupBy(x => x.Value, x => x.Key))
         {
+            var usedValues = allUnique ? new HashSet<int>() : Maybe<HashSet<int>>.None;
             var count = grouping.Count();
             var cell = grouping.Key;
 
@@ -108,7 +105,7 @@ public class SumClue : IRuleClue<int>
                 foreach (var position in grouping)
                 {
                     var positionValue = new PositionValue(position, newPossibleValues.Single());
-                    if (!assignedValues.All(av => valueChecker.AreValuesPossible(av, positionValue)))
+                    if (!assignedValues.All(av => relationshipChecker.AreValuesPossible(av, positionValue)))
                     {
                         yield return new Contradiction(
                             new SumReason(this),
@@ -132,7 +129,7 @@ public class SumClue : IRuleClue<int>
                     foreach (var possibleValue in newPossibleValues)
                     {
                         var positionValue = new PositionValue(position, possibleValue);
-                        if (assignedValues.All(av => valueChecker.AreValuesPossible(av, positionValue)))
+                        if (assignedValues.All(av => relationshipChecker.AreValuesPossible(av, positionValue)))
                             pvsToCheck.Add(positionValue);
                         else
                             newNewPossibleValues = newNewPossibleValues.Remove(possibleValue);
@@ -152,29 +149,18 @@ public class SumClue : IRuleClue<int>
             }
         }
 
-
-        if (ExperimentalFeatures.EnablePlausibleSumChecking && !SumChecker.IsLegalSumPlausible(assignedValues, pvsToCheck))
-        {
-            yield return (new Contradiction(
-                new SumReason(this),
-                Positions));
-            yield break;
-        }
-
         var unassignedValues = unassignedValuesBuilder.ToImmutable();
-  
-        IReadOnlyList<IReadOnlySet<Position>> positionGroups = 
-            Positions.Count >= ExperimentalFeatures.MinSizeToEnablePositionGrouping?
-            SumChecker.GroupPositions(valueChecker, unassignedValues).ToList() : ArraySegment<IReadOnlySet<Position>>.Empty;
 
-        while (pvsToCheck.Any()) //TODO consider giving up immediately if the remaining values for a cell are exhausted
+        IReadOnlyList<IReadOnlySet<Position>> positionGroups =SumChecker.GroupPositions(relationshipChecker, unassignedValues).ToList();
+
+        while (pvsToCheck.Any())
         {
             var positionValue = pvsToCheck.First();
 
             var newAssignedValues = assignedValues.Add(positionValue);
             var newRemainingCells = unassignedValues.Remove(positionValue.Position);
 
-            var assignment = FindValidAssignment(newAssignedValues, newRemainingCells, SumChecker, valueChecker);
+            var assignment = FindValidAssignment(newAssignedValues, newRemainingCells, SumChecker, relationshipChecker);
             if (assignment.HasValue)
             {
                 var multipliedAssignments = MultiplyOut1(assignment.Value, positionGroups);
@@ -182,10 +168,8 @@ public class SumClue : IRuleClue<int>
                 pvsToCheck.ExceptWith(multipliedAssignments);
             }
             else
-            {
                 pvsToCheck.ExceptWith(MultiplyOut2(positionValue, positionGroups));
-            }
-                
+
 
             static IReadOnlyList<PositionValue> MultiplyOut1(ImmutableList<PositionValue> assignments,
                 IReadOnlyList<IReadOnlySet<Position>> positionGroups)
@@ -198,19 +182,18 @@ public class SumClue : IRuleClue<int>
             static IEnumerable<PositionValue> MultiplyOut2(PositionValue pv,
                 IReadOnlyList<IReadOnlySet<Position>> positionGroups)
             {
-                
                 if (positionGroups.Any())
                 {
                     var group = positionGroups.FirstOrDefault(x => x.Contains(pv.Position));
                     if (group is not null)
                     {
                         foreach (var position in group)
-                        {
                             yield return new PositionValue(position, pv.Value);
-                        }
-                        yield break;//Don't return the pv again
+
+                        yield break; //Don't return the pv again
                     }
                 }
+
                 yield return pv;
             }
         }
@@ -244,7 +227,7 @@ public class SumClue : IRuleClue<int>
             }
 
             if (count < cell.Value.PossibleValues.Count)
-                yield return cell.CloneWithOnlyValues(possibleValues, 
+                yield return cell.CloneWithOnlyValues(possibleValues,
                     new SumReason(this)
                 );
             // ReSharper restore PossibleMultipleEnumeration
@@ -254,7 +237,7 @@ public class SumClue : IRuleClue<int>
     private static Maybe<ImmutableList<PositionValue>> FindValidAssignment(
         ImmutableList<PositionValue> assignedValues,
         ImmutableSortedDictionary<Position, ImmutableSortedSet<int>> unassignedCells, ISumChecker sumChecker,
-        IValueChecker valueChecker)
+        IRelationshipChecker relationshipChecker)
     {
         if (!unassignedCells.Any())
             return sumChecker.IsLegalSum(assignedValues)
@@ -269,11 +252,11 @@ public class SumClue : IRuleClue<int>
         {
             var pv = new PositionValue(cellToTry.Key, value);
 
-            if (valueChecker.AreValuesPossible(pv, assignedValues))
+            if (relationshipChecker.AreValuesPossible(pv, assignedValues))
             {
                 var newAssignedValues = assignedValues.Add(pv);
                 var nextResult =
-                    FindValidAssignment(newAssignedValues, newUnassignedCells, sumChecker, valueChecker);
+                    FindValidAssignment(newAssignedValues, newUnassignedCells, sumChecker, relationshipChecker);
                 if (nextResult.HasValue)
                     return nextResult;
             }
@@ -307,7 +290,7 @@ public class SumClue : IRuleClue<int>
         public override int GetHashCode() => HashCode.Combine(Position, Value);
     }
 
-    public interface IValueChecker
+    public interface IRelationshipChecker
     {
         bool AreValuesPossible(PositionValue positionValue, ImmutableList<PositionValue> assignedValues)
         {
@@ -323,30 +306,32 @@ public class SumClue : IRuleClue<int>
         bool AreValuesPossible(PositionValue pv1, PositionValue pv2);
 
         bool HaveSameRestrictions(Position p1, Position p2, IEnumerable<Position> allPositions);
+
+        bool AllValuesUnique { get; }
+        bool NoRelationships { get; }
     }
 
 
-    private class SimpleValueChecker : IValueChecker
+    private class SimpleRelationshipChecker : IRelationshipChecker
     {
-
-        public SimpleValueChecker(
+        public SimpleRelationshipChecker(
             Maybe<RelationshipClueHelper<int>> relationshipClueHelper,
             Maybe<UniquenessClueHelper<int>> uniquenessClueHelper)
         {
             RelationshipClueHelper = relationshipClueHelper;
             UniquenessClueHelper = uniquenessClueHelper;
         }
-        
-        public Maybe<RelationshipClueHelper<int>> RelationshipClueHelper { get; }
-        public Maybe<UniquenessClueHelper<int>> UniquenessClueHelper { get; }
+
+        private Maybe<RelationshipClueHelper<int>> RelationshipClueHelper { get; }
+        private Maybe<UniquenessClueHelper<int>> UniquenessClueHelper { get; }
 
         public bool AreValuesPossible(PositionValue pv1, PositionValue pv2)
         {
             if (pv1.Value == pv2.Value)
             {
-                if (UniquenessClueHelper.HasNoValue || UniquenessClueHelper.Value.ArePositionsMutuallyUnique(pv1.Position, pv2.Position))
+                if (UniquenessClueHelper.HasNoValue ||
+                    UniquenessClueHelper.Value.ArePositionsMutuallyUnique(pv1.Position, pv2.Position))
                     return false;
-
             }
 
             if (RelationshipClueHelper.HasNoValue) return true;
@@ -361,7 +346,8 @@ public class SumClue : IRuleClue<int>
             if (UniquenessClueHelper.HasNoValue && RelationshipClueHelper.HasNoValue) return true;
 
             //Check that all constraints between the two positions are commutative
-            if (RelationshipClueHelper.HasValue && !RelationshipClueHelper.Value.CheckRelationship(p1, p2, clue => clue.Constraint.IsCommutative).All(x => x))
+            if (RelationshipClueHelper.HasValue && !RelationshipClueHelper.Value
+                    .CheckRelationship(p1, p2, clue => clue.Constraint.IsCommutative).All(x => x))
                 return false;
 
             var otherPositions = allPositions.Except(new[] { p1, p2 }).ToHashSet();
@@ -370,7 +356,7 @@ public class SumClue : IRuleClue<int>
             {
                 var l1 =
                     otherPositions.Intersect(UniquenessClueHelper.Value.Lookup[p1]
-                            .SelectMany(x => x.Positions)).ToHashSet();
+                        .SelectMany(x => x.Positions)).ToHashSet();
                 var l2 = otherPositions.Intersect(UniquenessClueHelper.Value.Lookup[p2]
                     .SelectMany(x => x.Positions));
 
@@ -380,7 +366,7 @@ public class SumClue : IRuleClue<int>
             if (RelationshipClueHelper.HasNoValue) return true;
 
             var r1 = RelationshipClueHelper.Value.Lookup[p1]
-                    .Where(x=> otherPositions.Contains(x.Position2));
+                .Where(x => otherPositions.Contains(x.Position2));
             var r2 = RelationshipClueHelper.Value.Lookup[p2]
                 .Where(x => otherPositions.Contains(x.Position2));
 
@@ -390,6 +376,12 @@ public class SumClue : IRuleClue<int>
 
             return true;
         }
+
+        /// <inheritdoc />
+        public bool AllValuesUnique => UniquenessClueHelper.HasNoValue;
+
+        /// <inheritdoc />
+        public bool NoRelationships => RelationshipClueHelper.HasNoValue;
     }
 
     public interface ISumChecker
@@ -398,24 +390,22 @@ public class SumClue : IRuleClue<int>
 
         ImmutableSortedSet<int> Sums { get; }
 
-        public bool IsLegalSumPlausible(IEnumerable<PositionValue> assignedPositionValues, IEnumerable<PositionValue> possiblePositionValues);
+        public bool IsLegalSumPlausible(IEnumerable<PositionValue> assignedPositionValues,
+            IEnumerable<PositionValue> possiblePositionValues);
 
         /// <summary>
-        /// True is any total outside the allowed sums leads to a contradiction
+        /// True if the desired total is any amount inside the Sums collection
+        /// False if the desired total is any amount outside the Sums collection
         /// </summary>
         bool CorrectSumsAreLegal { get; }
 
-        bool SumIsAlwaysPossible(IEnumerable<KeyValuePair<Position, Cell<int>>> cells)
-        {
-            return !CorrectSumsAreLegal && cells.All(x => x.Value.PossibleValues.Count > Sums.Count + 1);
-        }
-
-        IEnumerable<IReadOnlySet<Position>> GroupPositions(IValueChecker valueChecker, ImmutableSortedDictionary<Position, ImmutableSortedSet<int>> cells);
+        IEnumerable<IReadOnlySet<Position>> GroupPositions(IRelationshipChecker relationshipChecker,
+            ImmutableSortedDictionary<Position, ImmutableSortedSet<int>> cells);
     }
 
-    public class AllOnesSumChecker : ISumChecker
+    public class KillerSumChecker : ISumChecker
     {
-        public AllOnesSumChecker(ImmutableSortedSet<int> sums, bool sumsAreValid)
+        public KillerSumChecker(ImmutableSortedSet<int> sums, bool sumsAreValid)
         {
             Sums = sums;
             CorrectSumsAreLegal = sumsAreValid;
@@ -425,13 +415,14 @@ public class SumClue : IRuleClue<int>
         public bool CorrectSumsAreLegal { get; }
 
         /// <inheritdoc />
-        public IEnumerable<IReadOnlySet<Position>> GroupPositions(IValueChecker valueChecker, ImmutableSortedDictionary<Position, ImmutableSortedSet<int>> cells)
+        public IEnumerable<IReadOnlySet<Position>> GroupPositions(IRelationshipChecker relationshipChecker,
+            ImmutableSortedDictionary<Position, ImmutableSortedSet<int>> cells)
         {
             var allPositions = cells.Select(x => x.Key).ToList();
-            foreach (var grouping in 
-                     cells.GroupBy(x=>x.Value, x=>x.Key)
-                         .Select(x=>x.ToList())
-                         .Where(x=>x.Count > 1))
+            foreach (var grouping in
+                     cells.GroupBy(x => x.Value, x => x.Key)
+                         .Select(x => x.ToList())
+                         .Where(x => x.Count > 1))
             {
                 var setsSoFar = grouping.Take(1).Select(x => new HashSet<Position>() { x }).ToList();
 
@@ -440,20 +431,22 @@ public class SumClue : IRuleClue<int>
                     var foundASet = false;
                     foreach (var set in setsSoFar)
                     {
-                        if (valueChecker.HaveSameRestrictions(set.First(), position, allPositions))
+                        if (relationshipChecker.HaveSameRestrictions(set.First(), position, allPositions))
                         {
                             set.Add(position);
                             foundASet = true;
                             break;
                         }
                     }
-                    if(!foundASet)setsSoFar.Add(new HashSet<Position>{position});
+
+                    if (!foundASet) setsSoFar.Add(new HashSet<Position> { position });
                 }
 
-                foreach (var set in setsSoFar.Where(x=>x.Count > 1))
+                foreach (var set in setsSoFar.Where(x => x.Count > 1))
                     yield return set;
             }
         }
+        
 
         /// <inheritdoc />
         public bool IsLegalSum(IEnumerable<PositionValue> pairs)
@@ -463,23 +456,24 @@ public class SumClue : IRuleClue<int>
         }
 
         /// <inheritdoc />
-        public bool IsLegalSumPlausible(IEnumerable<PositionValue> assignedPositionValues, IEnumerable<PositionValue> possiblePositionValues)
+        public bool IsLegalSumPlausible(IEnumerable<PositionValue> assignedPositionValues,
+            IEnumerable<PositionValue> possiblePositionValues)
         {
             if (!CorrectSumsAreLegal) return true; //Always plausible if we're just trying to avoid particular numbers
-            var assignedAmount = assignedPositionValues.Select(x=>x.Value).DefaultIfEmpty(0).Sum();
+            var assignedAmount = assignedPositionValues.Select(x => x.Value).DefaultIfEmpty(0).Sum();
 
             var maxSoFar = assignedAmount;
             var minSoFar = assignedAmount;
             if (minSoFar > Sums.Max) return false;
 
-            foreach (var group in possiblePositionValues.GroupBy(x=>x.Position, x=>x.Value))
+            foreach (var group in possiblePositionValues.GroupBy(x => x.Position, x => x.Value))
             {
                 minSoFar += group.Min();
                 if (minSoFar > Sums.Max) return false; //The minimum amount is greater than the highest allowed sum
                 maxSoFar += group.Max();
             }
 
-            if (maxSoFar < Sums.Min) return false;//The maximum amount is less than the highest allowed sum
+            if (maxSoFar < Sums.Min) return false; //The maximum amount is less than the highest allowed sum
             return true;
         }
     }
@@ -500,17 +494,18 @@ public class SumClue : IRuleClue<int>
         public ImmutableSortedSet<int> Sums { get; }
 
         /// <inheritdoc />
-        public bool IsLegalSumPlausible(IEnumerable<PositionValue> assignedPositionValues, IEnumerable<PositionValue> possiblePositionValues)
+        public bool IsLegalSumPlausible(IEnumerable<PositionValue> assignedPositionValues,
+            IEnumerable<PositionValue> possiblePositionValues)
         {
             if (!CorrectSumsAreLegal) return true; //Always plausible if we're just trying to avoid particular numbers
-            
-            var assignedAmount = assignedPositionValues.Select(x=>
+
+            var assignedAmount = assignedPositionValues.Select(x =>
                 Multipliers[x.Position] * x.Value).DefaultIfEmpty(0).Sum();
 
             var maxSoFar = assignedAmount;
             var minSoFar = assignedAmount;
 
-            foreach (var group in possiblePositionValues.GroupBy(x=>x.Position, x=>x.Value))
+            foreach (var group in possiblePositionValues.GroupBy(x => x.Position, x => x.Value))
             {
                 var multiplier = Multipliers[group.Key];
                 if (multiplier > 0)
@@ -526,11 +521,19 @@ public class SumClue : IRuleClue<int>
             }
 
             if (minSoFar > Sums.Max) return false; //The minimum amount is greater than the highest allowed sum
-            if (maxSoFar < Sums.Min) return false;//The maximum amount is less than the highest allowed sum
+            if (maxSoFar < Sums.Min) return false; //The maximum amount is less than the highest allowed sum
             return true;
         }
 
         public bool CorrectSumsAreLegal { get; }
+
+        /// <inheritdoc />
+        public bool SumIsAlwaysPossible(IRelationshipChecker relationshipChecker,
+            IReadOnlyList<KeyValuePair<Position, Cell<int>>> cells, Grid<int> grid)
+        {
+            return false;
+            //TODO if all cells have the same number of choices DOF then return true maybe?
+        }
 
         /// <inheritdoc />
         public bool IsLegalSum(IEnumerable<PositionValue> pairs)
@@ -547,13 +550,14 @@ public class SumClue : IRuleClue<int>
         }
 
         /// <inheritdoc />
-        public IEnumerable<IReadOnlySet<Position>> GroupPositions(IValueChecker valueChecker, ImmutableSortedDictionary<Position, ImmutableSortedSet<int>> cells)
+        public IEnumerable<IReadOnlySet<Position>> GroupPositions(IRelationshipChecker relationshipChecker,
+            ImmutableSortedDictionary<Position, ImmutableSortedSet<int>> cells)
         {
             var allPositions = cells.Select(x => x.Key).ToList();
-            foreach (var grouping in 
-                     cells.GroupBy(x=>(Multipliers[x.Key], x.Value) , x=>x.Key)
-                         .Select(x=>x.ToList())
-                         .Where(x=>x.Count > 1))
+            foreach (var grouping in
+                     cells.GroupBy(x => (Multipliers[x.Key], x.Value), x => x.Key)
+                         .Select(x => x.ToList())
+                         .Where(x => x.Count > 1))
             {
                 var setsSoFar = grouping.Take(1).Select(x => new HashSet<Position>() { x }).ToList();
 
@@ -562,22 +566,22 @@ public class SumClue : IRuleClue<int>
                     var foundASet = false;
                     foreach (var set in setsSoFar)
                     {
-                        if (set.All(setPosition=>  valueChecker.HaveSameRestrictions(setPosition, position, allPositions)))
+                        if (set.All(setPosition =>
+                                relationshipChecker.HaveSameRestrictions(setPosition, position, allPositions)))
                         {
                             set.Add(position);
                             foundASet = true;
                             break;
                         }
                     }
-                    if(!foundASet)setsSoFar.Add(new HashSet<Position>{position});
+
+                    if (!foundASet) setsSoFar.Add(new HashSet<Position> { position });
                 }
 
-                foreach (var set in setsSoFar.Where(x=>x.Count > 1))
+                foreach (var set in setsSoFar.Where(x => x.Count > 1))
                     yield return set;
             }
         }
-
-        
     }
 }
 

@@ -34,6 +34,8 @@ public sealed class Cell<T> : IEquatable<Cell<T>>
     public bool CouldHaveAnyValue(IValueSource<T> valueSource) => PossibleValues.SequenceEqual(valueSource.AllValues);
     public bool HasFixedValue => PossibleValues.Count == 1;
 
+    
+
     [Pure]
     public IEnumerable<IBifurcationOption<T>> GetBifurcationOptions(Position p, int maxValues)
     {

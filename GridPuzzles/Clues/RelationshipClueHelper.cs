@@ -9,7 +9,7 @@ public interface IClueUpdateHelper<T> where T : notnull
     /// Calculate Updates related to this clue
     /// </summary>
     [Pure]
-    IEnumerable<ICellChangeResult> CalculateUpdates(Grid<T> grid, Maybe<IReadOnlyCollection<Position>> positionsToLookAt);
+    IEnumerable<ICellChangeResult> CalculateUpdates(Grid<T> grid, int bifurcationLevel, Maybe<IReadOnlyCollection<Position>> positionsToLookAt);
 }
 
 public abstract class ClueHelper<TClue,T> where TClue : IClue<T>where T: notnull
@@ -70,6 +70,28 @@ public sealed class DynamicOverlayClueHelper<T> : ClueHelper<IDynamicOverlayClue
     }
 }
 
+public sealed class MetaRuleClueHelper<T> : ClueHelper<IMetaRuleClue<T>, T>, IClueUpdateHelper<T>
+    where T: notnull
+{
+    /// <inheritdoc />
+    public MetaRuleClueHelper(IEnumerable<IClue<T>> clues) : base(clues)
+    {
+    }
+
+    /// <inheritdoc />
+    public IEnumerable<ICellChangeResult> CalculateUpdates(Grid<T> grid,
+        int bifurcationLevel,
+        Maybe<IReadOnlyCollection<Position>> positionsToLookAt)
+    {
+
+        if(bifurcationLevel >0)
+            return ArraySegment<ICellChangeResult>.Empty; //For now, only do meta clues on top level
+        return Clues.SelectMany(x => x.GetCellUpdates(grid));
+    }
+
+    
+}
+
 public sealed class RuleClueHelper<T> : ClueHelper<IRuleClue<T>, T>, IClueUpdateHelper<T>
     where T: notnull
 {
@@ -77,6 +99,7 @@ public sealed class RuleClueHelper<T> : ClueHelper<IRuleClue<T>, T>, IClueUpdate
     public RuleClueHelper(IEnumerable<IClue<T>> allClues) : base(allClues)
     {
         Lookup = Clues
+            .Where(x=> x is not IMetaRuleClue<T>)
             .SelectMany(clue => clue.Positions.Select(p => (p, clue)))
             .ToLookup(x => x.p, x => x.clue);
     }
@@ -85,12 +108,14 @@ public sealed class RuleClueHelper<T> : ClueHelper<IRuleClue<T>, T>, IClueUpdate
 
     /// <inheritdoc />
     public IEnumerable<ICellChangeResult> CalculateUpdates(Grid<T> grid,
+        int bifurcationLevel,
         Maybe<IReadOnlyCollection<Position>> positionsToLookAt)
     {
-        var clues =
-            positionsToLookAt.HasValue?
-                positionsToLookAt.Value.SelectMany(x => Lookup[x]).Distinct() :
-                Clues;
+        IEnumerable<IRuleClue<T>> clues;
+        if (positionsToLookAt.HasValue)
+            clues = positionsToLookAt.Value.SelectMany(x => Lookup[x]).Distinct();
+        else
+            clues = Clues;
 
         return clues.SelectMany(x => x.GetCellUpdates(grid));
     }
@@ -117,6 +142,7 @@ public sealed class RelationshipClueHelper<T> : ClueHelper<IRelationshipClue<T>,
 
     /// <inheritdoc />
     public IEnumerable<ICellChangeResult> CalculateUpdates(Grid<T> grid,
+        int bifurcationLevel,
         Maybe<IReadOnlyCollection<Position>> positionsToLookAt)
     {
         if (Lookup.Any())

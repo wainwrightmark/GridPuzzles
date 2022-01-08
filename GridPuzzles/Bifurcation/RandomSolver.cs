@@ -74,7 +74,7 @@ public static class RandomSolver
     {
         UpdateResult<T> initialUpdateResult;
 
-        (initialGrid, initialUpdateResult) = initialGrid.IterateRepeatedly(UpdateResultCombiner<T>.Fast);
+        (initialGrid, initialUpdateResult) = initialGrid.IterateRepeatedly(UpdateResultCombiner<T>.Fast, 0);
 
         if (initialUpdateResult.HasContradictions)
             yield break;
@@ -121,7 +121,7 @@ public static class RandomSolver
                 if (currentNode.RemainingUpdates.Any())
                     nodesToTry.Push(currentNode);
 
-                var (newGrid, newUpdateResult) = currentNode.Grid.IterateRepeatedly(UpdateResultCombiner<T>.Fast,updateResult);
+                var (newGrid, newUpdateResult) = currentNode.Grid.IterateRepeatedly(UpdateResultCombiner<T>.Fast, 0,updateResult);
 
                 if (newUpdateResult.HasContradictions)
                 {
@@ -153,7 +153,7 @@ public static class RandomSolver
     {
         UpdateResult<T> initialUpdateResult;
 
-        (initialGrid, initialUpdateResult) = initialGrid.IterateRepeatedly(UpdateResultCombiner<T>.Fast);
+        (initialGrid, initialUpdateResult) = initialGrid.IterateRepeatedly(UpdateResultCombiner<T>.Fast, 0);
 
         if (initialUpdateResult.HasContradictions)
             return Maybe<Grid<T>>.None;
@@ -197,7 +197,7 @@ public static class RandomSolver
                 if (currentNode.RemainingUpdates.Any())
                     nodesToTry.Push(currentNode);
 
-                var (newGrid, newUpdateResult) = currentNode.Grid.IterateRepeatedly(UpdateResultCombiner<T>.Fast,updateResult);
+                var (newGrid, newUpdateResult) = currentNode.Grid.IterateRepeatedly(UpdateResultCombiner<T>.Fast,0,updateResult);
                     
                 if (newUpdateResult.HasContradictions)
                     continue;
@@ -237,7 +237,7 @@ public static class RandomSolver
 
         while (node.Value.RemainingUpdates.TryPop(out var updateResult))
         {
-            var (newGrid, updateResult2) = grid.IterateRepeatedly(UpdateResultCombiner<T>.Fast,updateResult);
+            var (newGrid, updateResult2) = grid.IterateRepeatedly(UpdateResultCombiner<T>.Fast,0,updateResult);
 
             if (!updateResult2.HasContradictions) //otherwise this update is no good, try another one
                 return (newGrid, updateResult2);

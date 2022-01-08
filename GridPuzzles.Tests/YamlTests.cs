@@ -65,7 +65,7 @@ public class YamlTests
     private async Task Test(string _, string yaml, int maxBifurcationDepth)
     {
         var sw = Stopwatch.StartNew();
-        var solveResult = await Solver.TrySolveAsync(yaml, maxBifurcationDepth,
+        var solveResult = await Solver.TrySolveAsync(yaml, 0,maxBifurcationDepth,
             x=> NumbersValueSource.Sources[Math.Max(x.columns, x.rows)],
             SudokuVariant.SudokuVariantBuildersDictionary, CancellationToken.None);
 

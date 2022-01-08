@@ -54,6 +54,7 @@ public sealed class CompletenessClueHelper<T> : ClueHelper<ICompletenessClue<T>,
     public ILookup<Position, ICompletenessClue<T>> CluesByPosition { get; }
         
     public IEnumerable<ICellChangeResult> CalculateUpdates(Grid<T> grid,
+        int bifurcationLevel,
         Maybe<IReadOnlyCollection<Position>> positionsToLookAt)
     {
         var clues =

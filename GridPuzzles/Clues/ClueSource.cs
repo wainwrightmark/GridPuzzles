@@ -47,13 +47,11 @@ public sealed class ClueSource<T> where T : notnull
 
         Clues = clues;
 
-
-        //ParallelClueLookup = clues.OfType<ParallelClue<T>>().ToLookup(x => x.Parallel);
-
         UniquenessClueHelper = new UniquenessClueHelper<T>(clues);
         CompletenessClueHelper = new CompletenessClueHelper<T>(clues);
         RelationshipClueHelper = new RelationshipClueHelper<T>(UniquenessClueHelper, clues);
         RuleClueHelper = new RuleClueHelper<T>(clues);
+        MetaRuleClueHelper = new MetaRuleClueHelper<T>(clues);
 
         BifurcationClueHelper = new BifurcationClueHelper<T>(clues);
         DynamicOverlayClueHelper = new DynamicOverlayClueHelper<T>(clues);
@@ -71,6 +69,7 @@ public sealed class ClueSource<T> where T : notnull
 
 
     public RuleClueHelper<T> RuleClueHelper { get; }
+    public MetaRuleClueHelper<T> MetaRuleClueHelper { get; }
     public UniquenessClueHelper<T> UniquenessClueHelper { get; }
 
     public CompletenessClueHelper<T> CompletenessClueHelper { get; }
@@ -79,12 +78,7 @@ public sealed class ClueSource<T> where T : notnull
 
     public DynamicOverlayClueHelper<T> DynamicOverlayClueHelper { get; }
 
-    //private ILookup<Parallel, ParallelClue<T>> ParallelClueLookup { get; }
-
     public IReadOnlyList<CellOverlayWrapper> FixedOverlays { get; }
 
     //TODO add more to these methods when we have option clues!
-
-    ///// <inheritdoc />
-    //public IEnumerable<ParallelClue<T>> GetParallelClues(Parallel d) => ParallelClueLookup[d]; //TODO remove
 }

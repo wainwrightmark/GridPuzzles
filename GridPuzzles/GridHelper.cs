@@ -12,6 +12,7 @@ public static class GridHelper
     [Pure]
     public static (Grid<T> grid, UpdateResult<T> updateResult) IterateRepeatedly<T>(this Grid<T> grid,
         UpdateResultCombiner<T> combiner,
+        int bifurcationDepth,
         UpdateResult<T>? latestUpdate = null) where T: notnull
     {
         var updateSoFar = latestUpdate ?? UpdateResult<T>.Empty;
@@ -29,6 +30,7 @@ public static class GridHelper
 
             (grid.ClueSource.RelationshipClueHelper, initialPositions.ToHashSet()),
             (grid.ClueSource.RuleClueHelper, initialPositions.ToHashSet()),
+            (grid.ClueSource.MetaRuleClueHelper, initialPositions.ToHashSet()),
             // ReSharper restore PossibleMultipleEnumeration
         };
 
@@ -41,7 +43,7 @@ public static class GridHelper
             var positionsToCheck = remainingPositions.Any()
                 ? remainingPositions
                 : Maybe<IReadOnlyCollection<Position>>.None;
-            var newUpdate = combiner.Combine(clueHelper.CalculateUpdates(gridSoFar, positionsToCheck));
+            var newUpdate = combiner.Combine(clueHelper.CalculateUpdates(gridSoFar, bifurcationDepth, positionsToCheck));
 
             updateSoFar = updateSoFar.Combine(newUpdate, out var hasChanges);
             remainingPositions.Clear();
@@ -64,16 +66,18 @@ public static class GridHelper
     }
 
 
-    private static UpdateResult<T> GetUpdateResult<T>(this Grid<T> grid,
+    private static UpdateResult<T> CalculateUpdateResult<T>(this Grid<T> grid,
         UpdateResultCombiner<T> combiner,
+        int bifurcationDepth,
         Maybe<IReadOnlyCollection<Position>> positions)  where T: notnull
     {
             
         var changes =
-                grid.ClueSource.UniquenessClueHelper.CalculateUpdates(grid, positions).Concat(
-                    grid.ClueSource.CompletenessClueHelper.CalculateUpdates(grid, positions)).Concat(
-                    grid.ClueSource.RelationshipClueHelper.CalculateUpdates(grid, positions)).Concat(
-                    grid.ClueSource.RuleClueHelper.CalculateUpdates(grid, positions))
+                grid.ClueSource.UniquenessClueHelper.CalculateUpdates(grid, bifurcationDepth, positions).Concat(
+                    grid.ClueSource.CompletenessClueHelper.CalculateUpdates(grid,bifurcationDepth, positions)).Concat(
+                    grid.ClueSource.RelationshipClueHelper.CalculateUpdates(grid,bifurcationDepth, positions)).Concat(
+                    grid.ClueSource.RuleClueHelper.CalculateUpdates(grid,bifurcationDepth, positions)).Concat(
+                    grid.ClueSource.MetaRuleClueHelper.CalculateUpdates(grid,bifurcationDepth, positions))
             ;
 
         return combiner.Combine(changes);
@@ -88,9 +92,10 @@ public static class GridHelper
     [Pure]
     public static (Grid<T> grid, UpdateResult<T> updateResult) Iterate<T>(this Grid<T> grid,
         UpdateResultCombiner<T> combiner,
+        int bifurcationDepth,
         Maybe<IReadOnlyCollection<Position>> positionsToUpdate) where T: notnull
     {
-        var updateResult = GetUpdateResult(grid, combiner, positionsToUpdate);
+        var updateResult = CalculateUpdateResult(grid, combiner, bifurcationDepth, positionsToUpdate);
 
         var newGrid = grid.CloneWithUpdates(updateResult, false);
 
@@ -102,9 +107,10 @@ public static class GridHelper
     public static async Task<(Grid<T> grid, UpdateResult<T> updateResult)> IterateAsync<T>(
         this Grid<T> grid,
         UpdateResultCombiner<T> combiner,
+        int bifurcationDepth,
         Maybe<IReadOnlyCollection<Position>> positionsToUpdate) where T: notnull
     {
-        var r = await Task.Run(() => grid.Iterate(combiner, positionsToUpdate)).ConfigureAwait(false);
+        var r = await Task.Run(() => grid.Iterate(combiner, bifurcationDepth, positionsToUpdate)).ConfigureAwait(false);
 
         return r;
     }

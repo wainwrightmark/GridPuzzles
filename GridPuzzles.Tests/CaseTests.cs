@@ -282,7 +282,7 @@ public class CaseTests
         gridResult.IsSuccess.Should().BeTrue();
 
 
-        var r = Solver.Solve(gridResult.Value, 0);// Note: some of these test cases lead to impossible grids
+        var r = Solver.Solve(gridResult.Value, 0,0);// Note: some of these test cases lead to impossible grids
 
         r.Contradictions.Should().BeEmpty();
 

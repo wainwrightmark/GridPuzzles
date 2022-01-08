@@ -7,34 +7,37 @@ using Sudoku.Examples;
 
 namespace GridPuzzles.Benchmarking;
 
-
 public class Program
 {
     public static void Main(string[] args)
     {
+        //var benchmark = new SudokuBenchmark();
+        //benchmark.GlobalSetup();
+        //benchmark.TestSudoku();
+
         var summary = BenchmarkRunner.Run<SudokuBenchmark>();
     }
 }
 
-[SimpleJob(RunStrategy.Monitoring, invocationCount:1)]
-
+[SimpleJob(RunStrategy.Monitoring, invocationCount: 1)]
 public class SudokuBenchmark
 {
     private static byte[][] examplesToTest = new[]
     {
-        ExampleResource.KillerXXL,
-        ExampleResource.MonstrousKiller,
-        ExampleResource.SumsAndDoublingGroups,
-        ExampleResource.SumsAndUniqueSums,
-        ExampleResource.MoreHardArrows
-        //ExampleResource.EasySudoku,
+        //ExampleResource.TenKnights
+        //ExampleResource.KillerXXL,
+        //ExampleResource.MonstrousKiller,
+        //ExampleResource.SumsAndDoublingGroups,
+        //ExampleResource.SumsAndUniqueSums,
+        //ExampleResource.MoreHardArrows,
+        //ExampleResource.MonstrousKiller,
         //ExampleResource.HardSudoku,
         //ExampleResource.TatooineSunset,
         //ExampleResource.ArrowKiller,
         ////ExampleResource.Miracle2,
         ////ExampleResource.BubbleBath,
-        //ExampleResource.Syzgy,
-        ////ExampleResource.MonstrousKiller,
+        ExampleResource.Syzgy,
+        //ampleResource.MonstrousKiller,
         ////ExampleResource.Miracle1,
         //ExampleResource.ThermoArrows,
     };
@@ -44,7 +47,7 @@ public class SudokuBenchmark
         var yaml = ExampleHelper.GetYaml(ba);
         var deserializationResult = YamlHelper.DeserializeGrid(yaml);
 
-        var grid = 
+        var grid =
             deserializationResult
                 .Value
                 .Convert(NumbersValueSource.Sources[9], SudokuVariant.SudokuVariantBuildersDictionary,
@@ -62,29 +65,23 @@ public class SudokuBenchmark
         if (Grids.Count == 0) throw new Exception("Grids is empty");
     }
 
-    [Params(true)]
-    public bool EnablePlausibleSumChecking { get; set; }
-    
-    [Params(2,10)]
-    public int MinSizeToEnablePositionGrouping { get; set; }
+    [Params(true, false)] public bool EnableArithmeticConsistency { get; set; }
 
     [Benchmark]
     public bool TestSudoku()
     {
-        ExperimentalFeatures.EnablePlausibleSumChecking = EnablePlausibleSumChecking;
-        ExperimentalFeatures.MinSizeToEnablePositionGrouping = MinSizeToEnablePositionGrouping;
+        //NOTE: Make sure to change settings that come into play during solving, not during grid construction
+
+        ExperimentalFeatures.EnableArithmeticConsistency = EnableArithmeticConsistency;
 
         foreach (var grid in Grids)
         {
-            var solveResult = Solver.Solve(grid, 3);
+            var solveResult = Solver.Solve(grid, 0,3);
 
             if (!solveResult.IsSuccess)
                 throw new Exception("Solve result should be success");
-
-
         }
 
         return true;
     }
-
 }

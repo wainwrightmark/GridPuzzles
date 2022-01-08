@@ -67,10 +67,19 @@ public interface IBifurcationClue<T> : IClue<T>where T: notnull
 /// <summary>
 /// A clue that gives cell updates
 /// </summary>
-public interface IRuleClue<T> : IClue<T>where T: notnull
+public interface IRuleClue<T> : IClue<T> where T: notnull
 {
     [Pure]
     IEnumerable<ICellChangeResult> GetCellUpdates(Grid<T> grid);
+}
+
+/// <summary>
+/// A clue which gives cell updates but affects the entire grid
+/// </summary>
+public interface IMetaRuleClue<T> : IRuleClue<T> where T : notnull
+{
+    /// <inheritdoc />
+    ImmutableSortedSet<Position> IClue.Positions => ImmutableSortedSet<Position>.Empty;
 }
 
 /// <summary>

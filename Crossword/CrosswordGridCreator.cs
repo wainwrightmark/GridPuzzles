@@ -42,7 +42,7 @@ public class CrosswordGridCreator : GridCreator<char>
         if (createResult.IsFailure) return createResult.ConvertFailure<(Grid<char> Grid, IReadOnlyList<IVariantBuilder<char>> VariantBuilders,
             IReadOnlyList<VariantBuilderArgumentPair<char>> VariantsInPlay)>();
 
-        var (newGrid, _) = createResult.Value.IterateRepeatedly(UpdateResultCombiner<char>.Default, UpdateResult<char>.Empty);
+        var (newGrid, _) = createResult.Value.IterateRepeatedly(UpdateResultCombiner<char>.Default,0, UpdateResult<char>.Empty);
 
         return (newGrid, CrosswordVariant.CrosswordVariantBuilders, variantsInPlay);
     }
@@ -70,7 +70,7 @@ public class CrosswordGridCreator : GridCreator<char>
 
         var grid = Grid<char>.Create(null, maxPosition, clueSource.Value);
 
-        var (newGrid, _) = grid.IterateRepeatedly(UpdateResultCombiner<char>.Default, UpdateResult<char>.Empty);
+        var (newGrid, _) = grid.IterateRepeatedly(UpdateResultCombiner<char>.Default,0, UpdateResult<char>.Empty);
 
         return (newGrid, CrosswordVariant.CrosswordVariantBuilders, variantsInPlay);
     }

@@ -27,6 +27,20 @@ public static class CellHelper
     }
 
     [Pure]
+    public static bool ArePossibleValuesContiguous(this Cell<int> cell)
+    {
+        if (!cell.PossibleValues.Any()) return true;
+        var last = cell.PossibleValues.Min;
+        foreach (var v2 in cell.PossibleValues.Skip(1))
+        {
+            if (v2 == last + 1) last = v2;
+            else return false;  
+        }
+
+        return true;
+    }
+
+    [Pure]
     public static ICellChangeResult TryCreate<T>(ImmutableSortedSet<T> set, Position p, IUpdateReason reason)
     {
         return set.Count switch

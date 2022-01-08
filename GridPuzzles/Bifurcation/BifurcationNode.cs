@@ -17,18 +17,6 @@ public class BifurcationNode<T> where T : notnull
         UsedChoices = ChoicesNotToTake.ToBuilder();
         if (!updateResult.HasContradictions && grid.IsComplete)
         {
-            //var (_, contradictionCheck) =
-            //    grid.Iterate(UpdateResultCombiner<T>.Fast,
-            //        Maybe<IReadOnlyCollection<Position>>.None);
-
-            //if (contradictionCheck.HasContradictions)
-            //{
-            //    UpdateResult = updateResult.Combine(contradictionCheck, out _);
-            //}
-            //else
-            //{
-            //    CompleteGrids = new[] { grid };
-            //}
             CompleteGrids = new[] { grid };
         }
     }
@@ -91,7 +79,7 @@ public class BifurcationNode<T> where T : notnull
 
         UpdateResult<T> newUpdateResult;
 
-        (Grid, newUpdateResult) = Grid.IterateRepeatedly(UpdateResultCombiner<T>.Fast, updateResult);
+        (Grid, newUpdateResult) = Grid.IterateRepeatedly(UpdateResultCombiner<T>.Fast, LevelsDescended + 1, updateResult);
 
         foreach (var choiceNode in NextLevelNodes)
             choiceNode.ApplyUpdate(newUpdateResult);
@@ -180,7 +168,7 @@ public class BifurcationNode<T> where T : notnull
             {
                 UsedChoices.Add(choice.Choice);
 
-                NextLevelNodes.Add(choice.ToChoiceNode(Grid, UsedChoices.ToImmutable()));
+                NextLevelNodes.Add(choice.ToChoiceNode(Grid, newHeight, UsedChoices.ToImmutable()));
             }
         }
 
@@ -225,7 +213,7 @@ public class BifurcationNode<T> where T : notnull
 
         if (!newUpdateResultToPropagate.IsEmpty)
         {
-            (Grid, UpdateResult) = Grid.IterateRepeatedly(UpdateResultCombiner<T>.Fast, newUpdateResultToPropagate);
+            (Grid, UpdateResult) = Grid.IterateRepeatedly(UpdateResultCombiner<T>.Fast, newHeight, newUpdateResultToPropagate);
 
             if (UpdateResult.HasContradictions)
                 IsFinished = true;
@@ -259,10 +247,10 @@ public class BifurcationNode<T> where T : notnull
 
         public int Height { get; }
 
-        public ChoiceNode<T> ToChoiceNode(Grid<T> grid, ImmutableHashSet<IBifurcationChoice<T>> choicesNotToTake)
+        public ChoiceNode<T> ToChoiceNode(Grid<T> grid, int levelsDescended, ImmutableHashSet<IBifurcationChoice<T>> choicesNotToTake)
         {
             var (newGrid, newUpdateResult) =
-                grid.IterateRepeatedly(UpdateResultCombiner<T>.Fast, Choice.UpdateResult);
+                grid.IterateRepeatedly(UpdateResultCombiner<T>.Fast, levelsDescended, Choice.UpdateResult);
 
             return new ChoiceNode<T>(newGrid, newUpdateResult, Height, choicesNotToTake, Options, new[] { Choice });
         }
