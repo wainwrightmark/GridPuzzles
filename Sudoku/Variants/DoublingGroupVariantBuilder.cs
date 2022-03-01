@@ -29,7 +29,7 @@ public partial class DoublingGroupVariantBuilder<T> : VariantBuilder<T> where T 
 
         var l = new List<IClueBuilder<T>>
         {
-            new DoublingGroupClueBuilder(pr.Value.ToImmutableList())
+            new DoublingGroupClueBuilder(pr.Value.ToImmutableArray())
         };
 
         return l;
@@ -45,7 +45,7 @@ public partial class DoublingGroupVariantBuilder<T> : VariantBuilder<T> where T 
         2, 18);
 
     [Equatable]
-    private partial record DoublingGroupClueBuilder([property:OrderedEquality] ImmutableList<Position> Positions) : IClueBuilder<T>
+    private partial record DoublingGroupClueBuilder([property:OrderedEquality] ImmutableArray<Position> Positions) : IClueBuilder<T>
     {
         /// <inheritdoc />
         public string Name => "Doubling Group";
@@ -58,7 +58,7 @@ public partial class DoublingGroupVariantBuilder<T> : VariantBuilder<T> where T 
             IValueSource<T> valueSource,
             IReadOnlyCollection<IClue<T>> lowerLevelClues)
         {
-            if (Positions.Count <= 0)
+            if (Positions.Length <= 0)
                 yield break;
 
             var uniquenessClues = lowerLevelClues.OfType<IUniquenessClue<T>>().Memoize();

@@ -29,7 +29,7 @@ public class EnumArgument<TArg> : VariantBuilderArgument<TArg>, IEnumArgument
     /// <inheritdoc />
     public override IReadOnlyList<Position> GetCheckedPositions(string text)
     {
-        return ImmutableList<Position>.Empty;
+        return ImmutableArray<Position>.Empty;
     }
 
     /// <inheritdoc />

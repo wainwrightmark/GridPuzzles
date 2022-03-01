@@ -299,7 +299,7 @@ public abstract class SVGBuilder
         IReadOnlyDictionary<Position, IUpdateReason> textDictionary)
     {
         var fill = fillsDict.TryGetValue(position, out var v) ? v : "white";
-        var eventHandlers = EventHandlers(position).ToImmutableList();
+        var eventHandlers = EventHandlers(position).ToImmutableArray();
 
 
         IReadOnlyList<SVGElement>? children = null;
@@ -331,7 +331,7 @@ public abstract class SVGBuilder
 
     public SVGElements.SVG ComposeSVG()
     {
-        var children = ImmutableList<SVGElement>.Empty.ToBuilder();
+        var children = ImmutableArray<SVGElement>.Empty.ToBuilder();
 
         var allOverlays = Grid.GetOverlays()
             .Concat(ExtraOverlays).ToList();

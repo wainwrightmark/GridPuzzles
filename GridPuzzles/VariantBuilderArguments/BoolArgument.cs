@@ -18,7 +18,7 @@ public class BoolArgument : VariantBuilderArgument<bool>
     /// <inheritdoc />
     public override IReadOnlyList<Position> GetCheckedPositions(string text)
     {
-        return ImmutableList<Position>.Empty;
+        return ImmutableArray<Position>.Empty;
     }
 
     /// <inheritdoc />

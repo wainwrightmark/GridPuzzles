@@ -23,7 +23,7 @@ public partial class LockoutVariantBuilder : VariantBuilder<int>
 
         return new List<IClueBuilder<int>>
         {
-            new LockoutClueBuilder(pr.Value.ToImmutableList(), md.Value)
+            new LockoutClueBuilder(pr.Value.ToImmutableArray(), md.Value)
         };
     }
 
@@ -39,7 +39,7 @@ public partial class LockoutVariantBuilder : VariantBuilder<int>
     };
 
     [Equatable]
-    public partial record LockoutClueBuilder([property:OrderedEquality] ImmutableList<Position> AllPositions, int MinDifference) : IClueBuilder<int>
+    public partial record LockoutClueBuilder([property:OrderedEquality] IReadOnlyList<Position> AllPositions, int MinDifference) : IClueBuilder<int>
     {
 
         /// <inheritdoc />

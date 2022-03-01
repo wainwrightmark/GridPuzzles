@@ -26,14 +26,14 @@ public partial class PalindromeVariantBuilder<T> : VariantBuilder<T> where T : n
 
         var l = new List<IClueBuilder<T>>
         {
-            new PalindromeClueBuilder(pr.Value.ToImmutableList())
+            new PalindromeClueBuilder(pr.Value.ToImmutableArray())
         };
 
         return l;
     }
 
     [Equatable]
-    private partial record PalindromeClueBuilder([property:OrderedEquality] ImmutableList<Position> Positions) : IClueBuilder<T>
+    private partial record PalindromeClueBuilder([property:OrderedEquality] IReadOnlyList<Position> Positions) : IClueBuilder<T>
     {
 
         /// <inheritdoc />

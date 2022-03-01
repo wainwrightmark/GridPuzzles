@@ -28,7 +28,7 @@ public class IntArgument : VariantBuilderArgument<int>
     /// <inheritdoc />
     public override IReadOnlyList<Position> GetCheckedPositions(string text)
     {
-        return ImmutableList<Position>.Empty;
+        return ImmutableArray<Position>.Empty;
     }
     public override VariantBuilderArgument CloneWithValue(string newValue) => new IntArgument(Name, MinValue, MaxValue, int.TryParse(newValue, out var b)? b : DefaultValue);
 }

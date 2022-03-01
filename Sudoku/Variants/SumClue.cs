@@ -85,7 +85,7 @@ public class SumClue : IRuleClue<int>
         var unassignedValuesBuilder =
             ImmutableSortedDictionary<Position, ImmutableSortedSet<int>>.Empty.ToBuilder();
         var possiblePositionValues = new HashSet<PositionValue>();
-        var assignedValues = ImmutableList<PositionValue>.Empty;
+        var assignedValues = ImmutableArray<PositionValue>.Empty;
 
         
         //Group cells with the same set of possible values together
@@ -174,7 +174,7 @@ public class SumClue : IRuleClue<int>
                 pvsToCheck.ExceptWith(MultiplyOut2(positionValue, positionGroups));
 
 
-            static IReadOnlyList<PositionValue> MultiplyOut1(ImmutableList<PositionValue> assignments,
+            static IReadOnlyList<PositionValue> MultiplyOut1(ImmutableArray<PositionValue> assignments,
                 IReadOnlyList<IReadOnlySet<Position>> positionGroups)
             {
                 if (!positionGroups.Any()) return assignments;
@@ -237,15 +237,15 @@ public class SumClue : IRuleClue<int>
         }
     }
 
-    private static Maybe<ImmutableList<PositionValue>> FindValidAssignment(
-        ImmutableList<PositionValue> assignedValues,
+    private static Maybe<ImmutableArray<PositionValue>> FindValidAssignment(
+        ImmutableArray<PositionValue> assignedValues,
         ImmutableSortedDictionary<Position, ImmutableSortedSet<int>> unassignedCells, ISumChecker sumChecker,
         IRelationshipChecker relationshipChecker)
     {
         if (!unassignedCells.Any())
             return sumChecker.IsLegalSum(assignedValues)
                 ? assignedValues
-                : Maybe<ImmutableList<PositionValue>>.None;
+                : Maybe<ImmutableArray<PositionValue>>.None;
 
         var cellToTry = unassignedCells.First();
 
@@ -265,7 +265,7 @@ public class SumClue : IRuleClue<int>
             }
         }
 
-        return Maybe<ImmutableList<PositionValue>>.None;
+        return Maybe<ImmutableArray<PositionValue>>.None;
     }
 
 
@@ -295,7 +295,7 @@ public class SumClue : IRuleClue<int>
 
     public interface IRelationshipChecker
     {
-        bool AreValuesPossible(PositionValue positionValue, ImmutableList<PositionValue> assignedValues)
+        bool AreValuesPossible(PositionValue positionValue, IEnumerable<PositionValue> assignedValues)
         {
             foreach (var pv2 in assignedValues)
             {

@@ -24,13 +24,13 @@ public partial class ArrowVariantBuilder : VariantBuilder<int>
         if (positionArgumentsResult.IsFailure)
             return positionArgumentsResult.ConvertFailure<IReadOnlyCollection<IClueBuilder<int>>>();
 
-        var heads = positionArgumentsResult.Value.Take(headSizeArgumentResult.Value).ToImmutableList();
-        var tails = positionArgumentsResult.Value.Skip(headSizeArgumentResult.Value).ToImmutableList();
+        var heads = positionArgumentsResult.Value.Take(headSizeArgumentResult.Value).ToImmutableArray();
+        var tails = positionArgumentsResult.Value.Skip(headSizeArgumentResult.Value).ToImmutableArray();
 
-        if(heads.Count < 1)
+        if(heads.Length < 1)
             return Result.Failure<IReadOnlyCollection<IClueBuilder<int>>>("Must be at least one head cell");
 
-        if(tails.Count < 1)
+        if(tails.Length < 1)
             return Result.Failure<IReadOnlyCollection<IClueBuilder<int>>>("Must be at least one tail cell");
 
 
@@ -57,7 +57,7 @@ public partial class ArrowVariantBuilder : VariantBuilder<int>
     };
 
     [Equatable]
-    private partial record ArrowClueBuilder([property:OrderedEquality] ImmutableList<Position> HeadPositions,[property:OrderedEquality] ImmutableList<Position> TailPositions) : IClueBuilder<int>
+    private partial record ArrowClueBuilder([property:OrderedEquality] ImmutableArray<Position> HeadPositions,[property:OrderedEquality] ImmutableArray<Position> TailPositions) : IClueBuilder<int>
     {
 
         /// <inheritdoc />
@@ -71,7 +71,7 @@ public partial class ArrowVariantBuilder : VariantBuilder<int>
             IReadOnlyCollection<IClue<int>> lowerLevelClues)
         {
             //Special case for length one arrows
-            if (HeadPositions.Count == 1 && TailPositions.Count == 1)
+            if (HeadPositions.Length == 1 && TailPositions.Length == 1)
             {
                 yield return new RelationshipClue<int>(HeadPositions.Single(), TailPositions.Single(),
                     AreEqualConstraint<int>.Instance);
@@ -96,7 +96,7 @@ public partial class ArrowVariantBuilder : VariantBuilder<int>
         /// <inheritdoc />
         public IEnumerable<ICellOverlay> GetOverlays(Position minPosition, Position maxPosition)
         {
-            if (HeadPositions.Count == 1)
+            if (HeadPositions.Length == 1)
             {
                 var path = TailPositions.BuildContiguousPath(HeadPositions.Single(), true);
                 if (path.HasValue)

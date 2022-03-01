@@ -20,7 +20,7 @@ public partial class NexusVariantBuilder : VariantBuilder<int>
 
         return new List<IClueBuilder<int>>
         {
-            new NexusClueBuilder(pr.Value.ToImmutableList())
+            new NexusClueBuilder(pr.Value.ToImmutableArray())
         };
     }
 
@@ -31,7 +31,7 @@ public partial class NexusVariantBuilder : VariantBuilder<int>
     public override IReadOnlyList<VariantBuilderArgument> Arguments => new VariantBuilderArgument[] { Positions };
 
     [Equatable]
-    public partial record NexusClueBuilder(ImmutableList<Position> AllPositions) : IClueBuilder<int>
+    public partial record NexusClueBuilder([property:OrderedEquality] IReadOnlyList<Position> AllPositions) : IClueBuilder<int>
     {
 
         /// <inheritdoc />

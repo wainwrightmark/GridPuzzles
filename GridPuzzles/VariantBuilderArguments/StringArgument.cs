@@ -18,7 +18,7 @@ public class MultilineStringArgument : VariantBuilderArgument<string> //TODO lis
     /// <inheritdoc />
     public override IReadOnlyList<Position> GetCheckedPositions(string text)
     {
-        return ImmutableList<Position>.Empty;
+        return ImmutableArray<Position>.Empty;
     }
 
     /// <inheritdoc />
@@ -45,7 +45,7 @@ public class StringArgument : VariantBuilderArgument<string> //TODO list string,
     /// <inheritdoc />
     public override IReadOnlyList<Position> GetCheckedPositions(string text)
     {
-        return ImmutableList<Position>.Empty;
+        return ImmutableArray<Position>.Empty;
     }
 
     /// <inheritdoc />

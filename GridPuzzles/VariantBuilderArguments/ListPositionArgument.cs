@@ -49,7 +49,7 @@ public class ListPositionArgument : VariantBuilderArgument<IReadOnlyList<Positio
             .Combine()
             .Map(x => x.ToList() as IReadOnlyList<Position>);
         if (r.IsFailure)
-            return ImmutableList<Position>.Empty;
+            return ImmutableArray<Position>.Empty;
 
         return r.Value;
     }

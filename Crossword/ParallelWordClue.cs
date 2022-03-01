@@ -119,12 +119,12 @@ public class ParallelWordClue : IRuleClue<char>, IBifurcationClue<char>
         GetAllWordOptions(Grid<char> grid, IReadOnlyList<KeyValuePair<Position, Cell<char>>> cells)
     {
         //if (cells.All(x => x.Value.PossibleValues.Count == 1))
-        //    return (ImmutableList<WordOption>.Empty, ImmutableList<WordOption>.Empty,
-        //        ImmutableList<WordOption>.Empty, ImmutableList<CellChangeResult<char>>.Empty);
+        //    return (ImmutableArray<WordOption>.Empty, ImmutableArray<WordOption>.Empty,
+        //        ImmutableArray<WordOption>.Empty, ImmutableArray<CellChangeResult<char>>.Empty);
 
         if (cells.All(x => x.Value.PossibleValues.Count != 1) && !Symmetrical)
-            return (ImmutableList<WordOption>.Empty, ImmutableList<WordOption>.Empty,
-                ImmutableList<WordOption>.Empty, ImmutableList<ICellChangeResult>.Empty);
+            return (ImmutableArray<WordOption>.Empty, ImmutableArray<WordOption>.Empty,
+                ImmutableArray<WordOption>.Empty, ImmutableArray<ICellChangeResult>.Empty);
 
         var (minLeftBlocks, maxLeftBlocks, minRightBlocks, maxRightBlocks) = GetPossibleBlocks(cells, Symmetrical);
 

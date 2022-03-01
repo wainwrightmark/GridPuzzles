@@ -22,7 +22,7 @@ public partial class ConsecutiveGroupVariantBuilder : VariantBuilder<int>
 
         var l = new List<IClueBuilder<int>>
         {
-            new ConsecutiveGroupClueBuilder(pr.Value.ToImmutableList())
+            new ConsecutiveGroupClueBuilder(pr.Value.ToImmutableArray())
         };
 
         return l;
@@ -40,7 +40,7 @@ public partial class ConsecutiveGroupVariantBuilder : VariantBuilder<int>
         8);
 
     [Equatable]
-    public partial record ConsecutiveGroupClueBuilder([property:OrderedEquality] ImmutableList<Position> Positions) : IClueBuilder<int>
+    public partial record ConsecutiveGroupClueBuilder([property:OrderedEquality] ImmutableArray<Position> Positions) : IClueBuilder<int>
     {
 
         /// <inheritdoc />
@@ -54,7 +54,7 @@ public partial class ConsecutiveGroupVariantBuilder : VariantBuilder<int>
             IValueSource<int> valueSource,
             IReadOnlyCollection<IClue<int>> lowerLevelClues)
         {
-            var amount = Positions.Count - 1;
+            var amount = Positions.Length - 1;
             var constraint = new DifferByAtMostConstraint(amount);
 
             yield return new UniquenessClue<int>(Positions.ToImmutableSortedSet(), "Consecutive Group");

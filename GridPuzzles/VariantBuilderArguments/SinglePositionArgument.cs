@@ -20,9 +20,9 @@ public class SinglePositionArgument : VariantBuilderArgument<Position>
     {
         var r = TryParseTyped(text);
         if(r.IsFailure)
-            return ImmutableList<Position>.Empty;
+            return ImmutableArray<Position>.Empty;
 
-        return ImmutableList<Position>.Empty.Add(r.Value);
+        return ImmutableArray<Position>.Empty.Add(r.Value);
     }
 
     /// <inheritdoc />

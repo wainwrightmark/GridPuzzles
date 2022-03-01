@@ -25,7 +25,7 @@ public partial class ThermometerVariantBuilder : VariantBuilder<int>
 
         return new List<IClueBuilder<int>>
         {
-            new ThermometerClueBuilder(pr.Value.ToImmutableList())
+            new ThermometerClueBuilder(pr.Value.ToImmutableArray())
         };
     }
 
@@ -35,7 +35,7 @@ public partial class ThermometerVariantBuilder : VariantBuilder<int>
     public override IReadOnlyList<VariantBuilderArgument> Arguments => new[] { Positions };
 
     [Equatable]
-    public partial record ThermometerClueBuilder([property:OrderedEquality] ImmutableList<Position> Positions) : IClueBuilder<int>
+    public partial record ThermometerClueBuilder([property:OrderedEquality] IReadOnlyList<Position> Positions) : IClueBuilder<int>
     {
 
         /// <inheritdoc />

@@ -22,7 +22,7 @@ public partial class WhispersVariantBuilder : VariantBuilder<int>
 
         return new List<IClueBuilder<int>>
         {
-            new WhispersClueBuilder(pr.Value.ToImmutableList(), md.Value)
+            new WhispersClueBuilder(pr.Value.ToImmutableArray(), md.Value)
         };
     }
 
@@ -34,7 +34,7 @@ public partial class WhispersVariantBuilder : VariantBuilder<int>
     public override IReadOnlyList<VariantBuilderArgument> Arguments => new VariantBuilderArgument[]  {MinDistance, Positions};
 
     [Equatable]
-    public partial record  WhispersClueBuilder([property:OrderedEquality] ImmutableList<Position> Positions, int MinimumDistance) : IClueBuilder<int>
+    public partial record  WhispersClueBuilder([property:OrderedEquality] IReadOnlyList<Position> Positions, int MinimumDistance) : IClueBuilder<int>
     {
 
         /// <inheritdoc />
