@@ -23,6 +23,19 @@ public abstract class SVGEventHandler : ISVGEventHandler
     public static ISVGEventHandler OnClickAsync(Func<MouseEventArgs, Task> func) => new SVGEventHandler1<MouseEventArgs>("onclick", func);
     public static ISVGEventHandler OnClick(Action<MouseEventArgs> func) => new SVGEventHandler1<MouseEventArgs>("onclick", func);
 
+    public static ISVGEventHandler MouseDownAsync(Func<MouseEventArgs, Task> func) => new SVGEventHandler1<MouseEventArgs>("mousedown", func);
+    public static ISVGEventHandler MouseDown(Action<MouseEventArgs> func) => new SVGEventHandler1<MouseEventArgs>("mousedown", func);
+
+    public static ISVGEventHandler MouseMoveAsync(Func<MouseEventArgs, Task> func) => new SVGEventHandler1<MouseEventArgs>("mousemove", func);
+    public static ISVGEventHandler MouseMove(Action<MouseEventArgs> func) => new SVGEventHandler1<MouseEventArgs>("mousemove", func);
+
+    public static ISVGEventHandler MouseUpAsync(Func<MouseEventArgs, Task> func) => new SVGEventHandler1<MouseEventArgs>("mouseup", func);
+    public static ISVGEventHandler MouseUp(Action<MouseEventArgs> func) => new SVGEventHandler1<MouseEventArgs>("mouseup", func);
+
+    public static ISVGEventHandler MouseLeaveAsync(Func<MouseEventArgs, Task> func) => new SVGEventHandler1<MouseEventArgs>("mouseleave", func);
+    public static ISVGEventHandler MouseLeave(Action<MouseEventArgs> func) => new SVGEventHandler1<MouseEventArgs>("mouseleave", func);
+
+
 
     private class SVGEventHandler1<T> : IWebSVGEventHandler
     {
@@ -66,7 +79,7 @@ public abstract class SVGEventHandler : ISVGEventHandler
                 return EventCallback.Factory.Create<T>(receiver, e => _action(e));
             }
 
-            throw new Exception("Both ASyncFunc and Action were null");
+            throw new Exception("Both AsyncFunc and Action were null");
         }
     }
 

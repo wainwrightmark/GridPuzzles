@@ -19,12 +19,12 @@ public class Program
     }
 }
 
-[SimpleJob(RunStrategy.Monitoring, invocationCount: 1)]
+[SimpleJob(RunStrategy.Monitoring, invocationCount: 1, targetCount: 2)]
 public class SudokuBenchmark
 {
     private static byte[][] examplesToTest = new[]
-    {
-        ExampleResource.TenKnights
+    {ExampleResource.EasySudoku,
+        ExampleResource.TenKnights,
         //ExampleResource.KillerXXL,
         //ExampleResource.MonstrousKiller,
         //ExampleResource.SumsAndDoublingGroups,
@@ -64,14 +64,18 @@ public class SudokuBenchmark
         if (Grids.Count == 0) throw new Exception("Grids is empty");
     }
 
-    [Params(true, false)] public bool EnableArithmeticConsistency { get; set; }
+    //[Params(true, false)] public bool EnableArithmeticConsistency { get; set; }
+
+
+    [Params(true, false)] public bool EnableParallelDescent { get; set; }
 
     [Benchmark]
     public bool TestSudoku()
     {
         //NOTE: Make sure to change settings that come into play during solving, not during grid construction
 
-        ExperimentalFeatures.EnableArithmeticConsistency = EnableArithmeticConsistency;
+        //ExperimentalFeatures.EnableArithmeticConsistency = EnableArithmeticConsistency;
+        ExperimentalFeatures.ParallelDescent = EnableParallelDescent;
 
         foreach (var grid in Grids)
         {

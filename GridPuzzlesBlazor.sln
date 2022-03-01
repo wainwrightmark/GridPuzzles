@@ -31,7 +31,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sudoku.Blazor", "Sudoku.Bla
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GridComponents", "GridComponents\GridComponents.csproj", "{A99D226B-19A5-449C-B695-EBC646E7192F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchmarking", "Benchmarking\Benchmarking.csproj", "{C278D34C-17DE-4686-AC56-BCA535BE4272}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Benchmarking", "Benchmarking\Benchmarking.csproj", "{C278D34C-17DE-4686-AC56-BCA535BE4272}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Words.Tests", "Words.Tests\Words.Tests.csproj", "{FB65BF40-2997-4331-A76F-45D31E6D46DA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -87,6 +89,10 @@ Global
 		{C278D34C-17DE-4686-AC56-BCA535BE4272}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C278D34C-17DE-4686-AC56-BCA535BE4272}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C278D34C-17DE-4686-AC56-BCA535BE4272}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FB65BF40-2997-4331-A76F-45D31E6D46DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB65BF40-2997-4331-A76F-45D31E6D46DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB65BF40-2997-4331-A76F-45D31E6D46DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB65BF40-2997-4331-A76F-45D31E6D46DA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -180,11 +180,18 @@ public class BifurcationNode<T> where T : notnull
             return;
         }
 
-        foreach (var choiceNode in NextLevelNodes)
+        if (ExperimentalFeatures.ParallelDescent)
         {
-            if (newHeight > choiceNode.InitialHeight + choiceNode.LevelsDescended)
-                choiceNode.Descend();
+            NextLevelNodes.Where(choiceNode => newHeight > choiceNode.InitialHeight + choiceNode.LevelsDescended)
+                .AsParallel()
+                .ForAll(x=>x.Descend());
         }
+        else
+        {
+            NextLevelNodes.Where(choiceNode => newHeight > choiceNode.InitialHeight + choiceNode.LevelsDescended)
+                .ForEach(x=>x.Descend());
+        }
+        
 
         var optionGroups = NextLevelNodes
             .SelectMany(choiceNode => choiceNode.Options.Select(option => (option, choiceNode)))
