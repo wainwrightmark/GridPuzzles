@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using GridPuzzles.Cells;
 using GridPuzzles.Clues;
 using Sudoku;
 using Xunit;
@@ -271,13 +272,13 @@ public class CaseTests
 
         var gridString = myCase.Grid.Trim().Replace("\t", "");
 
-        var clueSource = await ClueSource<int>.TryCreateAsync(
+        var clueSource = await ClueSource<int, IntCell>.TryCreateAsync(
             variantBuilders, maxPosition, NumbersValueSource.Sources[9], CancellationToken.None);
 
         if(clueSource.IsFailure)
             throw new XunitException(clueSource.Error);
 
-        var gridResult = Grid<int>.CreateFromString(gridString,clueSource.Value, maxPosition);
+        var gridResult = Grid<int, IntCell>.CreateFromString(gridString,clueSource.Value, maxPosition);
 
         gridResult.IsSuccess.Should().BeTrue();
 
@@ -286,7 +287,7 @@ public class CaseTests
 
         r.Contradictions.Should().BeEmpty();
 
-        r.MostAdvancedGrid.GetCell(myCase.PositionToCheck).PossibleValues.Should().BeEquivalentTo(myCase.ExpectedPossibleValues);
+        r.MostAdvancedGrid.GetCell(myCase.PositionToCheck).Should().BeEquivalentTo(myCase.ExpectedPossibleValues);
     }
 
 

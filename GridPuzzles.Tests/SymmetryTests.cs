@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using GridPuzzles.Cells;
 using GridPuzzles.Clues;
 using Sudoku;
 using Xunit;
@@ -51,7 +52,7 @@ public class SymmetryTests
 
         var maxPosition = Position.NineNine;
 
-        var clueSource = await ClueSource<int>
+        var clueSource = await ClueSource<int, IntCell>
             .TryCreateAsync(
                 SudokuVariant.SudokuVariantBuilders.GetVariantBuilderArgumentPairs(maxPosition),
                     
@@ -61,7 +62,7 @@ public class SymmetryTests
             throw new XunitException(clueSource.Error);
 
 
-        var grid = Grid<int>.CreateFromString(gridText, clueSource.Value, maxPosition);
+        var grid = Grid<int, IntCell>.CreateFromString(gridText, clueSource.Value, maxPosition);
 
         grid.IsSuccess.Should().BeTrue();
 

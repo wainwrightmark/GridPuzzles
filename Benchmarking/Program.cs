@@ -1,6 +1,7 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Engines;
 using BenchmarkDotNet.Running;
+using GridPuzzles.Cells;
 using GridPuzzles.Yaml;
 using Sudoku;
 using Sudoku.Examples;
@@ -41,7 +42,7 @@ public class SudokuBenchmark
         //ExampleResource.ThermoArrows,
     };
 
-    private static Grid<int> GetGrid(byte[] ba)
+    private static Grid<int, IntCell> GetGrid(byte[] ba)
     {
         var yaml = ExampleHelper.GetYaml(ba);
         var deserializationResult = YamlHelper.DeserializeGrid(yaml);
@@ -55,7 +56,7 @@ public class SudokuBenchmark
         return grid;
     }
 
-    private static readonly List<Grid<int>> Grids = examplesToTest.Select(GetGrid).ToList();
+    private static readonly List<Grid<int, IntCell>> Grids = examplesToTest.Select(GetGrid).ToList();
 
 
     [GlobalSetup]

@@ -1,8 +1,10 @@
 ﻿@page "/numbergrid/{Size:int}/{GridText}"
 @page "/numbergrid/{Size:int}"
 @using Sudoku
+@using GridPuzzles.Cells
 
 <GridPage T="int" 
+          TCell="IntCell"
           Columns="@Size" 
           Rows="@Size" 
           GridCreator="SudokuGridCreator.Instance" 

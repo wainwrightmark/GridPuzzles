@@ -2,9 +2,11 @@
 @page "/{Size:int}/{GridText}"
 @page "/{Size:int}"
 @using Sudoku
+@using GridPuzzles.Cells
 
 
 <GridPage T="int"
+          TCell="IntCell"
           Columns="@_size"
           Rows="@_size"
           GridCreator="SudokuGridCreator.Instance"

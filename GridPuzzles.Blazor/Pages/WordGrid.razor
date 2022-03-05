@@ -1,7 +1,15 @@
 ﻿@page "/wordgrid/{Size:int}"
 @using Crossword
+@using GridPuzzles.Cells
 
-<GridPage T="char" Columns="@Size" Rows="@Size" GridCreator="CrosswordGridCreator.Instance" GridText="" GetExtraFunc="CrosswordExport.ExportCrossword" Examples="Sudoku.Examples.ExampleHelper.SudokuExamples.ToList()"/>
+<GridPage T="char"
+          TCell="CharCell"
+          Columns="@Size"
+          Rows="@Size" 
+          GridCreator="CrosswordGridCreator.Instance" 
+          GridText=""
+          GetExtraFunc="CrosswordExport.ExportCrossword" 
+          Examples="Sudoku.Examples.ExampleHelper.SudokuExamples.ToList()"/>
 
 @code {
     [Parameter]

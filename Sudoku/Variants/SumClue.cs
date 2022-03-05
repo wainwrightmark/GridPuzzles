@@ -100,7 +100,7 @@ public class SumClue : IRuleClue
                 : cell;
 
             //If cells of this type only have one possible value, assign that value
-            if (newHasSingleValue())
+            if (newPossibleValues.HasSingleValue())
             {
                 if (usedValues.HasValue)
                     usedValues.Value.Add(newPossibleValues.Single());
