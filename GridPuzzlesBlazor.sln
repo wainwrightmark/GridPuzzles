@@ -33,7 +33,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GridComponents", "GridCompo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Benchmarking", "Benchmarking\Benchmarking.csproj", "{C278D34C-17DE-4686-AC56-BCA535BE4272}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Words.Tests", "Words.Tests\Words.Tests.csproj", "{FB65BF40-2997-4331-A76F-45D31E6D46DA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Words.Tests", "Words.Tests\Words.Tests.csproj", "{FB65BF40-2997-4331-A76F-45D31E6D46DA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmallSets", "SmallSets\SmallSets.csproj", "{8E72BC13-3435-479A-AD43-97D498EE1734}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmallSets.Tests", "SmallSets.Tests\SmallSets.Tests.csproj", "{C605A68C-F846-4947-91E5-363AC1136990}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -93,6 +97,14 @@ Global
 		{FB65BF40-2997-4331-A76F-45D31E6D46DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FB65BF40-2997-4331-A76F-45D31E6D46DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FB65BF40-2997-4331-A76F-45D31E6D46DA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E72BC13-3435-479A-AD43-97D498EE1734}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E72BC13-3435-479A-AD43-97D498EE1734}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E72BC13-3435-479A-AD43-97D498EE1734}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E72BC13-3435-479A-AD43-97D498EE1734}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C605A68C-F846-4947-91E5-363AC1136990}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C605A68C-F846-4947-91E5-363AC1136990}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C605A68C-F846-4947-91E5-363AC1136990}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C605A68C-F846-4947-91E5-363AC1136990}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

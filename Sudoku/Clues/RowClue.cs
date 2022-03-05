@@ -1,6 +1,6 @@
 ﻿namespace Sudoku.Clues;
 
-public class RowClue<T> : ParallelClue<T>  where T :notnull
+public class RowClue<T, TCell> : ParallelClue<T, TCell>  where T :struct where TCell : ICell<T, TCell>, new()
 {
     public ushort RowNumber { get; }
 

@@ -15,48 +15,48 @@ public interface IGridSession
     SessionSettings SessionSettings { get; }
 }
 
-public class GridSession<T> : IGridSession where T:notnull
+public class GridSession<T, TCell> : IGridSession where T :struct where TCell : ICell<T, TCell>, new()
 {
     /// <summary>
     /// Creates a new Session
     /// </summary>
-    private GridSession(Grid<T> grid, IEnumerable<IVariantBuilder<T>> variantBuilders,
-        ImmutableHashSet<VariantBuilderArgumentPair<T>> variantsInPlay)
+    private GridSession(Grid<T, TCell> grid, IEnumerable<IVariantBuilder<T, TCell>> variantBuilders,
+        ImmutableHashSet<VariantBuilderArgumentPair<T, TCell>> variantsInPlay)
     {
         PotentialVariantBuilders = variantBuilders.ToList();
-        var state = new SolveState<T>(grid,
+        var state = new SolveState<T, TCell>(grid,
             variantsInPlay,
-            UpdateResult<T>.Empty,
+            UpdateResult<T, TCell>.Empty,
             ChangeType.InitialState,
             "Initial State",
             TimeSpan.Zero, 
-            grid.Cells.Where(x=>x.Value.PossibleValues.Count == 1)
-                .ToImmutableSortedDictionary(x=>x.Key, x=>x.Value.PossibleValues.Single()), 
+            grid.Cells.Where(x=>x.Value.HasSingleValue())
+                .ToImmutableSortedDictionary(x=>x.Key, x=>x.Value.Single()), 
             null);
-        StateHistory = ImmutableStack<SolveState<T>>.Empty.Push(state);
+        StateHistory = ImmutableStack<SolveState<T, TCell>>.Empty.Push(state);
     }
 
-    public static async Task<GridSession<T>> CreateAsync(Grid<T> grid,
-        IEnumerable<IVariantBuilder<T>> variantBuilders,
-        IReadOnlyCollection<VariantBuilderArgumentPair<T>> variantsInPlay, CancellationToken cancellationToken)
+    public static async Task<GridSession<T, TCell>> CreateAsync(Grid<T, TCell> grid,
+        IEnumerable<IVariantBuilder<T, TCell>> variantBuilders,
+        IReadOnlyCollection<VariantBuilderArgumentPair<T, TCell>> variantsInPlay, CancellationToken cancellationToken)
     {
-        var clueSourceResult = await ClueSource<T>.TryCreateAsync(
+        var clueSourceResult = await ClueSource<T, TCell>.TryCreateAsync(
             variantsInPlay,
             grid.MaxPosition, grid.ClueSource.ValueSource, CancellationToken.None);
 
         //TODO handle errors here
         grid = grid.CloneWithClueSource(clueSourceResult.Value);
 
-        var gv = new GridSession<T>(grid, variantBuilders, variantsInPlay.ToImmutableHashSet());
+        var gv = new GridSession<T, TCell>(grid, variantBuilders, variantsInPlay.ToImmutableHashSet());
         return gv;
     }
         
-    public IReadOnlyCollection<IVariantBuilder<T>> PotentialVariantBuilders { get; }
+    public IReadOnlyCollection<IVariantBuilder<T, TCell>> PotentialVariantBuilders { get; }
 
     /// <inheritdoc />
     ISolveState IGridSession.SolveState => SolveState;
 
-    public SolveState<T> SolveState => StateHistory.Peek();
+    public SolveState<T, TCell> SolveState => StateHistory.Peek();
 
     public bool ButtonsDisabled { get; set; } = false;
 
@@ -66,40 +66,40 @@ public class GridSession<T> : IGridSession where T:notnull
     /// <inheritdoc />
     IEnumerable<ISolveState> IGridSession.StateHistory => StateHistory;
 
-    public ImmutableStack<SolveState<T>> StateHistory { get; private set; }
+    public ImmutableStack<SolveState<T, TCell>> StateHistory { get; private set; }
 
     public Action? StateHasChangedAction { get; set; }
 
-    public SolveState<T>? SelectedState { get; set; }
+    public SolveState<T, TCell>? SelectedState { get; set; }
 
     public ISolveState ChosenState => SelectedState ?? SolveState;
 
-    private void UpdateState(ActionResult<T> actionResult, string actionName)
+    private void UpdateState(ActionResult<T, TCell> actionResult, string actionName)
     {
-        if (actionResult is ActionResult<T>.NoChangeResult ncr)
+        if (actionResult is ActionResult<T, TCell>.NoChangeResult ncr)
         {
             StateHistory = StateHistory.Push(SolveState with
             {
-                UpdateResult = UpdateResult<T>.Empty,
+                UpdateResult = UpdateResult<T, TCell>.Empty,
                 Message = $"No Change from {actionName}",
                 Duration = ncr.Duration, ChangeType = ChangeType.NoChange
             });
         }
-        else if (actionResult is ActionResult<T>.ErrorResult errorResult)
+        else if (actionResult is ActionResult<T, TCell>.ErrorResult errorResult)
         {
             StateHistory = StateHistory.Push(SolveState with
             {
-                UpdateResult = UpdateResult<T>.Empty,
+                UpdateResult = UpdateResult<T, TCell>.Empty,
                 Message = errorResult.Message,
                 Duration = errorResult.Duration, ChangeType = ChangeType.Error
             });
         }
 
-        else if (actionResult is ActionResult<T>.NewStateResult newStateResult)
+        else if (actionResult is ActionResult<T, TCell>.NewStateResult newStateResult)
         {
             StateHistory = StateHistory.Push(newStateResult.State);
         }
-        else if (actionResult is ActionResult<T>.ChangeHistoryResult changeHistory)
+        else if (actionResult is ActionResult<T, TCell>.ChangeHistoryResult changeHistory)
         {
             StateHistory = changeHistory.NewHistory;
         }
@@ -119,7 +119,7 @@ public class GridSession<T> : IGridSession where T:notnull
     }
 
         
-    private async Task DoIfFree(IGridViewAction<T> action)
+    private async Task DoIfFree(IGridViewAction<T, TCell> action)
     {
         if (!ButtonsDisabled)
         {
@@ -137,7 +137,7 @@ public class GridSession<T> : IGridSession where T:notnull
             ButtonsDisabled = false;
             if (!changed)
             {
-                UpdateState(new ActionResult<T>.NoChangeResult(sw.Elapsed), action.Name);
+                UpdateState(new ActionResult<T, TCell>.NoChangeResult(sw.Elapsed), action.Name);
             }
             else
             {
@@ -147,39 +147,39 @@ public class GridSession<T> : IGridSession where T:notnull
         }
     }
 
-    public Task UndoLastManualChange() => DoIfFree(UndoLastManualChangeAction<T>.Instance);
+    public Task UndoLastManualChange() => DoIfFree(UndoLastManualChangeAction<T, TCell>.Instance);
 
 
-    public Task RemoveVariantBuilder(VariantBuilderArgumentPair<T> variantBuilderArgumentPair) =>
-        DoIfFree(new RemoveVariantBuilderAction<T>(variantBuilderArgumentPair));
+    public Task RemoveVariantBuilder(VariantBuilderArgumentPair<T, TCell> variantBuilderArgumentPair) =>
+        DoIfFree(new RemoveVariantBuilderAction<T, TCell>(variantBuilderArgumentPair));
 
 
-    public Task AddVariantBuilder(VariantBuilderArgumentPair<T> variantBuilderArgumentPair) =>
-        DoIfFree(new AddVariantBuilderAction<T>(variantBuilderArgumentPair));
+    public Task AddVariantBuilder(VariantBuilderArgumentPair<T, TCell> variantBuilderArgumentPair) =>
+        DoIfFree(new AddVariantBuilderAction<T, TCell>(variantBuilderArgumentPair));
 
 
-    public Task PreviousGrid() => DoIfFree(PreviousStateAction<T>.Instance);
+    public Task PreviousGrid() => DoIfFree(PreviousStateAction<T, TCell>.Instance);
 
 
-    public Task Clear() => DoIfFree(ClearAction<T>.Instance);
-    public Task ClearAll() => DoIfFree(ClearAllAction<T>.Instance);
-    public Task Transform(int quarterTurns, bool flipHorizontal, bool flipVertical) => DoIfFree(new TransformAction<T>(quarterTurns, flipHorizontal, flipVertical));
-    public Task ClearHistory() => DoIfFree(ClearHistoryAction<T>.Instance);
-    public Task ReportError(string message, TimeSpan duration) => DoIfFree(new ReportError<T>(message, duration));
+    public Task Clear() => DoIfFree(ClearAction<T, TCell>.Instance);
+    public Task ClearAll() => DoIfFree(ClearAllAction<T, TCell>.Instance);
+    public Task Transform(int quarterTurns, bool flipHorizontal, bool flipVertical) => DoIfFree(new TransformAction<T, TCell>(quarterTurns, flipHorizontal, flipVertical));
+    public Task ClearHistory() => DoIfFree(ClearHistoryAction<T, TCell>.Instance);
+    public Task ReportError(string message, TimeSpan duration) => DoIfFree(new ReportError<T, TCell>(message, duration));
 
-    public Task RandomChange() => DoIfFree(RandomChangeAction<T>.Instance);
+    public Task RandomChange() => DoIfFree(RandomChangeAction<T, TCell>.Instance);
 
-    public Task RandomSolve() => DoIfFree(RandomSolveAction<T>.Instance);
+    public Task RandomSolve() => DoIfFree(RandomSolveAction<T, TCell>.Instance);
 
-    public Task NextGrid() => DoIfFree(NextGridAction<T>.Instance);
+    public Task NextGrid() => DoIfFree(NextGridAction<T, TCell>.Instance);
 
-    public Task FinalGrid() => DoIfFree(FinalGridAction<T>.Instance);
+    public Task FinalGrid() => DoIfFree(FinalGridAction<T, TCell>.Instance);
 
-    public Task GoToState(SolveState<T> state) => DoIfFree(new GoToStateAction<T>(state));
+    public Task GoToState(SolveState<T, TCell> state) => DoIfFree(new GoToStateAction<T, TCell>(state));
 
     public async Task SetCell(Maybe<T> i, Position position)
     {
-        var kpa = new SetCellAction<T>(position, i);
+        var kpa = new SetCellAction<T, TCell>(position, i);
         await DoIfFree(kpa);
     }
 

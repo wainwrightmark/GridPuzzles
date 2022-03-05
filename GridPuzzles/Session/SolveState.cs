@@ -33,15 +33,15 @@ public enum ChangeType
     GoToState
 }
 
-public record SolveState<T>(Grid<T> Grid,
-        ImmutableHashSet<VariantBuilderArgumentPair<T>> VariantBuilders,
-        UpdateResult<T> UpdateResult,
+public record SolveState<T, TCell>(Grid<T, TCell> Grid,
+        ImmutableHashSet<VariantBuilderArgumentPair<T, TCell>> VariantBuilders,
+        UpdateResult<T, TCell> UpdateResult,
         ChangeType ChangeType,
         string Message,
         TimeSpan Duration,
         ImmutableSortedDictionary<Position, T> FixedValues,
-        Grid<T>? Previous)
-    : ISolveState  where T:notnull
+        Grid<T, TCell>? Previous)
+    : ISolveState  where T :struct where TCell : ICell<T, TCell>, new()
 {
     /// <inheritdoc />
     IUpdateResult ISolveState.UpdateResult => UpdateResult;
@@ -53,9 +53,9 @@ public record SolveState<T>(Grid<T> Grid,
     public IEnumerable<Position> FixedValuePositions => FixedValues.Keys;
 
     private static IEnumerable<(string text, bool strikeThrough, bool isOnNewLine)> GroupText(
-        IValueSource<T> valueSource, 
-        ImmutableSortedSet<T> goodValues,
-        ImmutableSortedSet<T> badValues)
+        IValueSource<T, TCell> valueSource, 
+        TCell goodValues,
+        TCell badValues)
     {
         var strikeThrough = true;
         var totalCharacters = 0;
@@ -122,17 +122,17 @@ public record SolveState<T>(Grid<T> Grid,
             {
 
                 var previousCell = Previous.GetCell(position);
-                var deletedPositions = previousCell.PossibleValues.Except(cell.PossibleValues);
-                if (deletedPositions.Any() && previousCell.PossibleValues.Count <= minimumValuesToShow)
+                var deletedPositions = previousCell.Except(cell);
+                if (deletedPositions.Any() && previousCell.Count() <= minimumValuesToShow)
                 {
                     var xPosition = position.GetX(true, scale);
                     var groups = GroupText(Grid.ClueSource.ValueSource,
-                        cell.PossibleValues, deletedPositions);
+                        cell, deletedPositions);
 
                     var spans = groups.Select((x, i) =>
                         {
                             var (text, strikeThrough, newLine) = x;
-                            if (previousCell.PossibleValues.Count < 5)
+                            if (previousCell.Count() < 5)
                                 newLine = false;
                             var id = strikeThrough ? $"st{i}" : $"norm{i}";
                             if (newLine) id += "nl";
@@ -150,7 +150,7 @@ public record SolveState<T>(Grid<T> Grid,
                         }
                     ).ToList();
 
-                    var fontSize = GetFontSize(previousCell.PossibleValues.Count);
+                    var fontSize = GetFontSize(previousCell.Count());
 
                     return
                         new SVGText(
@@ -172,17 +172,18 @@ public record SolveState<T>(Grid<T> Grid,
 
             
 
-        if (cell.PossibleValues.Count == 1)
+        if (cell.HasSingleValue())
         {
-            var color = Grid.ClueSource.ValueSource.GetColor(cell.PossibleValues.Single());
+            var val = cell.Single();
+            var color = Grid.ClueSource.ValueSource.GetColor(val);
             if(color is null && FixedValues.ContainsKey(position))
                 color = Color.Blue;
 
 
-            return  SimpleString(cell.PossibleValues.Single().ToString()!.Trim(), position, scale, color);
+            return  SimpleString(val.ToString()!.Trim(), position, scale, color);
         }
                 
-        if (cell.PossibleValues.Count <= minimumValuesToShow)
+        if (cell.Count() <= minimumValuesToShow)
             return SimpleString(cell.GetDisplayString(Grid.ClueSource.ValueSource), position, scale, null);
 
         return Maybe<SVGText>.None;

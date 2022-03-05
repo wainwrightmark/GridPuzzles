@@ -2,15 +2,15 @@
 
 namespace GridPuzzles.VariantBuilderArguments;
 
-public sealed record VariantBuilderArgumentPair<T>(IVariantBuilder<T> VariantBuilder, IReadOnlyDictionary<string, string> Pairs)
-    where T :notnull
+public sealed record VariantBuilderArgumentPair<T, TCell>(IVariantBuilder<T, TCell> VariantBuilder, IReadOnlyDictionary<string, string> Pairs)
+    where T :struct where TCell : ICell<T, TCell>, new()
 {
 
     /// <inheritdoc />
     public override int GetHashCode() => AsString(true).GetHashCode();
 
     /// <inheritdoc />
-    public bool Equals(VariantBuilderArgumentPair<T>? ap)
+    public bool Equals(VariantBuilderArgumentPair<T, TCell>? ap)
     {
         return ap is not null && VariantBuilder.Equals(ap.VariantBuilder) &&
                Pairs.ToHashSet().SetEquals(ap.Pairs);
@@ -41,7 +41,7 @@ public sealed record VariantBuilderArgumentPair<T>(IVariantBuilder<T> VariantBui
     }
 
 
-    public VariantBuilderArgumentPair<T> Transform(int quarterTurns, bool flipHorizontal, bool flipVertical,
+    public VariantBuilderArgumentPair<T, TCell> Transform(int quarterTurns, bool flipHorizontal, bool flipVertical,
         Position maxPosition)
     {
         var newPairs = Pairs.Select(Flip).ToDictionary();

@@ -1,22 +1,16 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
+﻿using System.Text;
 using CSharpFunctionalExtensions;
-using GridPuzzles;
-using GridPuzzles.Cells;
-using GridPuzzles.Clues;
 using GridPuzzles.Reasons;
 
 namespace Crossword;
 
-public class NoDuplicateVariantBuilder : NoArgumentVariantBuilder<char>
+public class NoDuplicateVariantBuilder : NoArgumentVariantBuilder
 {
     private NoDuplicateVariantBuilder()
     {
     }
 
-    public static IVariantBuilder<char> Instance { get; } = new NoDuplicateVariantBuilder();
+    public static IVariantBuilder<char, CharCell> Instance { get; } = new NoDuplicateVariantBuilder();
 
     /// <inheritdoc />
     public override string Name => "No Duplicate Words";
@@ -26,9 +20,9 @@ public class NoDuplicateVariantBuilder : NoArgumentVariantBuilder<char>
 
 
     /// <inheritdoc />
-    public override IEnumerable<IClue<char>> CreateClues(Position minPosition, Position maxPosition,
-        IValueSource<char> valueSource,
-        IReadOnlyCollection<IClue<char>> lowerLevelClues)
+    public override IEnumerable<IClue<char, CharCell>> CreateClues(Position minPosition, Position maxPosition,
+        IValueSource<char, CharCell> valueSource,
+        IReadOnlyCollection<IClue<char, CharCell>> lowerLevelClues)
     {
         yield return new NoDuplicateWordClue(maxPosition.GetPositionsUpTo(true).SelectMany(x => x));
     }
@@ -38,7 +32,7 @@ public class NoDuplicateVariantBuilder : NoArgumentVariantBuilder<char>
     public override bool OnByDefault => true;
 }
 
-public class NoDuplicateWordClue : IRuleClue<char>
+public class NoDuplicateWordClue : IRuleClue
 {
     public NoDuplicateWordClue(IEnumerable<Position> positions)
     {
@@ -52,7 +46,7 @@ public class NoDuplicateWordClue : IRuleClue<char>
     public ImmutableSortedSet<Position> Positions { get; }
 
     /// <inheritdoc />
-    public IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid<char> grid)
+    public IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid grid)
     {
         var parallels =
             grid.MaxPosition.GetPositionsUpTo(true)
@@ -73,7 +67,7 @@ public class NoDuplicateWordClue : IRuleClue<char>
                 var position = parallel[index];
                 var value = grid.GetCell(position);
 
-                if (value.PossibleValues.Count == 1)
+                if (value.HasSingleValue())
                 {
                     if (value.MustBeABlock())
                     {
@@ -87,7 +81,7 @@ public class NoDuplicateWordClue : IRuleClue<char>
                         currentWord = new StringBuilder();
                     }
                     else
-                        currentWord?.Append(value.PossibleValues.Single());
+                        currentWord?.Append(value.Single());
                 }
                 else
                     currentWord = null;

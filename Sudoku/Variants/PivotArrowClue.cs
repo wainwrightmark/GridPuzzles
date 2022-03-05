@@ -3,7 +3,7 @@ using GridPuzzles.Enums;
 
 namespace Sudoku.Variants;
 
-public class PivotArrowClue : IRuleClue<int>
+public class PivotArrowClue : IRuleClue
 {
     /// <inheritdoc />
     public string Name => "Pivot Arrow";
@@ -31,7 +31,7 @@ public class PivotArrowClue : IRuleClue<int>
     public ImmutableSortedSet<Position> Positions { get; }
 
     /// <inheritdoc />
-    public IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid<int> grid)
+    public IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid grid)
     {
 
         throw new NotImplementedException("Pivot arrows are not yet supported");
@@ -58,7 +58,7 @@ public class PivotArrowClue : IRuleClue<int>
 
         //throw new NotImplementedException("Pivot arrows are not yet supported");
 
-        //if (centreCell.Value.PossibleValues.Count == 1)
+        //if (centreCell.Value.HasSingleValue())
         //{
 
         //}

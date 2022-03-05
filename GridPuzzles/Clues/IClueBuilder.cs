@@ -9,11 +9,11 @@ public interface IClueBuilder
     IEnumerable<ICellOverlay> GetOverlays(Position minPosition, Position maxPosition);
 }
 
-public interface IClueBuilder<T> : IClueBuilder where T: notnull
+public interface IClueBuilder<T, TCell> : IClueBuilder where T :struct where TCell : ICell<T, TCell>, new()
 {
-    public IEnumerable<IClue<T>> CreateClues(
+    public IEnumerable<IClue<T, TCell>> CreateClues(
         Position minPosition,
         Position maxPosition,
-        IValueSource<T> valueSource,
-        IReadOnlyCollection<IClue<T>> lowerLevelClues);
+        IValueSource<T, TCell> valueSource,
+        IReadOnlyCollection<IClue<T, TCell>> lowerLevelClues);
 }

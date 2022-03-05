@@ -4,29 +4,30 @@ using System.Threading.Tasks;
 
 namespace GridPuzzles.Session.Actions;
 
-public record ClearAction<T> : IGridViewAction<T> where T:notnull
+public record ClearAction<T, TCell> : IGridViewAction<T, TCell> where T :struct where TCell : ICell<T, TCell>, new()
 {
     private ClearAction() { }
 
-    public static ClearAction<T> Instance { get; } = new();
+    public static ClearAction<T, TCell> Instance { get; } = new();
 
     /// <inheritdoc />
     public string Name => "Clear Cell Values";
 
     /// <inheritdoc />
-    public async IAsyncEnumerable<ActionResult<T>> Execute(ImmutableStack<SolveState<T>> history,
+    public async IAsyncEnumerable<ActionResult<T, TCell>> Execute(ImmutableStack<SolveState<T, TCell>> history,
         SessionSettings settings, [EnumeratorCancellation] CancellationToken cancellation)
     {
         await Task.CompletedTask;
         var state = history.Peek();
 
-        var newGrid = Grid<T>.Create(
-            state.FixedValues.Select(x=> new KeyValuePair<Position, Cell<T>>(x.Key, new Cell<T>(ImmutableSortedSet<T>.Empty.Add(x.Value)))),
+        var newGrid = Grid<T, TCell>.Create(
+            state.FixedValues.Select(x=> 
+                new KeyValuePair<Position, TCell>(x.Key, new TCell())),
             state.Grid.MaxPosition, state.Grid.ClueSource);
 
-        yield return (ActionResult<T>)new SolveState<T>(newGrid,
+        yield return (ActionResult<T, TCell>)new SolveState<T, TCell>(newGrid,
             state.VariantBuilders,
-            UpdateResult<T>.Empty,
+            UpdateResult<T, TCell>.Empty,
             ChangeType.ManualChange,
             "Cell Values Cleared", TimeSpan.Zero, 
             state.FixedValues,

@@ -4,17 +4,17 @@ using System.Threading.Tasks;
 
 namespace GridPuzzles.Session.Actions;
 
-public record PreviousStateAction<T> : IGridViewAction<T> where T: notnull
+public record PreviousStateAction<T, TCell> : IGridViewAction<T, TCell> where T :struct where TCell : ICell<T, TCell>, new()
 {
     private PreviousStateAction() { }
 
-    public static PreviousStateAction<T> Instance { get; } = new();
+    public static PreviousStateAction<T, TCell> Instance { get; } = new();
 
     /// <inheritdoc />
     public string Name => "Previous";
 
     /// <inheritdoc />
-    public async IAsyncEnumerable<ActionResult<T>> Execute(ImmutableStack<SolveState<T>> history,
+    public async IAsyncEnumerable<ActionResult<T, TCell>> Execute(ImmutableStack<SolveState<T, TCell>> history,
         SessionSettings settings, [EnumeratorCancellation] CancellationToken cancellation)
     {
         await Task.CompletedTask;
@@ -26,7 +26,7 @@ public record PreviousStateAction<T> : IGridViewAction<T> where T: notnull
             history = history.Pop(out var ss);
             if(ss.ChangeType is ChangeType.LogicalMove or ChangeType.RandomMove)
             {
-                yield return new ActionResult<T>.ChangeHistoryResult(history);
+                yield return new ActionResult<T, TCell>.ChangeHistoryResult(history);
                 yield break;
             }
         }

@@ -4,26 +4,26 @@ using Sudoku.Overlays;
 
 namespace Sudoku.Variants;
 
-public partial class SumVariantBuilder : VariantBuilder<int>
+public partial class SumVariantBuilder : VariantBuilder
 {
     private SumVariantBuilder() {}
 
-    public static VariantBuilder<int> Instance { get; } = new SumVariantBuilder();
+    public static VariantBuilder Instance { get; } = new SumVariantBuilder();
 
     /// <inheritdoc />
     public override string Name => "Sum";
 
     /// <inheritdoc />
-    public override Result<IReadOnlyCollection<IClueBuilder<int>>> TryGetClueBuilders1(
+    public override Result<IReadOnlyCollection<IClueBuilder>> TryGetClueBuilders1(
         IReadOnlyDictionary<string, string> arguments)
     {
         var sr = SumArgument.TryGetFromDictionary(arguments);
-        if (sr.IsFailure) return sr.ConvertFailure<IReadOnlyCollection<IClueBuilder<int>>>();
+        if (sr.IsFailure) return sr.ConvertFailure<IReadOnlyCollection<IClueBuilder>>();
         var pr = PositionArgument.TryGetFromDictionary(arguments);
-        if (pr.IsFailure) return pr.ConvertFailure<IReadOnlyCollection<IClueBuilder<int>>>();
+        if (pr.IsFailure) return pr.ConvertFailure<IReadOnlyCollection<IClueBuilder>>();
         var ur = UniqueArgument.TryGetFromDictionary(arguments).Match(x => x, _ => false);
 
-        var l = new List<IClueBuilder<int>>
+        var l = new List<IClueBuilder>
         {
             new SumClueBuilder(sr.Value, pr.Value.ToImmutableSortedSet(), ur)
         };
@@ -50,7 +50,7 @@ public partial class SumVariantBuilder : VariantBuilder<int>
     private static readonly BoolArgument UniqueArgument = new("Unique", Maybe<bool>.From(true));
 
     [Equatable]
-    public partial record SumClueBuilder(int Sum,[property:OrderedEquality] ImmutableSortedSet<Position> Positions, bool Unique) : IClueBuilder<int>
+    public partial record SumClueBuilder(int Sum,[property:OrderedEquality] ImmutableSortedSet<Position> Positions, bool Unique) : IClueBuilder
     {
         /// <inheritdoc />
         public string Name => $"Sum to {Sum}";
@@ -59,9 +59,9 @@ public partial class SumVariantBuilder : VariantBuilder<int>
         public int Level => 2;
 
         /// <inheritdoc />
-        public IEnumerable<IClue<int>> CreateClues(Position minPosition, Position maxPosition,
-            IValueSource<int> valueSource,
-            IReadOnlyCollection<IClue<int>> lowerLevelClues)
+        public IEnumerable<IClue<int, IntCell>> CreateClues(Position minPosition, Position maxPosition,
+            IValueSource valueSource,
+            IReadOnlyCollection<IClue<int, IntCell>> lowerLevelClues)
         {
             var dict = Positions.Select(x => new KeyValuePair<Position, int>(x, 1)).ToImmutableDictionary();
             var unique = Unique;
@@ -69,20 +69,20 @@ public partial class SumVariantBuilder : VariantBuilder<int>
             {
                 
 
-                yield return new UniqueCompleteClue<int>($"Sum to {Sum}", Positions);
+                yield return new UniqueCompleteClue<int, IntCell>($"Sum to {Sum}", Positions);
                 yield break;
             }
 
             if (!unique)
             {
-                var clueHelper = new UniquenessClueHelper<int>(lowerLevelClues);
+                var clueHelper = new UniquenessClueHelper<int, IntCell>(lowerLevelClues);
                 unique =  clueHelper.ArePositionsMutuallyUnique(Positions);
             }
 
             yield return SumClue.Create($"Sum to {Sum}", ImmutableSortedSet.Create(Sum), true, dict, unique);
 
             if (Unique)
-                yield return new UniquenessClue<int>(Positions, Name);
+                yield return new UniquenessClue<int, IntCell>(Positions, Name);
         }
 
         /// <param name="minPosition"></param>

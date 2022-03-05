@@ -10,19 +10,19 @@ public static class GridHelper
     /// Applies the update and then iterates repeatedly
     /// </summary>
     [Pure]
-    public static (Grid<T> grid, UpdateResult<T> updateResult) IterateRepeatedly<T>(this Grid<T> grid,
-        UpdateResultCombiner<T> combiner,
+    public static (Grid<T, TCell> grid, UpdateResult<T, TCell> updateResult) IterateRepeatedly<T, TCell>(this Grid<T, TCell> grid,
+        UpdateResultCombiner<T, TCell> combiner,
         int bifurcationDepth,
-        UpdateResult<T>? latestUpdate = null) where T: notnull
+        UpdateResult<T, TCell>? latestUpdate = null) where T :struct where TCell : ICell<T, TCell>, new()
     {
-        var updateSoFar = latestUpdate ?? UpdateResult<T>.Empty;
+        var updateSoFar = latestUpdate ?? UpdateResult<T, TCell>.Empty;
         var gridSoFar = grid.CloneWithUpdates(updateSoFar, false);
 
 
         var initialPositions =
             updateSoFar.UpdatedPositions.Any() ? updateSoFar.UpdatedPositions : grid.AllPositions;
 
-        var helpers = new List<(IClueUpdateHelper<T> clueHelper, HashSet<Position> remainingPositions)>()
+        var helpers = new List<(IClueUpdateHelper<T, TCell> clueHelper, HashSet<Position> remainingPositions)>()
         {
             // ReSharper disable PossibleMultipleEnumeration
             (grid.ClueSource.UniquenessClueHelper, initialPositions.ToHashSet()),
@@ -66,10 +66,10 @@ public static class GridHelper
     }
 
 
-    private static UpdateResult<T> CalculateUpdateResult<T>(this Grid<T> grid,
-        UpdateResultCombiner<T> combiner,
+    private static UpdateResult<T, TCell> CalculateUpdateResult<T, TCell>(this Grid<T, TCell> grid,
+        UpdateResultCombiner<T, TCell> combiner,
         int bifurcationDepth,
-        Maybe<IReadOnlySet<Position>> positions)  where T: notnull
+        Maybe<IReadOnlySet<Position>> positions)  where T :struct where TCell : ICell<T, TCell>, new()
     {
             
         var changes =
@@ -90,10 +90,10 @@ public static class GridHelper
     /// </summary>
     /// <returns></returns>
     [Pure]
-    public static (Grid<T> grid, UpdateResult<T> updateResult) Iterate<T>(this Grid<T> grid,
-        UpdateResultCombiner<T> combiner,
+    public static (Grid<T, TCell> grid, UpdateResult<T, TCell> updateResult) Iterate<T, TCell>(this Grid<T, TCell> grid,
+        UpdateResultCombiner<T, TCell> combiner,
         int bifurcationDepth,
-        Maybe<IReadOnlySet<Position>> positionsToUpdate) where T: notnull
+        Maybe<IReadOnlySet<Position>> positionsToUpdate) where T :struct where TCell : ICell<T, TCell>, new()
     {
         var updateResult = CalculateUpdateResult(grid, combiner, bifurcationDepth, positionsToUpdate);
 
@@ -104,11 +104,11 @@ public static class GridHelper
 
 
     [Pure]
-    public static async Task<(Grid<T> grid, UpdateResult<T> updateResult)> IterateAsync<T>(
-        this Grid<T> grid,
-        UpdateResultCombiner<T> combiner,
+    public static async Task<(Grid<T, TCell> grid, UpdateResult<T, TCell> updateResult)> IterateAsync<T, TCell>(
+        this Grid<T, TCell> grid,
+        UpdateResultCombiner<T, TCell> combiner,
         int bifurcationDepth,
-        Maybe<IReadOnlySet<Position>> positionsToUpdate) where T: notnull
+        Maybe<IReadOnlySet<Position>> positionsToUpdate) where T :struct where TCell : ICell<T, TCell>, new()
     {
         var r = await Task.Run(() => grid.Iterate(combiner, bifurcationDepth, positionsToUpdate)).ConfigureAwait(false);
 

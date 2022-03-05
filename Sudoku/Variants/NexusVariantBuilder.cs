@@ -1,24 +1,24 @@
 ﻿namespace Sudoku.Variants;
 
-public partial class NexusVariantBuilder : VariantBuilder<int>
+public partial class NexusVariantBuilder : VariantBuilder
 {
     private NexusVariantBuilder()
     {
     }
 
-    public static VariantBuilder<int> Instance { get; } = new NexusVariantBuilder();
+    public static VariantBuilder Instance { get; } = new NexusVariantBuilder();
 
     /// <inheritdoc />
     public override string Name => "Nexus";
 
     /// <inheritdoc />
-    public override Result<IReadOnlyCollection<IClueBuilder<int>>> TryGetClueBuilders1(
+    public override Result<IReadOnlyCollection<IClueBuilder>> TryGetClueBuilders1(
         IReadOnlyDictionary<string, string> arguments)
     {
         var pr = Positions.TryGetFromDictionary(arguments);
-        if (pr.IsFailure) return pr.ConvertFailure<IReadOnlyCollection<IClueBuilder<int>>>();
+        if (pr.IsFailure) return pr.ConvertFailure<IReadOnlyCollection<IClueBuilder>>();
 
-        return new List<IClueBuilder<int>>
+        return new List<IClueBuilder>
         {
             new NexusClueBuilder(pr.Value.ToImmutableArray())
         };
@@ -31,7 +31,7 @@ public partial class NexusVariantBuilder : VariantBuilder<int>
     public override IReadOnlyList<VariantBuilderArgument> Arguments => new VariantBuilderArgument[] { Positions };
 
     [Equatable]
-    public partial record NexusClueBuilder([property:OrderedEquality] IReadOnlyList<Position> AllPositions) : IClueBuilder<int>
+    public partial record NexusClueBuilder([property:OrderedEquality] IReadOnlyList<Position> AllPositions) : IClueBuilder
     {
 
         /// <inheritdoc />
@@ -41,9 +41,9 @@ public partial class NexusVariantBuilder : VariantBuilder<int>
         public int Level => 2;
 
         /// <inheritdoc />
-        public IEnumerable<IClue<int>> CreateClues(Position minPosition, Position maxPosition,
-            IValueSource<int> valueSource,
-            IReadOnlyCollection<IClue<int>> lowerLevelClues)
+        public IEnumerable<IClue<int, IntCell>> CreateClues(Position minPosition, Position maxPosition,
+            IValueSource valueSource,
+            IReadOnlyCollection<IClue<int, IntCell>> lowerLevelClues)
         {
             if (AllPositions.Count > 2)
             {

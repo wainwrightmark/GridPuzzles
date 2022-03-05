@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using GridPuzzles;
-using GridPuzzles.Clues;
 using Words;
 
 namespace Crossword;
 
-public class ConjugatedWordsClueBuilder : NoArgumentVariantBuilder<char>
+public class ConjugatedWordsClueBuilder : NoArgumentVariantBuilder
 {
     public ConjugatedWordsClueBuilder(DictionaryHelper dictionaryHelper)
     {
@@ -24,8 +20,8 @@ public class ConjugatedWordsClueBuilder : NoArgumentVariantBuilder<char>
     public override int Level => 2;
 
     /// <inheritdoc />
-    public override IEnumerable<IClue<char>> CreateClues(Position minPosition, Position maxPosition, IValueSource<char> valueSource,
-        IReadOnlyCollection<IClue<char>> lowerLevelClues)
+    public override IEnumerable<IClue<char, CharCell>> CreateClues(Position minPosition, Position maxPosition, IValueSource<char, CharCell> valueSource,
+        IReadOnlyCollection<IClue<char, CharCell>> lowerLevelClues)
     {
         var words = lowerLevelClues.OfType<WordsClue>()
             .SelectMany(x=>x.Words)

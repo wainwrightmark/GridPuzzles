@@ -2,15 +2,17 @@
 
 namespace GridPuzzles.Clues;
 
-public class RelationshipCluePosition1AgnosticComparer<T> : IEqualityComparer<IRelationshipClue<T>>where T : notnull
+public class RelationshipCluePosition1AgnosticComparer<T, TCell> : IEqualityComparer<IRelationshipClue<T, TCell>>
+    where T : struct where TCell : ICell<T, TCell>, new()
 {
     private RelationshipCluePosition1AgnosticComparer()
     {
     }
 
-    public static IEqualityComparer<IRelationshipClue<T>> Instance { get; } = new RelationshipCluePosition1AgnosticComparer<T>();
+    public static IEqualityComparer<IRelationshipClue<T, TCell>> Instance { get; } =
+        new RelationshipCluePosition1AgnosticComparer<T, TCell>();
 
-    public bool Equals(IRelationshipClue<T>? x, IRelationshipClue<T>? y)
+    public bool Equals(IRelationshipClue<T, TCell>? x, IRelationshipClue<T, TCell>? y)
     {
         if (ReferenceEquals(x, y)) return true;
         if (x is null) return false;
@@ -19,17 +21,22 @@ public class RelationshipCluePosition1AgnosticComparer<T> : IEqualityComparer<IR
         return x.Position2.Equals(y.Position2) && x.Constraint.Equals(y.Constraint);
     }
 
-    public int GetHashCode(IRelationshipClue<T> obj) => HashCode.Combine(obj.Position2, obj.Constraint);
+    public int GetHashCode(IRelationshipClue<T, TCell> obj) => HashCode.Combine(obj.Position2, obj.Constraint);
 }
 
-public class RelationshipClue<T> : IRelationshipClue<T> where T : notnull
+public class RelationshipClue<T, TCell> : IRelationshipClue<T, TCell>
+    where T : struct where TCell : ICell<T, TCell>, new()
 {
     public RelationshipClue(Position position1, Position position2, Constraint<T> constraint) :
-        this(position1, position2, constraint, true, false) {}
+        this(position1, position2, constraint, true, false)
+    {
+    }
 
-    public static RelationshipClue<T> Create(Position position1, Position position2, Constraint<T> constraint) => new(position1, position2, constraint);
+    public static RelationshipClue<T, TCell> Create(Position position1, Position position2, Constraint<T> constraint) =>
+        new(position1, position2, constraint);
 
-    private RelationshipClue(Position position1, Position position2, Constraint<T> constraint, bool setFlipped, bool unique)
+    private RelationshipClue(Position position1, Position position2, Constraint<T> constraint, bool setFlipped,
+        bool unique)
     {
         Unique = unique;
         Position1 = position1;
@@ -37,38 +44,38 @@ public class RelationshipClue<T> : IRelationshipClue<T> where T : notnull
         Constraint = constraint;
         Positions = ImmutableSortedSet.Create(position1, position2);
         if (setFlipped)
-            Flipped = new RelationshipClue<T>(position2, position1, constraint.FlippedConstraint, false, unique)
+            Flipped = new RelationshipClue<T, TCell>(position2, position1, constraint.FlippedConstraint, false, unique)
             {
                 Flipped = this
             };
         else
             Flipped = null!;
 
-        Reason = new RelationshipClueReason<T>(this);
+        Reason = new RelationshipClueReason<T, TCell>(this);
     }
 
     public Position Position1 { get; }
     public Position Position2 { get; }
-    public ISingleReason Reason { get; } 
+    public ISingleReason Reason { get; }
 
     public bool Unique { get; }
 
     /// <inheritdoc />
-    public IRelationshipClue<T> Flipped { get; private set; }
+    public IRelationshipClue<T, TCell> Flipped { get; private set; }
 
     /// <inheritdoc />
-    public IRelationshipClue<T> UniqueVersion
+    public IRelationshipClue<T, TCell> UniqueVersion
     {
         get
         {
             if (Unique) return this;
 
-            return new RelationshipClue<T>(Position1, Position2, Constraint, true, true);
+            return new RelationshipClue<T, TCell>(Position1, Position2, Constraint, true, true);
         }
     }
 
     /// <inheritdoc />
-    public (bool changed, ImmutableSortedSet<T> newSet1, ImmutableSortedSet<T> newSet2) FindValidValues(ImmutableSortedSet<T> set1, ImmutableSortedSet<T> set2)
+    public (bool changed, TCell newSet1, TCell newSet2) FindValidValues(TCell set1, TCell set2)
     {
         var key = new Key(Constraint, set1, set2, Unique);
 
@@ -92,28 +99,24 @@ public class RelationshipClue<T> : IRelationshipClue<T> where T : notnull
     /// <inheritdoc />
     public ImmutableSortedSet<Position> Positions { get; }
 
-    private static readonly ConcurrentDictionary<Key, (bool changed, ImmutableSortedSet<T> set1, ImmutableSortedSet<T> set2)> Cache
-        = new();
+    private static readonly
+        ConcurrentDictionary<Key, (bool changed, TCell set1, TCell set2)> Cache
+            = new();
 
-    private class Key : IEquatable<Key>
+    private readonly record struct Key(Constraint<T> Constraint, TCell Set1, TCell Set2, bool IsUnique)
     {
-        public Key(Constraint<T> constraint, ImmutableSortedSet<T> set1, ImmutableSortedSet<T> set2, bool isUnique)
-        {
-            Constraint = constraint;
-            Set1 = set1;
-            Set2 = set2;
-            IsUnique = isUnique;
-        }
-
-        public (bool changed, ImmutableSortedSet<T> set1, ImmutableSortedSet<T> set2) Calculate()
+        public (bool changed, TCell set1, TCell set2) Calculate()
         {
             var changed = false;
             var newSet1 = Set1;
             var newSet2 = Set2;
 
+            var u = IsUnique;
+            var c = Constraint;
+
             foreach (var val1 in Set1)
             {
-                if (Set2.Any(val2 => (!IsUnique || !val1.Equals(val2)) && Constraint.IsMet(val1, val2))) continue;
+                if (Set2.Any(val2 => (!u || !val1.Equals(val2)) && c.IsMet(val1, val2))) continue;
                 newSet1 = newSet1.Remove(val1);
                 changed = true;
             }
@@ -121,7 +124,7 @@ public class RelationshipClue<T> : IRelationshipClue<T> where T : notnull
 
             foreach (var val2 in Set2)
             {
-                if (newSet1.Any(val1 => (!IsUnique || !val1.Equals(val2)) && Constraint.IsMet(val1, val2))) continue;
+                if (newSet1.Any(val1 => (!u || !val1.Equals(val2)) && c.IsMet(val1, val2))) continue;
                 newSet2 = newSet2.Remove(val2);
                 changed = true;
             }
@@ -132,36 +135,5 @@ public class RelationshipClue<T> : IRelationshipClue<T> where T : notnull
 
         /// <inheritdoc />
         public override string ToString() => Constraint.Name;
-
-        public Constraint<T> Constraint { get; }
-        public ImmutableSortedSet<T> Set1 { get; }
-        public ImmutableSortedSet<T> Set2 { get; }
-
-        public bool IsUnique { get; }
-
-        /// <inheritdoc />
-        public bool Equals(Key? other)
-        {
-            if (other is null) return false;
-            if (ReferenceEquals(this, other)) return true;
-            return
-                IsUnique == other.IsUnique
-                && Constraint.Equals(other.Constraint)
-                && SortedSetElementsComparer<T>.Instance.Equals(Set1, other.Set1)
-                && SortedSetElementsComparer<T>.Instance.Equals(Set2, other.Set2);
-        }
-
-        /// <inheritdoc />
-        public override bool Equals(object? obj)
-        {
-            if (obj is null) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
-            return Equals((Key) obj);
-        }
-
-        /// <inheritdoc />
-        public override int GetHashCode() => HashCode.Combine(Constraint, SortedSetElementsComparer<T>.Instance.GetHashCode(Set1) , SortedSetElementsComparer<T>.Instance.GetHashCode(Set2), IsUnique);
     }
-
 }

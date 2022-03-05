@@ -1,6 +1,6 @@
 ﻿namespace Sudoku.Clues;
 
-public abstract class ParallelClue<T> :BasicClue<T>, IParallelClue<T>where T : notnull
+public abstract class ParallelClue<T, TCell> :BasicClue<T, TCell>, IParallelClue<T, TCell>where T :struct where TCell : ICell<T, TCell>, new()
 {
     /// <inheritdoc />
     protected ParallelClue(string domain) : base(domain)
@@ -20,7 +20,7 @@ public abstract class ParallelClue<T> :BasicClue<T>, IParallelClue<T>where T : n
 
 
     //public IEnumerable<ICellChangeResult> GetSwordfishUpdates
-    //    (Grid<T> grid, Dictionary<T, IReadOnlyCollection<KeyValuePair<Position, Cell<T>>>> cellsByValue)
+    //    (Grid<T, TCell> grid, Dictionary<T, IReadOnlyCollection<KeyValuePair<Position, TCell>>> cellsByValue)
     //{
     //    foreach (var (element,myCellPositions) in cellsByValue.Where(x=>x.Value.Count == 2))
     //    {
@@ -55,20 +55,20 @@ public abstract class ParallelClue<T> :BasicClue<T>, IParallelClue<T>where T : n
     private static IReadOnlyCollection<Position>? FindSwordfishPositions(T element,
         Position pStart,
         Position pFinish,
-        IReadOnlyCollection<ParallelClue<T>> parallels,
+        IReadOnlyCollection<ParallelClue<T, TCell>> parallels,
         Parallel parallel,
-        Grid<T> grid)
+        Grid<T, TCell> grid)
     {
         foreach (var parallelClue in parallels)
         {
             var position = parallelClue.GetParallelPosition(pStart);
             var cell = grid.GetCell(position);
 
-            if (cell.PossibleValues.Count == 1 || !cell.PossibleValues.Contains(element)) continue;
+            if (cell.HasSingleValue() || !cell.Contains(element)) continue;
 
             var parallelMatchingCells = parallelClue.Positions
                 .Where(x=> x != position)
-                .Where(x=> grid.GetCell(x).PossibleValues.Contains(element)).ToList();
+                .Where(x=> grid.GetCell(x).Contains(element)).ToList();
             if (parallelMatchingCells.Count != 1) continue;
 
             var otherPosition = parallelMatchingCells.Single();

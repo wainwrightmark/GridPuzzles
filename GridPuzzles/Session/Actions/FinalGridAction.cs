@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 
 namespace GridPuzzles.Session.Actions;
 
-public class FinalGridAction<T> : IGridViewAction<T> where T: notnull
+public class FinalGridAction<T, TCell> : IGridViewAction<T, TCell> where T :struct where TCell : ICell<T, TCell>, new()
 {
-    public static FinalGridAction<T> Instance = new();
+    public static FinalGridAction<T, TCell> Instance = new();
 
     private FinalGridAction()
     {
@@ -17,7 +17,7 @@ public class FinalGridAction<T> : IGridViewAction<T> where T: notnull
     public string Name => "Final";
 
     /// <inheritdoc />
-    public IAsyncEnumerable<ActionResult<T>> Execute(ImmutableStack<SolveState<T>> history,
+    public IAsyncEnumerable<ActionResult<T, TCell>> Execute(ImmutableStack<SolveState<T, TCell>> history,
         SessionSettings settings, CancellationToken cancellation)
     {
         var results = GetResults(history, settings, cancellation);
@@ -38,7 +38,7 @@ public class FinalGridAction<T> : IGridViewAction<T> where T: notnull
         }
     }
 
-    private static async  IAsyncEnumerable<ActionResult<T>> GetResults(ImmutableStack<SolveState<T>> history, SessionSettings settings, [EnumeratorCancellation] CancellationToken cancellation)
+    private static async  IAsyncEnumerable<ActionResult<T, TCell>> GetResults(ImmutableStack<SolveState<T, TCell>> history, SessionSettings settings, [EnumeratorCancellation] CancellationToken cancellation)
     {
         var @continue = true;
             
@@ -46,10 +46,10 @@ public class FinalGridAction<T> : IGridViewAction<T> where T: notnull
         while (@continue)
         {
             @continue = false;
-            await foreach (var s in NextGridAction<T>.Instance.Execute(history, settings, cancellation))
+            await foreach (var s in NextGridAction<T, TCell>.Instance.Execute(history, settings, cancellation))
             {
                 yield return s;
-                if (s is ActionResult<T>.NewStateResult newState)
+                if (s is ActionResult<T, TCell>.NewStateResult newState)
                 {
                     @continue = true;
                     history = history.Push(newState.State);

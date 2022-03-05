@@ -3,29 +3,29 @@ using System.ComponentModel;
 
 namespace Sudoku.Variants;
 
-public class SandwichVariantBuilder : VariantBuilder<int>
+public class SandwichVariantBuilder : VariantBuilder
 {
     private SandwichVariantBuilder() {}
 
-    public static VariantBuilder<int> Instance { get; } = new SandwichVariantBuilder();
+    public static VariantBuilder Instance { get; } = new SandwichVariantBuilder();
 
     /// <inheritdoc />
     public override string Name => "Sandwich";
 
     /// <inheritdoc />
-    public override Result<IReadOnlyCollection<IClueBuilder<int>>> TryGetClueBuilders1(
+    public override Result<IReadOnlyCollection<IClueBuilder>> TryGetClueBuilders1(
         IReadOnlyDictionary<string, string> arguments)
     {
         var pir = ParallelIndexArgument.TryGetFromDictionary(arguments);
         var dr = DirectionArgument.TryGetFromDictionary(arguments);
         var sr = SumArgument.TryGetFromDictionary(arguments);
 
-        if (pir.IsFailure) return pir.ConvertFailure<IReadOnlyCollection<IClueBuilder<int>>>();
-        if (dr.IsFailure) return dr.ConvertFailure<IReadOnlyCollection<IClueBuilder<int>>>();
-        if (sr.IsFailure) return sr.ConvertFailure<IReadOnlyCollection<IClueBuilder<int>>>();
+        if (pir.IsFailure) return pir.ConvertFailure<IReadOnlyCollection<IClueBuilder>>();
+        if (dr.IsFailure) return dr.ConvertFailure<IReadOnlyCollection<IClueBuilder>>();
+        if (sr.IsFailure) return sr.ConvertFailure<IReadOnlyCollection<IClueBuilder>>();
 
 
-        return new List<IClueBuilder<int>>() {new SandwichClueBuilder(pir.Value, dr.Value, sr.Value)};
+        return new List<IClueBuilder>() {new SandwichClueBuilder(pir.Value, dr.Value, sr.Value)};
     }
 
     /// <inheritdoc />
@@ -45,7 +45,7 @@ public class SandwichVariantBuilder : VariantBuilder<int>
     public readonly IntArgument SumArgument = new("Sandwich Sum", 0, 45, Maybe<int>.None);
         
 
-    public record SandwichClueBuilder(int ParallelIndex, Parallel Parallel, int SandwichSum) : IClueBuilder<int>
+    public record SandwichClueBuilder(int ParallelIndex, Parallel Parallel, int SandwichSum) : IClueBuilder
     {
 
         /// <inheritdoc />
@@ -55,9 +55,9 @@ public class SandwichVariantBuilder : VariantBuilder<int>
         public int Level => 2;
 
         /// <inheritdoc />
-        public IEnumerable<IClue<int>> CreateClues(Position minPosition, Position maxPosition,
-            IValueSource<int> valueSource,
-            IReadOnlyCollection<IClue<int>> lowerLevelClues)
+        public IEnumerable<IClue<int, IntCell>> CreateClues(Position minPosition, Position maxPosition,
+            IValueSource valueSource,
+            IReadOnlyCollection<IClue<int, IntCell>> lowerLevelClues)
         {
             var positions = Parallel switch
             {
@@ -96,7 +96,7 @@ public class SandwichVariantBuilder : VariantBuilder<int>
 
         }
 
-        public class SandwichClue : IRuleClue<int> //TODO integration test with https://www.youtube.com/watch?v=qUZnq5nP0zI (only needs 2 of the givens
+        public class SandwichClue : IRuleClue //TODO integration test with https://www.youtube.com/watch?v=qUZnq5nP0zI (only needs 2 of the givens
         {
             /// <inheritdoc />
             public string Name => "Sandwich";
@@ -132,7 +132,7 @@ public class SandwichVariantBuilder : VariantBuilder<int>
             public int OutsideSum { get; }
 
             /// <inheritdoc />
-            public IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid<int> grid)
+            public IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid grid)
             {
                 var cells = _orderedPositions.Select(grid.GetCellKVP).ToImmutableDictionary(x => x.Key);
 
@@ -141,7 +141,7 @@ public class SandwichVariantBuilder : VariantBuilder<int>
                 {
                     var cell = cells[_orderedPositions[i]];
 
-                    foreach (var possibleValue in cell.Value.PossibleValues)
+                    foreach (var possibleValue in cell.Value)
                         if (!IsFakeValuePossible(cells, i, possibleValue))
                             yield return cell.CloneWithoutValue(possibleValue,
                                 new SandwichReason(this));
@@ -153,7 +153,7 @@ public class SandwichVariantBuilder : VariantBuilder<int>
             /// <summary>
             /// Essentially, Is there a solution to the sandwich that involves this value in this position.
             /// </summary>
-            private bool IsFakeValuePossible(ImmutableDictionary<Position, KeyValuePair<Position, Cell<int>>> cells,
+            private bool IsFakeValuePossible(ImmutableDictionary<Position, KeyValuePair<Position, IntCell>> cells,
                 int fakeIndex, int fakeValue)
             {
                 if (fakeValue == Bread1 || fakeValue == Bread2)
@@ -164,7 +164,7 @@ public class SandwichVariantBuilder : VariantBuilder<int>
                     {
                         if (i == fakeIndex) continue;
                         var cell = cells[_orderedPositions[i]];
-                        if (!cell.Value.PossibleValues.Contains(otherBread)) continue;
+                        if (!cell.Value.Contains(otherBread)) continue;
 
                         var usedValues = new Stack<int>(BreadValues);
 
@@ -202,8 +202,8 @@ public class SandwichVariantBuilder : VariantBuilder<int>
                         var cell1 = cells[_orderedPositions[i1]];
 
                         var i2PossibleValues = new HashSet<int>();
-                        if (cell1.Value.PossibleValues.Contains(Bread1)) i2PossibleValues.Add(Bread2);
-                        if (cell1.Value.PossibleValues.Contains(Bread2)) i2PossibleValues.Add(Bread1);
+                        if (cell1.Value.Contains(Bread1)) i2PossibleValues.Add(Bread2);
+                        if (cell1.Value.Contains(Bread2)) i2PossibleValues.Add(Bread1);
 
                         if (!i2PossibleValues.Any()) continue;
 
@@ -211,7 +211,7 @@ public class SandwichVariantBuilder : VariantBuilder<int>
                         {
                             if (i2 == fakeIndex) continue;
                             var cell2 = cells[_orderedPositions[i2]];
-                            if (!cell2.Value.PossibleValues.Overlaps(i2PossibleValues)) continue;
+                            if (!cell2.Value.Overlaps(i2PossibleValues)) continue;
 
                             if (i1 < fakeIndex && fakeIndex < i2)
                             {
@@ -239,7 +239,7 @@ public class SandwichVariantBuilder : VariantBuilder<int>
             }
 
             private bool SumIsPossible(int sum,
-                ImmutableDictionary<Position, KeyValuePair<Position, Cell<int>>> cells,
+                ImmutableDictionary<Position, KeyValuePair<Position, IntCell>> cells,
                 Stack<Position> remainingPositions, Stack<int> usedValues)
             {
 
@@ -251,7 +251,7 @@ public class SandwichVariantBuilder : VariantBuilder<int>
 
                 var cellToCheck = cells[positionToCheck];
 
-                foreach (var possibleValue in cellToCheck.Value.PossibleValues.Except(usedValues))
+                foreach (var possibleValue in cellToCheck.Value.Except(usedValues))
                 {
                     usedValues.Push(possibleValue);
 

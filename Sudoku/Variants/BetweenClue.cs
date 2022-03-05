@@ -2,7 +2,7 @@
 
 namespace Sudoku.Variants;
 
-public sealed class BetweenClue : IUniquenessClue<int>, IRuleClue<int>
+public sealed class BetweenClue : IUniquenessClue, IRuleClue
 {
     public BetweenClue(Position pAlpha, Position pOmega, ImmutableSortedSet<Position> middlePositions)
     {
@@ -27,16 +27,16 @@ public sealed class BetweenClue : IUniquenessClue<int>, IRuleClue<int>
     public ImmutableSortedSet<Position> MiddlePositions { get; }
 
     /// <inheritdoc />
-    public IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid<int> grid)
+    public IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid grid)
     {
         var cellAlpha = grid.GetCellKVP(PAlpha);
         var cellOmega = grid.GetCellKVP(POmega);
 
         var minDifference = MiddlePositions.Count;
-        var canGoAZ = cellAlpha.Value.PossibleValues.Min + MiddlePositions.Count <
-                      cellOmega.Value.PossibleValues.Max;
-        var canGoZA = cellOmega.Value.PossibleValues.Min + MiddlePositions.Count <
-                      cellAlpha.Value.PossibleValues.Max;
+        var canGoAZ = cellAlpha.Value.Min() + MiddlePositions.Count <
+                      cellOmega.Value.Max();
+        var canGoZA = cellOmega.Value.Min() + MiddlePositions.Count <
+                      cellAlpha.Value.Max();
 
         var reason = new BetweenClueReason(this);
 
@@ -57,20 +57,20 @@ public sealed class BetweenClue : IUniquenessClue<int>, IRuleClue<int>
 
         if (canGoAZ && canGoZA)
         {
-            minEdge = Math.Min(cellAlpha.Value.PossibleValues.Min, cellOmega.Value.PossibleValues.Min);
-            maxEdge = Math.Max(cellAlpha.Value.PossibleValues.Max, cellOmega.Value.PossibleValues.Max);
+            minEdge = Math.Min(cellAlpha.Value.Min(), cellOmega.Value.Min());
+            maxEdge = Math.Max(cellAlpha.Value.Max(), cellOmega.Value.Max());
 
 
-            for (var i = cellAlpha.Value.PossibleValues.Max - minDifference;
-                 i <= cellAlpha.Value.PossibleValues.Min + minDifference;
+            for (var i = cellAlpha.Value.Max() - minDifference;
+                 i <= cellAlpha.Value.Min() + minDifference;
                  i++)
                 yield return cellOmega.CloneWithoutValue(i,
                     reason
                     //$"Too close to the possible values of {cellAlpha}"
                 );
 
-            for (var i = cellOmega.Value.PossibleValues.Max - minDifference;
-                 i <= cellOmega.Value.PossibleValues.Min + minDifference;
+            for (var i = cellOmega.Value.Max() - minDifference;
+                 i <= cellOmega.Value.Min() + minDifference;
                  i++)
                 yield return cellAlpha.CloneWithoutValue(i,
                     reason
@@ -79,22 +79,22 @@ public sealed class BetweenClue : IUniquenessClue<int>, IRuleClue<int>
         }
         else if (canGoAZ)
         {
-            minEdge = cellAlpha.Value.PossibleValues.Min;
-            maxEdge = cellOmega.Value.PossibleValues.Max;
+            minEdge = cellAlpha.Value.Min();
+            maxEdge = cellOmega.Value.Max();
 
-            yield return cellAlpha.CloneWithoutValuesAbove(cellOmega.Value.PossibleValues.Max - minDifference - 1,
+            yield return cellAlpha.CloneWithoutValuesAbove(cellOmega.Value.Max() - minDifference - 1,
                 reason);
-            yield return cellOmega.CloneWithoutValuesBelow(cellAlpha.Value.PossibleValues.Min + minDifference + 1,
+            yield return cellOmega.CloneWithoutValuesBelow(cellAlpha.Value.Min() + minDifference + 1,
                 reason);
         }
         else
         {
-            minEdge = cellOmega.Value.PossibleValues.Min;
-            maxEdge = cellAlpha.Value.PossibleValues.Max;
+            minEdge = cellOmega.Value.Min();
+            maxEdge = cellAlpha.Value.Max();
 
-            yield return cellOmega.CloneWithoutValuesAbove(cellAlpha.Value.PossibleValues.Max - minDifference - 1,
+            yield return cellOmega.CloneWithoutValuesAbove(cellAlpha.Value.Max() - minDifference - 1,
                 reason);
-            yield return cellAlpha.CloneWithoutValuesBelow(cellOmega.Value.PossibleValues.Min + minDifference + 1,
+            yield return cellAlpha.CloneWithoutValuesBelow(cellOmega.Value.Min() + minDifference + 1,
                 reason);
         }
 

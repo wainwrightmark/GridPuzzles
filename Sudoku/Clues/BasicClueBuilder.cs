@@ -3,11 +3,11 @@ using Sudoku.Variants;
 
 namespace Sudoku.Clues;
 
-public class DisjointBoxesVariantBuilder<T> : NoArgumentVariantBuilder<T> where T: notnull
+public class DisjointBoxesVariantBuilder<T, TCell> : NoArgumentVariantBuilder<T, TCell> where T :struct where TCell : ICell<T, TCell>, new()
 {
     private DisjointBoxesVariantBuilder() { }
 
-    public static DisjointBoxesVariantBuilder<T> Instance { get; } = new ();
+    public static DisjointBoxesVariantBuilder<T, TCell> Instance { get; } = new ();
 
     /// <inheritdoc />
     public override string Name => "Disjoint Boxes";
@@ -16,10 +16,10 @@ public class DisjointBoxesVariantBuilder<T> : NoArgumentVariantBuilder<T> where 
     public override int Level => 2;
 
     /// <inheritdoc />
-    public override IEnumerable<IClue<T>> CreateClues(Position minPosition, Position maxPosition, IValueSource<T> valueSource,
-        IReadOnlyCollection<IClue<T>> lowerLevelClues)
+    public override IEnumerable<IClue<T, TCell>> CreateClues(Position minPosition, Position maxPosition, IValueSource<T, TCell> valueSource,
+        IReadOnlyCollection<IClue<T, TCell>> lowerLevelClues)
     {
-        var boxClues = lowerLevelClues.OfType<BoxClue<T>>().ToList();
+        var boxClues = lowerLevelClues.OfType<BoxClue<T, TCell>>().ToList();
 
         if (boxClues.Count == maxPosition.Row && boxClues.Count == maxPosition.Column)
         {
@@ -32,7 +32,7 @@ public class DisjointBoxesVariantBuilder<T> : NoArgumentVariantBuilder<T> where 
                     var i1 = i;
                     var cells = boxClues.Select(x => x.Positions[i1]).ToImmutableSortedSet();
 
-                    yield return new UniqueCompleteClue<T>($"Position {i + 1} of any Box", cells);
+                    yield return new UniqueCompleteClue<T, TCell>($"Position {i + 1} of any Box", cells);
                 }
             }
         }
@@ -43,25 +43,25 @@ public class DisjointBoxesVariantBuilder<T> : NoArgumentVariantBuilder<T> where 
 }
 
 
-public class CompleteRectangularBoxVariantBuilder<T> :VariantBuilder<T> where T:notnull
+public class CompleteRectangularBoxVariantBuilder<T, TCell> :VariantBuilder<T, TCell> where T :struct where TCell : ICell<T, TCell>, new()
 {
     private CompleteRectangularBoxVariantBuilder()
     {
     }
 
-    public static IVariantBuilder<T> Instance { get; } = new CompleteRectangularBoxVariantBuilder<T>();
+    public static IVariantBuilder<T, TCell> Instance { get; } = new CompleteRectangularBoxVariantBuilder<T, TCell>();
 
     /// <inheritdoc />
     public override string Name => "Complete Rectangular Boxes";
 
     /// <inheritdoc />
-    public override Result<IReadOnlyCollection<IClueBuilder<T>>> TryGetClueBuilders1(IReadOnlyDictionary<string, string> arguments)
+    public override Result<IReadOnlyCollection<IClueBuilder<T, TCell>>> TryGetClueBuilders1(IReadOnlyDictionary<string, string> arguments)
     {
         var widthResult = _boxWidthArgument.TryGetFromDictionary(arguments);
 
-        if (widthResult.IsFailure) return widthResult.ConvertFailure<IReadOnlyCollection<IClueBuilder<T>>>();
+        if (widthResult.IsFailure) return widthResult.ConvertFailure<IReadOnlyCollection<IClueBuilder<T, TCell>>>();
 
-        return new IClueBuilder<T>[]
+        return new IClueBuilder<T, TCell>[]
         {
             new CompleteRectangularBoxClueBuilder(Convert.ToUInt16(widthResult.Value))
         };
@@ -75,7 +75,7 @@ public class CompleteRectangularBoxVariantBuilder<T> :VariantBuilder<T> where T:
         _boxWidthArgument
     };
 
-    private record CompleteRectangularBoxClueBuilder(ushort BoxWidth) : IClueBuilder<T>
+    private record CompleteRectangularBoxClueBuilder(ushort BoxWidth) : IClueBuilder<T, TCell>
     {
 
         /// <inheritdoc />
@@ -85,15 +85,15 @@ public class CompleteRectangularBoxVariantBuilder<T> :VariantBuilder<T> where T:
         public int Level => 1;
 
         /// <inheritdoc />
-        public IEnumerable<IClue<T>> CreateClues(Position minPosition, Position maxPosition, IValueSource<T> valueSource,
-            IReadOnlyCollection<IClue<T>> lowerLevelClues)
+        public IEnumerable<IClue<T, TCell>> CreateClues(Position minPosition, Position maxPosition, IValueSource<T, TCell> valueSource,
+            IReadOnlyCollection<IClue<T, TCell>> lowerLevelClues)
         {
             var height = Convert.ToUInt16(maxPosition.Column / BoxWidth);
             var index = 1;
                 
             for (var row = minPosition.Row; row <= maxPosition.Row; row+=height)
             for (var column = minPosition.Column; column <= maxPosition.Column; column+=BoxWidth)
-                yield return new BoxClue<T>(new Position(column, row),new Position(column + BoxWidth - 1, row + height - 1), index++);
+                yield return new BoxClue<T, TCell>(new Position(column, row),new Position(column + BoxWidth - 1, row + height - 1), index++);
         }
             
         /// <inheritdoc />
@@ -116,13 +116,13 @@ public class CompleteRectangularBoxVariantBuilder<T> :VariantBuilder<T> where T:
 }
 
 
-public class CompleteSquareBoxesVariantBuilder<T> : NoArgumentVariantBuilder<T> where T :notnull
+public class CompleteSquareBoxesVariantBuilder<T, TCell> : NoArgumentVariantBuilder<T, TCell> where T :struct where TCell : ICell<T, TCell>, new()
 {
     private CompleteSquareBoxesVariantBuilder()
     {
     }
 
-    public static NoArgumentVariantBuilder<T> Instance { get; } = new CompleteSquareBoxesVariantBuilder<T>();
+    public static NoArgumentVariantBuilder<T, TCell> Instance { get; } = new CompleteSquareBoxesVariantBuilder<T, TCell>();
 
     /// <inheritdoc />
     public override string Name => "Complete Square Boxes";
@@ -131,15 +131,15 @@ public class CompleteSquareBoxesVariantBuilder<T> : NoArgumentVariantBuilder<T> 
     public override int Level => 1;
 
     /// <inheritdoc />
-    public override IEnumerable<IClue<T>> CreateClues(Position minPosition, Position maxPosition, IValueSource<T> valueSource,
-        IReadOnlyCollection<IClue<T>> lowerLevelClues)
+    public override IEnumerable<IClue<T, TCell>> CreateClues(Position minPosition, Position maxPosition, IValueSource<T, TCell> valueSource,
+        IReadOnlyCollection<IClue<T, TCell>> lowerLevelClues)
     {
         var boxSize = Convert.ToUInt16(Math.Sqrt(maxPosition.Column));
         int index = 1;
         for (var row = minPosition.Row; row <= maxPosition.Row; row+=boxSize)
         for (var column = minPosition.Column; column <= maxPosition.Column; column+=boxSize)
             
-            yield return new BoxClue<T>(new Position(column, row),new Position(column + boxSize - 1, row + boxSize - 1), index++);
+            yield return new BoxClue<T, TCell>(new Position(column, row),new Position(column + boxSize - 1, row + boxSize - 1), index++);
     }
         
 
@@ -178,23 +178,23 @@ public class CompleteSquareBoxesVariantBuilder<T> : NoArgumentVariantBuilder<T> 
     }
 }
 
-public class CompleteRowsVariantBuilder<T> : NoArgumentVariantBuilder<T> where T : notnull
+public class CompleteRowsVariantBuilder<T, TCell> : NoArgumentVariantBuilder<T, TCell> where T :struct where TCell : ICell<T, TCell>, new()
 {
     private CompleteRowsVariantBuilder()
     {
     }
 
-    public static IVariantBuilder<T> Instance { get; } = new CompleteRowsVariantBuilder<T>();
+    public static IVariantBuilder<T, TCell> Instance { get; } = new CompleteRowsVariantBuilder<T, TCell>();
         
     public override string Name => "Complete Rows";
 
     public override int Level => 1;
 
-    public override IEnumerable<IClue<T>> CreateClues(Position minPosition, Position maxPosition, IValueSource<T> valueSource,
-        IReadOnlyCollection<IClue<T>> lowerLevelClues)
+    public override IEnumerable<IClue<T, TCell>> CreateClues(Position minPosition, Position maxPosition, IValueSource<T, TCell> valueSource,
+        IReadOnlyCollection<IClue<T, TCell>> lowerLevelClues)
     {
         for (var r = minPosition.Row; r <= maxPosition.Row; r++)
-            yield return new RowClue<T>(r, minPosition.Column,maxPosition.Column, null);
+            yield return new RowClue<T, TCell>(r, minPosition.Column,maxPosition.Column, null);
     }
 
     /// <inheritdoc />
@@ -206,13 +206,13 @@ public class CompleteRowsVariantBuilder<T> : NoArgumentVariantBuilder<T> where T
         return true;
     }
 }
-public class CompleteColumnsVariantBuilder<T> : NoArgumentVariantBuilder<T> where T: notnull
+public class CompleteColumnsVariantBuilder<T, TCell> : NoArgumentVariantBuilder<T, TCell> where T :struct where TCell : ICell<T, TCell>, new()
 {
     private CompleteColumnsVariantBuilder()
     {
     }
 
-    public static IVariantBuilder<T> Instance { get; } = new CompleteColumnsVariantBuilder<T>();
+    public static IVariantBuilder<T, TCell> Instance { get; } = new CompleteColumnsVariantBuilder<T, TCell>();
 
 
     /// <inheritdoc />
@@ -222,11 +222,11 @@ public class CompleteColumnsVariantBuilder<T> : NoArgumentVariantBuilder<T> wher
     public override int Level => 1;
 
     /// <inheritdoc />
-    public override IEnumerable<IClue<T>> CreateClues(Position minPosition, Position maxPosition, IValueSource<T> valueSource,
-        IReadOnlyCollection<IClue<T>> lowerLevelClues)
+    public override IEnumerable<IClue<T, TCell>> CreateClues(Position minPosition, Position maxPosition, IValueSource<T, TCell> valueSource,
+        IReadOnlyCollection<IClue<T, TCell>> lowerLevelClues)
     {
         for (var c = minPosition.Column; c <= maxPosition.Column; c++)
-            yield return new ColumnClue<T>(c, minPosition.Row,maxPosition.Row);
+            yield return new ColumnClue<T, TCell>(c, minPosition.Row,maxPosition.Row);
     }
 
     /// <inheritdoc />

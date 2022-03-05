@@ -2,9 +2,9 @@
 
 namespace GridPuzzles.Session.Actions;
 
-public interface IGridViewAction<T> where T:notnull
+public interface IGridViewAction<T, TCell> where T :struct where TCell : ICell<T, TCell>, new()
 {
     string Name { get; }
-    IAsyncEnumerable<ActionResult<T>> Execute(ImmutableStack<SolveState<T>> history, SessionSettings settings,
+    IAsyncEnumerable<ActionResult<T, TCell>> Execute(ImmutableStack<SolveState<T, TCell>> history, SessionSettings settings,
         CancellationToken cancellation);
 }

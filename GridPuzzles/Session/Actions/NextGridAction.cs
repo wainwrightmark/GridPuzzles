@@ -5,9 +5,9 @@ using GridPuzzles.Bifurcation;
 
 namespace GridPuzzles.Session.Actions;
 
-public class NextGridAction<T> : IGridViewAction<T> where T: notnull
+public class NextGridAction<T, TCell> : IGridViewAction<T, TCell> where T :struct where TCell : ICell<T, TCell>, new()
 {
-    public static NextGridAction<T> Instance = new();
+    public static NextGridAction<T, TCell> Instance = new();
 
     private NextGridAction()
     {
@@ -18,13 +18,13 @@ public class NextGridAction<T> : IGridViewAction<T> where T: notnull
     public string Name => "Next";
 
     /// <inheritdoc />
-    public async IAsyncEnumerable<ActionResult<T>> Execute(ImmutableStack<SolveState<T>> history,
+    public async IAsyncEnumerable<ActionResult<T, TCell>> Execute(ImmutableStack<SolveState<T, TCell>> history,
         SessionSettings settings,[EnumeratorCancellation] CancellationToken cancellation)
     {
         if(cancellation.IsCancellationRequested)yield break;
 
         var currentState = history.Peek();
-        var combiner = settings.SingleStep ? UpdateResultCombiner<T>.SingleStep : UpdateResultCombiner<T>.Default;
+        var combiner = settings.SingleStep ? UpdateResultCombiner<T, TCell>.SingleStep : UpdateResultCombiner<T, TCell>.Default;
         var updatePositions = settings.SingleStep ?
             Maybe<IReadOnlySet<Position>>.None : 
             currentState.UpdateResult.UpdatedPositions.Any()?
@@ -36,7 +36,7 @@ public class NextGridAction<T> : IGridViewAction<T> where T: notnull
         var (newGrid, updateResult) = await currentState.Grid.IterateAsync(combiner,0, updatePositions);
         sw.Stop();
         if (updateResult.IsNotEmpty)
-            yield return (ActionResult<T>)new SolveState<T>(newGrid,
+            yield return (ActionResult<T, TCell>)new SolveState<T, TCell>(newGrid,
                 currentState.VariantBuilders,
                 updateResult,
                 ChangeType.LogicalMove,
@@ -46,7 +46,7 @@ public class NextGridAction<T> : IGridViewAction<T> where T: notnull
                 currentState.Grid);
         else if (newGrid.IsComplete)
         {
-            yield return (ActionResult<T>)new SolveState<T>(newGrid,
+            yield return (ActionResult<T, TCell>)new SolveState<T, TCell>(newGrid,
                 currentState.VariantBuilders,
                 updateResult,
                 ChangeType.NoChange,
@@ -67,7 +67,7 @@ public class NextGridAction<T> : IGridViewAction<T> where T: notnull
                 if (br.UpdateResult.IsNotEmpty)
                 {
                     var grid2 = currentState.Grid.CloneWithUpdates(br.UpdateResult, false);
-                    yield return (ActionResult<T>)new SolveState<T>(grid2,
+                    yield return (ActionResult<T, TCell>)new SolveState<T, TCell>(grid2,
                         currentState.VariantBuilders, 
                         br.UpdateResult,
                         ChangeType.LogicalMove, 
@@ -80,8 +80,8 @@ public class NextGridAction<T> : IGridViewAction<T> where T: notnull
                 else if (br.CompletedGrids is not null)
                 {
                     var grid2 = currentState.Grid.CloneWithUpdates(br.UpdateResult, false);
-                    yield return (ActionResult<T>)new SolveState<T>(grid2,currentState.VariantBuilders,
-                        UpdateResult<T>.Empty, 
+                    yield return (ActionResult<T, TCell>)new SolveState<T, TCell>(grid2,currentState.VariantBuilders,
+                        UpdateResult<T, TCell>.Empty, 
                         ChangeType.NoChange, 
                         $"At least {br.CompletedGrids.Count} possible solutions", 
                         sw.Elapsed, 
@@ -92,7 +92,7 @@ public class NextGridAction<T> : IGridViewAction<T> where T: notnull
 
             }
 
-            yield return new ActionResult<T>.NoChangeResult(sw.Elapsed);
+            yield return new ActionResult<T, TCell>.NoChangeResult(sw.Elapsed);
         }
     }
 }

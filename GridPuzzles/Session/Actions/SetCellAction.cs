@@ -3,7 +3,7 @@ using System.Threading;
 
 namespace GridPuzzles.Session.Actions;
 
-public class SetCellAction<T> : IGridViewAction<T> where T : notnull
+public class SetCellAction<T, TCell> : IGridViewAction<T, TCell> where T :struct where TCell : ICell<T, TCell>, new()
 {
     public SetCellAction(Position position, Maybe<T> newValue)
     {
@@ -17,22 +17,22 @@ public class SetCellAction<T> : IGridViewAction<T> where T : notnull
 
     /// <inheritdoc />
     public string Name => "Set " + Position + " to " +
-                          (NewValue.HasValue ? NewValue.Value?.ToString() ?? "Empty" : "Empty");
+                          (NewValue.HasValue ? NewValue.Value.ToString() ?? "Empty" : "Empty");
 
     /// <inheritdoc />
-    public async IAsyncEnumerable<ActionResult<T>> Execute(ImmutableStack<SolveState<T>> history,
+    public async IAsyncEnumerable<ActionResult<T, TCell>> Execute(ImmutableStack<SolveState<T, TCell>> history,
         SessionSettings settings, [EnumeratorCancellation] CancellationToken cancellation)
     {
         var currentState = history.Peek();
-        var builder = UpdateResult<T>.Empty;
+        var builder = UpdateResult<T, TCell>.Empty;
 
-        Grid<T> newGrid;
+        Grid<T, TCell> newGrid;
 
         ImmutableSortedDictionary<Position, T> newFixedValues;
         if (NewValue.HasValue)
         {
-            var cell = CellHelper.Create(NewValue.Value);
-            builder = builder.CloneWithCellUpdate(new CellUpdate<T>(cell, Position, CellManuallySetReason.Instance));
+            var cell = CellHelper.Create<T, TCell>(NewValue.Value);
+            builder = builder.CloneWithCellUpdate(new CellUpdate<T, TCell>(cell, Position, CellManuallySetReason.Instance));
             newGrid = currentState.Grid.CloneWithUpdates(builder, true);
             newFixedValues = currentState.FixedValues.SetItem(Position, NewValue.Value);
         }
@@ -42,36 +42,36 @@ public class SetCellAction<T> : IGridViewAction<T> where T : notnull
             newFixedValues = currentState.FixedValues.Remove(Position);
         }
 
-        var newState = new SolveState<T>(newGrid, currentState.VariantBuilders, builder, ChangeType.ManualChange,
+        var newState = new SolveState<T, TCell>(newGrid, currentState.VariantBuilders, builder, ChangeType.ManualChange,
             $"{Position} manually set to {NewValue}", TimeSpan.Zero, newFixedValues
             ,
                 
                 
             null);
-        yield return (ActionResult<T>)newState;
+        yield return (ActionResult<T, TCell>)newState;
 
         if (settings.GoToFinalStateOnKeyPress)
         {
-            await foreach (var nextState in FinalGridAction<T>.Instance.Execute(history.Push(newState), settings, cancellation))
+            await foreach (var nextState in FinalGridAction<T, TCell>.Instance.Execute(history.Push(newState), settings, cancellation))
                 yield return nextState;
         }
         else
         {
             var (_, contradictionCheck) =
-                newState.Grid.Iterate(UpdateResultCombiner<T>.Default, 0, Maybe<IReadOnlySet<Position>>.None);
+                newState.Grid.Iterate(UpdateResultCombiner<T, TCell>.Default, 0, Maybe<IReadOnlySet<Position>>.None);
 
             if (contradictionCheck.HasContradictions)
             {
-                var contradictionsOnly = new UpdateResult<T>(
-                    ImmutableDictionary<Position, CellUpdate<T>>.Empty, contradictionCheck.Contradictions
+                var contradictionsOnly = new UpdateResult<T, TCell>(
+                    ImmutableDictionary<Position, CellUpdate<T, TCell>>.Empty, contradictionCheck.Contradictions
                 );
 
-                var contradictionState = new SolveState<T>
+                var contradictionState = new SolveState<T, TCell>
                 (
                     newGrid, currentState.VariantBuilders, contradictionsOnly, ChangeType.LogicalMove,
                     contradictionCheck.Message, TimeSpan.Zero, newFixedValues, null
                 );
-                yield return (ActionResult<T>)contradictionState;
+                yield return (ActionResult<T, TCell>)contradictionState;
             }
         }
     }

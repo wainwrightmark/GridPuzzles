@@ -31,9 +31,10 @@ public static class Extensions
     }
 
 
-    public static ImmutableSortedSet<T> UnionAllSortedSets<T>(this IEnumerable<ImmutableSortedSet<T>> sets)
+    public static TCell UnionAllSortedSets<T, TCell>(this IEnumerable<TCell> cells)
+        where T :struct where TCell : ICell<T, TCell>, new()
     {
-        return sets.Aggregate(ImmutableSortedSet<T>.Empty, (current1, e) => current1.Union(e));
+        return cells.Aggregate(new TCell(), (current1, e) => current1.Union(e));
     }
 
 

@@ -1,6 +1,6 @@
 ﻿namespace GridPuzzles.Clues.Constraints;
 
-public sealed class AreEqualConstraint<T> : CommutativeConstraint<T> where T : notnull
+public sealed class AreEqualConstraint<T> : CommutativeConstraint<T> where T :struct// where TCell : ICell<T, TCell>, new()
 {
     private AreEqualConstraint() {}
 

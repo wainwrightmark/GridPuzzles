@@ -2,8 +2,8 @@
 
 namespace GridPuzzles.Reasons;
 
-public sealed record RelationshipClueReason<T>(IRelationshipClue<T> RelationshipClue): ISingleReason
-    where T : notnull
+public sealed record RelationshipClueReason<T, TCell>(IRelationshipClue<T, TCell> RelationshipClue): ISingleReason
+    where T :struct where TCell : ICell<T, TCell>, new()
 {
     /// <inheritdoc />
     public string Text => RelationshipClue.Name; //TODO look at this

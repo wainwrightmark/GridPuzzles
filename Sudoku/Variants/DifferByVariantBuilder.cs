@@ -1,26 +1,26 @@
 ﻿namespace Sudoku.Variants;
 
-public class DifferByVariantBuilder : VariantBuilder<int>
+public class DifferByVariantBuilder : VariantBuilder
 {
     private DifferByVariantBuilder()
     {
     }
 
-    public static VariantBuilder<int> Instance { get; } = new DifferByVariantBuilder();
+    public static VariantBuilder Instance { get; } = new DifferByVariantBuilder();
 
     /// <inheritdoc />
     public override string Name => "Differ By";
 
     /// <inheritdoc />
-    public override Result<IReadOnlyCollection<IClueBuilder<int>>> TryGetClueBuilders1(
+    public override Result<IReadOnlyCollection<IClueBuilder>> TryGetClueBuilders1(
         IReadOnlyDictionary<string, string> arguments)
     {
         var sr = AmountArgument.TryGetFromDictionary(arguments);
-        if (sr.IsFailure) return sr.ConvertFailure<IReadOnlyCollection<IClueBuilder<int>>>();
+        if (sr.IsFailure) return sr.ConvertFailure<IReadOnlyCollection<IClueBuilder>>();
         var pr = PositionArgument.TryGetFromDictionary(arguments);
-        if (pr.IsFailure) return pr.ConvertFailure<IReadOnlyCollection<IClueBuilder<int>>>();
+        if (pr.IsFailure) return pr.ConvertFailure<IReadOnlyCollection<IClueBuilder>>();
 
-        var l = new List<IClueBuilder<int>>
+        var l = new List<IClueBuilder>
         {
             new DifferByClueBuilder(pr.Value.Min(), pr.Value.Max(), sr.Value)
         };
@@ -44,7 +44,7 @@ public class DifferByVariantBuilder : VariantBuilder<int>
         2);
 }
 
-public record DifferByClueBuilder(Position Position1, Position Position2, int Amount) : IClueBuilder<int>
+public record DifferByClueBuilder(Position Position1, Position Position2, int Amount) : IClueBuilder
 {
 
     /// <inheritdoc />
@@ -54,11 +54,11 @@ public record DifferByClueBuilder(Position Position1, Position Position2, int Am
     public int Level => 2;
 
     /// <inheritdoc />
-    public IEnumerable<IClue<int>> CreateClues(Position minPosition, Position maxPosition,
-        IValueSource<int> valueSource,
-        IReadOnlyCollection<IClue<int>> lowerLevelClues)
+    public IEnumerable<IClue<int, IntCell>> CreateClues(Position minPosition, Position maxPosition,
+        IValueSource valueSource,
+        IReadOnlyCollection<IClue<int, IntCell>> lowerLevelClues)
     {
-        yield return RelationshipClue<int>.Create(Position1, Position2, new DifferByConstraint(Amount));
+        yield return RelationshipClue.Create(Position1, Position2, new DifferByConstraint(Amount));
     }
 
     /// <param name="minPosition"></param>

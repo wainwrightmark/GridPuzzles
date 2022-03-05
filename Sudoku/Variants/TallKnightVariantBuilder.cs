@@ -1,8 +1,8 @@
 ﻿namespace Sudoku.Variants;
 
-public class TallKnightVariantBuilder<T> : MutexVariantBuilder<T>where T : notnull
+public class TallKnightVariantBuilder<T, TCell> : MutexVariantBuilder<T, TCell>where T :struct where TCell : ICell<T, TCell>, new()
 {
-    public static TallKnightVariantBuilder<T> Instance = new();
+    public static TallKnightVariantBuilder<T, TCell> Instance = new();
 
     private TallKnightVariantBuilder()
     {
@@ -14,7 +14,7 @@ public class TallKnightVariantBuilder<T> : MutexVariantBuilder<T>where T : notnu
     public override int Level => 3;
 
     /// <inheritdoc />
-    protected override IEnumerable<UniquenessClue<T>> GetClues(Position minPosition, Position maxPosition)
+    protected override IEnumerable<UniquenessClue<T, TCell>> GetClues(Position minPosition, Position maxPosition)
     {
         var positionsChecked = new HashSet<Position>();
 
@@ -28,7 +28,7 @@ public class TallKnightVariantBuilder<T> : MutexVariantBuilder<T>where T : notnu
                     .Where(x => !positionsChecked.Contains(x));
 
             foreach (var p2 in newTallKnightPositions)
-                yield return new UniquenessClue<T>(position, p2, "tall knight's move");
+                yield return new UniquenessClue<T, TCell>(position, p2, "tall knight's move");
         }
 
     }

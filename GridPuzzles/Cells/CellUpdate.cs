@@ -1,27 +1,27 @@
 ﻿namespace GridPuzzles.Cells;
 
-public sealed record CellUpdate<T>(
-    Cell<T> NewCell, 
+public sealed record CellUpdate<T, TCell>(
+    TCell NewCell, 
     Position Position, 
-    IUpdateReason Reason) : ICellChangeResult
+    IUpdateReason Reason) : ICellChangeResult where T: struct where TCell : ICell<T, TCell>, new()
 {
-    public ICellChangeResult TryCombine(CellUpdate<T> otherCellUpdate)
+    public ICellChangeResult TryCombine(CellUpdate<T, TCell> otherCellUpdate)
     {
         var (otherCell, _, otherReason) = otherCellUpdate;
 
-        var newSet = NewCell.PossibleValues.Intersect(otherCell.PossibleValues);
+        var combinedCell = NewCell.Intersect(otherCell);
 
-        if (newSet.Count == NewCell.PossibleValues.Count)
+        if (combinedCell.Equals(NewCell))
             return this; //reuse this, ignore the other result and its reason
-        if (newSet.Count == otherCell.PossibleValues.Count)
+        if (combinedCell.Equals(otherCell))
             return otherCellUpdate; //Just use the other one, ignore this
 
-        var ccr = CellHelper.TryCreate(newSet, Position, Reason.Combine(otherReason));
+        var ccr = CellHelper.TryCreate<T, TCell>(combinedCell, Position, Reason.Combine(otherReason));
         return ccr;
     }
 
     /// <inheritdoc />
-    public bool Equals(CellUpdate<T>? other)
+    public bool Equals(CellUpdate<T, TCell>? other)
     {
         return other is not null&& Position == other.Position && NewCell.Equals(other.NewCell);
     }

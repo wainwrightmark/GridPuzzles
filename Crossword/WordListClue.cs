@@ -1,10 +1,6 @@
-﻿using System.Collections.Immutable;
-using GridPuzzles;
-using GridPuzzles.Clues;
+﻿namespace Crossword;
 
-namespace Crossword;
-
-public class WordListClue : IClue<char>
+public class WordListClue : IClue<char, CharCell>
 {
     public WordListClue(PossibleWordList possibleWordList)
     {

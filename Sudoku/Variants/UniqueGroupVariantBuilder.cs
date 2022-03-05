@@ -2,13 +2,13 @@
 
 namespace Sudoku.Variants;
 
-public partial class UniqueGroupVariantBuilder<T> : VariantBuilder<T> where T : notnull
+public partial class UniqueGroupVariantBuilder<T, TCell> : VariantBuilder<T, TCell> where T :struct where TCell : ICell<T, TCell>, new()
 {
     private UniqueGroupVariantBuilder()
     {
     }
 
-    public static UniqueGroupVariantBuilder<T> Instance { get; } = new();
+    public static UniqueGroupVariantBuilder<T, TCell> Instance { get; } = new();
     public override string Name => "UniqueGroup";
 
     /// <inheritdoc />
@@ -21,12 +21,12 @@ public partial class UniqueGroupVariantBuilder<T> : VariantBuilder<T> where T : 
         2, 9);
 
     /// <inheritdoc />
-    public override Result<IReadOnlyCollection<IClueBuilder<T>>> TryGetClueBuilders1(IReadOnlyDictionary<string, string> arguments)
+    public override Result<IReadOnlyCollection<IClueBuilder<T, TCell>>> TryGetClueBuilders1(IReadOnlyDictionary<string, string> arguments)
     {
         var pr = PositionArgument.TryGetFromDictionary(arguments);
-        if (pr.IsFailure) return pr.ConvertFailure<IReadOnlyCollection<IClueBuilder<T>>>();
+        if (pr.IsFailure) return pr.ConvertFailure<IReadOnlyCollection<IClueBuilder<T, TCell>>>();
 
-        var l = new List<IClueBuilder<T>>
+        var l = new List<IClueBuilder<T, TCell>>
         {
             new UniqueClueBuilder(pr.Value.ToImmutableSortedSet())
         };
@@ -35,7 +35,7 @@ public partial class UniqueGroupVariantBuilder<T> : VariantBuilder<T> where T : 
     }
 
     [Equatable]
-    private partial record UniqueClueBuilder([property:SetEquality] ImmutableSortedSet<Position> Positions) : IClueBuilder<T>
+    private partial record UniqueClueBuilder([property:SetEquality] ImmutableSortedSet<Position> Positions) : IClueBuilder<T, TCell>
     {
 
         /// <inheritdoc />
@@ -45,12 +45,12 @@ public partial class UniqueGroupVariantBuilder<T> : VariantBuilder<T> where T : 
         public int Level => 1;
 
         /// <inheritdoc />
-        public IEnumerable<IClue<T>> CreateClues(Position minPosition, Position maxPosition,
-            IValueSource<T> valueSource,
-            IReadOnlyCollection<IClue<T>> lowerLevelClues)
+        public IEnumerable<IClue<T, TCell>> CreateClues(Position minPosition, Position maxPosition,
+            IValueSource<T, TCell> valueSource,
+            IReadOnlyCollection<IClue<T, TCell>> lowerLevelClues)
         {
 
-            yield return new UniquenessClue<T>(Positions, "Unique Group");
+            yield return new UniquenessClue<T, TCell>(Positions, "Unique Group");
         }
 
         /// <param name="minPosition"></param>

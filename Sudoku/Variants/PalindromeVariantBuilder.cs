@@ -1,12 +1,12 @@
 ﻿namespace Sudoku.Variants;
 
-public partial class PalindromeVariantBuilder<T> : VariantBuilder<T> where T : notnull
+public partial class PalindromeVariantBuilder<T, TCell> : VariantBuilder<T, TCell> where T :struct where TCell : ICell<T, TCell>, new()
 {
     private PalindromeVariantBuilder()
     {
     }
 
-    public static PalindromeVariantBuilder<T> Instance { get; } = new ();
+    public static PalindromeVariantBuilder<T, TCell> Instance { get; } = new ();
     public override string Name => "Palindrome";
 
     /// <inheritdoc />
@@ -19,12 +19,12 @@ public partial class PalindromeVariantBuilder<T> : VariantBuilder<T> where T : n
         3, 81);
         
 
-    public override Result<IReadOnlyCollection<IClueBuilder<T>>> TryGetClueBuilders1(IReadOnlyDictionary<string, string> arguments)
+    public override Result<IReadOnlyCollection<IClueBuilder<T, TCell>>> TryGetClueBuilders1(IReadOnlyDictionary<string, string> arguments)
     {
         var pr = PositionArgument.TryGetFromDictionary(arguments);
-        if (pr.IsFailure) return pr.ConvertFailure<IReadOnlyCollection<IClueBuilder<T>>>();
+        if (pr.IsFailure) return pr.ConvertFailure<IReadOnlyCollection<IClueBuilder<T, TCell>>>();
 
-        var l = new List<IClueBuilder<T>>
+        var l = new List<IClueBuilder<T, TCell>>
         {
             new PalindromeClueBuilder(pr.Value.ToImmutableArray())
         };
@@ -33,7 +33,7 @@ public partial class PalindromeVariantBuilder<T> : VariantBuilder<T> where T : n
     }
 
     [Equatable]
-    private partial record PalindromeClueBuilder([property:OrderedEquality] IReadOnlyList<Position> Positions) : IClueBuilder<T>
+    private partial record PalindromeClueBuilder([property:OrderedEquality] IReadOnlyList<Position> Positions) : IClueBuilder<T, TCell>
     {
 
         /// <inheritdoc />
@@ -43,12 +43,12 @@ public partial class PalindromeVariantBuilder<T> : VariantBuilder<T> where T : n
         public int Level => 2;
 
         /// <inheritdoc />
-        public IEnumerable<IClue<T>> CreateClues(Position minPosition, Position maxPosition, IValueSource<T> valueSource,
-            IReadOnlyCollection<IClue<T>> lowerLevelClues)
+        public IEnumerable<IClue<T, TCell>> CreateClues(Position minPosition, Position maxPosition, IValueSource<T, TCell> valueSource,
+            IReadOnlyCollection<IClue<T, TCell>> lowerLevelClues)
         {
             foreach (var (first, second) in Positions.Zip(Positions.Reverse()).Take(Positions.Count / 2))
             {
-                yield return new RelationshipClue<T>(first, second, AreEqualConstraint<T>.Instance);
+                yield return new RelationshipClue<T, TCell>(first, second, AreEqualConstraint<T>.Instance);
             }
         }
 

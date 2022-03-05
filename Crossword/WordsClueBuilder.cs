@@ -1,19 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using CSharpFunctionalExtensions;
-using GridPuzzles;
-using GridPuzzles.Clues;
 using GridPuzzles.Overlays;
 using GridPuzzles.VariantBuilderArguments;
 using Words;
 
 namespace Crossword;
 
-public class DictionaryWordsVariantBuilder : IVariantBuilder<char>
+public class DictionaryWordsVariantBuilder : IVariantBuilder<char, CharCell>
 {
     public DictionaryHelper DictionaryHelper { get; }
 
@@ -26,7 +21,7 @@ public class DictionaryWordsVariantBuilder : IVariantBuilder<char>
     public string Name => "Dictionary Words";
 
     /// <inheritdoc />
-    public async Task<Result<IReadOnlyCollection<IClueBuilder<char>>>> TryGetClueBuildersAsync(
+    public async Task<Result<IReadOnlyCollection<IClueBuilder>>> TryGetClueBuildersAsync(
         IReadOnlyDictionary<string, string> arguments, CancellationToken cancellation)
     {
         await Task.CompletedTask;
@@ -34,7 +29,7 @@ public class DictionaryWordsVariantBuilder : IVariantBuilder<char>
         var wordTypeResult = WordTypeArgument.TryGetFromDictionary(arguments);
 
         if (wordTypeResult.IsFailure)
-            return wordTypeResult.ConvertFailure<IReadOnlyCollection<IClueBuilder<char>>>();
+            return wordTypeResult.ConvertFailure<IReadOnlyCollection<IClueBuilder>>();
 
         return wordTypeResult.Value switch
         {
@@ -66,9 +61,9 @@ public class DictionaryWordsVariantBuilder : IVariantBuilder<char>
     }
 
     /// <inheritdoc />
-    public Result<IReadOnlyCollection<IClueBuilder>> TryGetClueBuilders(IReadOnlyDictionary<string, string> arguments)
+    public Result<IReadOnlyCollection<GridPuzzles.Clues.IClueBuilder>> TryGetClueBuilders(IReadOnlyDictionary<string, string> arguments)
     {
-        return Result.Failure<IReadOnlyCollection<IClueBuilder>>("Must Create Clues Async");
+        return Result.Failure<IReadOnlyCollection<GridPuzzles.Clues.IClueBuilder>>("Must Create Clues Async");
     }
 }
 
@@ -80,7 +75,7 @@ public enum DictionaryWordType
     ProperNouns
 }
 
-public record WordsClueBuilder(string Name, ushort Priority, IReadOnlyCollection<string> Words) : IClueBuilder<char>
+public record WordsClueBuilder(string Name, ushort Priority, IReadOnlyCollection<string> Words) : IClueBuilder<char, CharCell>
 {
     public static WordsClueBuilder RareWords(DictionaryHelper dh)=> new("Rare Words", 2, dh.AllWords.Value);
     public static WordsClueBuilder ProperNouns(DictionaryHelper dh)=> new("Proper Nouns",2, dh.ProperNouns.Value);
@@ -95,8 +90,8 @@ public record WordsClueBuilder(string Name, ushort Priority, IReadOnlyCollection
     public int Level => 1;
 
     /// <inheritdoc />
-    public IEnumerable<IClue<char>> CreateClues(Position minPosition, Position maxPosition, IValueSource<char> valueSource,
-        IReadOnlyCollection<IClue<char>> lowerLevelClues)
+    public IEnumerable<IClue<char, CharCell>> CreateClues(Position minPosition, Position maxPosition, IValueSource<char, CharCell> valueSource,
+        IReadOnlyCollection<IClue<char, CharCell>> lowerLevelClues)
     {
         yield return new WordsClue(new []{(Priority, Words)});
     }

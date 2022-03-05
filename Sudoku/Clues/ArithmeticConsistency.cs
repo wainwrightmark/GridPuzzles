@@ -5,17 +5,17 @@ using System.Text;
 
 namespace Sudoku.Clues
 {
-    public sealed class ArithmeticConsistencyClue : IMetaClue<int>
+    public sealed class ArithmeticConsistencyClue : IMetaClue
     {
         /// <inheritdoc />
-        public IEnumerable<IClue<int>> CreateClues(Grid<int> grid, Maybe<IReadOnlySet<Position>> positions)
+        public IEnumerable<IClue<int, IntCell>> CreateClues(Grid grid, Maybe<IReadOnlySet<Position>> positions)
         {
             if(!ExperimentalFeatures.EnableArithmeticConsistency)
                 yield break;
             var completenessClueValue = grid.ClueSource.ValueSource.AllValues.Sum();
 
-            var constants = grid.Cells.Where(x => x.Value.HasFixedValue)
-                .ToDictionary(x => x.Key, x => x.Value.PossibleValues.Single());
+            var constants = grid.Cells.Where(x => x.Value.HasSingleValue())
+                .ToDictionary(x => x.Key, x => x.Value.Single());
 
             var basicEquations =
                 constants
@@ -96,11 +96,11 @@ namespace Sudoku.Clues
     }
 
 
-    public sealed class ArithmeticConsistency : NoArgumentVariantBuilder<int>
+    public sealed class ArithmeticConsistency : NoArgumentVariantBuilder
     {
         private ArithmeticConsistency() { }
 
-        public static NoArgumentVariantBuilder<int> Instance { get; } = new ArithmeticConsistency();
+        public static NoArgumentVariantBuilder Instance { get; } = new ArithmeticConsistency();
 
         /// <inheritdoc />
         public override string Name => "Arithmetic Consistency";
@@ -109,13 +109,13 @@ namespace Sudoku.Clues
         public override int Level => 11;
 
         /// <inheritdoc />
-        public override IEnumerable<IClue<int>> CreateClues(
+        public override IEnumerable<IClue<int, IntCell>> CreateClues(
             Position minPosition,
-            Position maxPosition, IValueSource<int> valueSource,
-            IReadOnlyCollection<IClue<int>> lowerLevelClues)
+            Position maxPosition, IValueSource valueSource,
+            IReadOnlyCollection<IClue<int, IntCell>> lowerLevelClues)
         {
             if ( !lowerLevelClues.OfType<SumClue>().Any()) //Shortcut
-                return ArraySegment<IClue<int>>.Empty;
+                return ArraySegment<IClue<int, IntCell>>.Empty;
             return new []{ new ArithmeticConsistencyClue()};
         }
 
@@ -171,17 +171,17 @@ public record Equation(ImmutableSortedDictionary<Position, int> CellMultiples, i
         return sb.ToString();
     }
 
-    public IClue<int> ToClue(Grid<int> grid)
+    public IClue<int, IntCell> ToClue(Grid grid)
     {
         if (CellMultiples.Count == 2)
         {
             if (CellMultiples.All(x => x.Value == 1))
-                return new RelationshipClue<int>(CellMultiples.Keys.First(), CellMultiples.Keys.Last(),
+                return new RelationshipClue(CellMultiples.Keys.First(), CellMultiples.Keys.Last(),
                     new SumConstraint(Sum));
 
             if (Sum == 0 && CellMultiples.Values.Sum() == 0)
             {
-                return new RelationshipClue<int>(CellMultiples.Keys.First(), CellMultiples.Keys.Last(),
+                return new RelationshipClue(CellMultiples.Keys.First(), CellMultiples.Keys.Last(),
                     AreEqualConstraint<int>.Instance);
             }
         }
@@ -195,14 +195,14 @@ public record Equation(ImmutableSortedDictionary<Position, int> CellMultiples, i
         );
     }
 
-    public int CalculateExpectedValue(Grid<int> grid)
+    public int CalculateExpectedValue(Grid grid)
     {
         var total = 0;
         foreach (var (position, multiple) in CellMultiples)
         {
             var cell =grid.GetCell(position);
-            total += cell.PossibleValues.Min * multiple;
-            total += cell.PossibleValues.Max * multiple;
+            total += cell.Min() * multiple;
+            total += cell.Max() * multiple;
         }
 
         total = total / 2;
@@ -304,9 +304,9 @@ public record Equation(ImmutableSortedDictionary<Position, int> CellMultiples, i
     }
 
     [Pure]
-    public static Maybe<Equation> TryCreateFromClue(IClue<int> clue, int completenessClueValue)
+    public static Maybe<Equation> TryCreateFromClue(IClue<int, IntCell> clue, int completenessClueValue)
     {
-        if (clue is IRelationshipClue<int> relationship)
+        if (clue is IRelationshipClue relationship)
         {
             return relationship.Constraint switch
             {
@@ -318,7 +318,7 @@ public record Equation(ImmutableSortedDictionary<Position, int> CellMultiples, i
             };
         }
 
-        if (clue is ICompletenessClue<int> completenessClue)
+        if (clue is ICompletenessClue completenessClue)
         {
             return Create(completenessClue.Positions, completenessClueValue, true);
         }

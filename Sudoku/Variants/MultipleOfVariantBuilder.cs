@@ -1,24 +1,24 @@
 ﻿namespace Sudoku.Variants;
 
-public class MultipleOfVariantBuilder : VariantBuilder<int>
+public class MultipleOfVariantBuilder : VariantBuilder
 {
     private MultipleOfVariantBuilder() { }
 
-    public static VariantBuilder<int> Instance { get; } = new MultipleOfVariantBuilder();
+    public static VariantBuilder Instance { get; } = new MultipleOfVariantBuilder();
 
     /// <inheritdoc />
     public override string Name => "Multiple";
 
     /// <inheritdoc />
-    public override Result<IReadOnlyCollection<IClueBuilder<int>>> TryGetClueBuilders1(
+    public override Result<IReadOnlyCollection<IClueBuilder>> TryGetClueBuilders1(
         IReadOnlyDictionary<string, string> arguments)
     {
         var sr = AmountArgument.TryGetFromDictionary(arguments);
-        if (sr.IsFailure) return sr.ConvertFailure<IReadOnlyCollection<IClueBuilder<int>>>();
+        if (sr.IsFailure) return sr.ConvertFailure<IReadOnlyCollection<IClueBuilder>>();
         var pr = PositionArgument.TryGetFromDictionary(arguments);
-        if (pr.IsFailure) return pr.ConvertFailure<IReadOnlyCollection<IClueBuilder<int>>>();
+        if (pr.IsFailure) return pr.ConvertFailure<IReadOnlyCollection<IClueBuilder>>();
 
-        var l = new List<IClueBuilder<int>>
+        var l = new List<IClueBuilder>
         {
             new MultipleOfClueBuilder(pr.Value.Min(), pr.Value.Max(), sr.Value)
         };
@@ -42,7 +42,7 @@ public class MultipleOfVariantBuilder : VariantBuilder<int>
         2);
         
 
-    private record MultipleOfClueBuilder(Position Position1,Position Position2,int Amount ) : IClueBuilder<int>
+    private record MultipleOfClueBuilder(Position Position1,Position Position2,int Amount ) : IClueBuilder
     {
         /// <inheritdoc />
         public string Name => "Multiple";
@@ -51,10 +51,10 @@ public class MultipleOfVariantBuilder : VariantBuilder<int>
         public int Level => 2;
 
         /// <inheritdoc />
-        public IEnumerable<IClue<int>> CreateClues(Position minPosition, Position maxPosition, IValueSource<int> valueSource,
-            IReadOnlyCollection<IClue<int>> lowerLevelClues)
+        public IEnumerable<IClue<int, IntCell>> CreateClues(Position minPosition, Position maxPosition, IValueSource valueSource,
+            IReadOnlyCollection<IClue<int, IntCell>> lowerLevelClues)
         {
-            yield return RelationshipClue<int>.Create(Position1, Position2, new XTimesConstraint(Amount));
+            yield return RelationshipClue.Create(Position1, Position2, new XTimesConstraint(Amount));
         }
 
         /// <param name="minPosition"></param>

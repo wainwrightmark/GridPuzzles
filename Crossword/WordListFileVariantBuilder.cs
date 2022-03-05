@@ -1,15 +1,12 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using GridPuzzles;
-using GridPuzzles.Clues;
 using GridPuzzles.VariantBuilderArguments;
 
 namespace Crossword;
 
-public class WordListFileVariantBuilder: IVariantBuilder<char>
+public class WordListFileVariantBuilder: IVariantBuilder<char, CharCell>
 {
     public static WordListFileVariantBuilder Instance = new();
 
@@ -21,18 +18,18 @@ public class WordListFileVariantBuilder: IVariantBuilder<char>
     public string Name => "Word List File";
 
     /// <inheritdoc />
-    public async Task<Result<IReadOnlyCollection<IClueBuilder<char>>>> TryGetClueBuildersAsync(
+    public async Task<Result<IReadOnlyCollection<IClueBuilder<char, CharCell>>>> TryGetClueBuildersAsync(
         IReadOnlyDictionary<string, string> arguments, CancellationToken cancellation)
     {
         var wr = WordsArgument.TryGetFromDictionary(arguments);
-        if (wr.IsFailure) return wr.ConvertFailure<IReadOnlyCollection<IClueBuilder<char>>>();
+        if (wr.IsFailure) return wr.ConvertFailure<IReadOnlyCollection<IClueBuilder<char, CharCell>>>();
 
 
         IReadOnlyCollection<string> words = await File.ReadAllLinesAsync(wr.Value, cancellation);
 
         var clueSource = new WordsClueBuilder(wr.Value, 5, words);
 
-        return new List<IClueBuilder<char>>{clueSource};
+        return new List<IClueBuilder<char, CharCell>>{clueSource};
     }
 
     public readonly StringArgument WordsArgument = new("Words List File", Maybe<string>.None);//TODO replace with file path???
@@ -50,8 +47,8 @@ public class WordListFileVariantBuilder: IVariantBuilder<char>
     }
 
     /// <inheritdoc />
-    public Result<IReadOnlyCollection<IClueBuilder>> TryGetClueBuilders(IReadOnlyDictionary<string, string> arguments)
+    public Result<IReadOnlyCollection<GridPuzzles.Clues.IClueBuilder>> TryGetClueBuilders(IReadOnlyDictionary<string, string> arguments)
     {
-        return Result.Failure<IReadOnlyCollection<IClueBuilder>>("Must Create Clues Async");
+        return Result.Failure<IReadOnlyCollection<GridPuzzles.Clues.IClueBuilder>>("Must Create Clues Async");
     }
 }

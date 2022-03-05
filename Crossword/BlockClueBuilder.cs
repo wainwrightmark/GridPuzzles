@@ -1,33 +1,28 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Drawing;
-using System.Linq;
 using CSharpFunctionalExtensions;
-using GridPuzzles;
-using GridPuzzles.Clues;
 using GridPuzzles.Overlays;
 using GridPuzzles.VariantBuilderArguments;
 
 namespace Crossword;
 
-public class BlockVariantBuilder : VariantBuilder<char>
+public class BlockVariantBuilder : VariantBuilder
 {
     private BlockVariantBuilder()
     {
     }
 
-    public static IVariantBuilder<char> Instance { get; } = new BlockVariantBuilder();
+    public static IVariantBuilder<char, CharCell> Instance { get; } = new BlockVariantBuilder();
 
     /// <inheritdoc />
     public override string Name => "Fixed Blocks";
 
     /// <inheritdoc />
-    public override Result<IReadOnlyCollection<IClueBuilder<char>>> TryGetClueBuilders1(IReadOnlyDictionary<string, string> arguments)
+    public override Result<IReadOnlyCollection<IClueBuilder<char, CharCell>>> TryGetClueBuilders1(IReadOnlyDictionary<string, string> arguments)
     {
         var blockTypeResult = BlockTypeArgument.TryGetFromDictionary(arguments);
         if (blockTypeResult.IsFailure)
-            return blockTypeResult.ConvertFailure<IReadOnlyCollection<IClueBuilder<char>>>();
+            return blockTypeResult.ConvertFailure<IReadOnlyCollection<IClueBuilder<char, CharCell>>>();
 
         return new []{ new BlockClueBuilder(blockTypeResult.Value)};
     }
@@ -43,7 +38,7 @@ public class BlockVariantBuilder : VariantBuilder<char>
 }
 
 public enum BlockType  {  Odd, Even, NoBlocks }
-public record BlockClueBuilder(BlockType Blocks) : IClueBuilder<char>
+public record BlockClueBuilder(BlockType Blocks) : IClueBuilder<char, CharCell>
 {
     /// <inheritdoc />
     public string Name => Blocks + " Blocks";
@@ -52,8 +47,8 @@ public record BlockClueBuilder(BlockType Blocks) : IClueBuilder<char>
     public int Level => 1;
 
     /// <inheritdoc />
-    public IEnumerable<IClue<char>> CreateClues(Position minPosition, Position maxPosition, IValueSource<char> valueSource,
-        IReadOnlyCollection<IClue<char>> lowerLevelClues)
+    public IEnumerable<IClue<char, CharCell>> CreateClues(Position minPosition, Position maxPosition, IValueSource<char, CharCell> valueSource,
+        IReadOnlyCollection<IClue<char, CharCell>> lowerLevelClues)
     {
         yield return BlocksAreBlackClue.Instance;
 
@@ -82,14 +77,14 @@ public record BlockClueBuilder(BlockType Blocks) : IClueBuilder<char>
         yield break;
     }
 
-    private class BlocksAreBlackClue : IDynamicOverlayClue<char>
+    private class BlocksAreBlackClue : IDynamicOverlayClue<char, CharCell>
     {
         private BlocksAreBlackClue() {}
 
         public static BlocksAreBlackClue Instance { get; } = new ();
 
         /// <inheritdoc />
-        public IEnumerable<ICellOverlay> CreateCellOverlays(Grid<char> grid)
+        public IEnumerable<ICellOverlay> CreateCellOverlays(Grid grid)
         {
             foreach (var keyValuePair in grid.AllCells)
             {

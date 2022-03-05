@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using GridPuzzles;
-using GridPuzzles.Clues;
 
 namespace Crossword;
 
-public class WordListClueBuilder : NoArgumentVariantBuilder<char> //TODO should be invisible
+public class WordListClueBuilder : NoArgumentVariantBuilder //TODO should be invisible
 {
 
     public static WordListClueBuilder Instance = new();
@@ -22,8 +18,8 @@ public class WordListClueBuilder : NoArgumentVariantBuilder<char> //TODO should 
     public override int Level => 3;
 
     /// <inheritdoc />
-    public override IEnumerable<IClue<char>> CreateClues(Position minPosition, Position maxPosition, IValueSource<char> valueSource,
-        IReadOnlyCollection<IClue<char>> lowerLevelClues)
+    public override IEnumerable<IClue<char, CharCell>> CreateClues(Position minPosition, Position maxPosition, IValueSource<char, CharCell> valueSource,
+        IReadOnlyCollection<IClue<char, CharCell>> lowerLevelClues)
     {
         var words = lowerLevelClues.OfType<WordsClue>()
             .SelectMany(x=>x.Words)

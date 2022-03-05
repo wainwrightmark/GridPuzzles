@@ -1,13 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using GridPuzzles;
-using GridPuzzles.Cells;
-using GridPuzzles.Clues;
+﻿namespace Crossword;
 
-namespace Crossword;
-
-public class RowStartBoxesClue : IRuleClue<char>
+public class RowStartBoxesClue : IRuleClue
 {
     public RowStartBoxesClue(Position position1, Position position2, Position position3)
     {
@@ -29,28 +22,28 @@ public class RowStartBoxesClue : IRuleClue<char>
     public ImmutableSortedSet<Position> Positions { get; }
 
     /// <inheritdoc />
-    public IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid<char> grid)
+    public IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid grid)
     {
         var cell1 = grid.GetCellKVP(Position1);
         var cell2 = grid.GetCellKVP(Position2);
         var cell3 = grid.GetCellKVP(Position3);
 
-        if (cell3.Value.PossibleValues.Count == 1 && cell3.Value.PossibleValues.Single() == CrosswordValueSource.BlockChar)
+        if (cell3.Value.HasSingleValue()&& cell3.Value.Single() == CrosswordValueSource.BlockChar)
         {
             yield return (cell2.CloneWithOnlyValue(CrosswordValueSource.BlockChar, new CrosswordReason("Words must be at least 3 characters")));
             yield return (cell1.CloneWithOnlyValue(CrosswordValueSource.BlockChar, new CrosswordReason("Words must be at least 3 characters")));
         }
         else
         {
-            if (cell2.Value.PossibleValues.Count == 1 && cell2.Value.PossibleValues.Single() == CrosswordValueSource.BlockChar)
+            if (cell2.Value.HasSingleValue()&& cell2.Value.Single() == CrosswordValueSource.BlockChar)
             {
                 yield return (cell1.CloneWithOnlyValue(CrosswordValueSource.BlockChar, new CrosswordReason("Words must be at least 3 characters")));
             }
-            else if (!cell2.Value.PossibleValues.Contains(CrosswordValueSource.BlockChar))
+            else if (!cell2.Value.Contains(CrosswordValueSource.BlockChar))
             {
                 yield return (cell3.CloneWithoutValue(CrosswordValueSource.BlockChar, new CrosswordReason("Words must be at least 3 characters")));
             }
-            else if (!cell1.Value.PossibleValues.Contains(CrosswordValueSource.BlockChar))
+            else if (!cell1.Value.Contains(CrosswordValueSource.BlockChar))
             {
                 yield return (cell1.CloneWithoutValue(CrosswordValueSource.BlockChar, new CrosswordReason("Words must be at least 3 characters")));
                 yield return (cell2.CloneWithoutValue(CrosswordValueSource.BlockChar, new CrosswordReason("Words must be at least 3 characters")));

@@ -85,14 +85,14 @@ public static class YamlHelper
         return grid;
     }
 
-    public static SerializableGrid ToSerializable<T>(this Grid<T> grid,
-        Func<Grid<T>, string?> getExtra,
-        IEnumerable<VariantBuilderArgumentPair<T>> variantBuilderArgumentPairs)where T :notnull
+    public static SerializableGrid ToSerializable<T, TCell>(this Grid<T, TCell> grid,
+        Func<Grid<T, TCell>, string?> getExtra,
+        IEnumerable<VariantBuilderArgumentPair<T, TCell>> variantBuilderArgumentPairs)where T :struct where TCell : ICell<T, TCell>, new()
     {
         var gridType = grid switch
         {
-            Grid<int> _ => GridType.Number,
-            Grid<char> _ => GridType.Letter,
+            Grid<int, IntCell> _ => GridType.Number,
+            Grid<char, CharCell> _ => GridType.Letter,
             _ => throw new ArgumentOutOfRangeException(nameof(grid))
         };
 
@@ -115,11 +115,11 @@ public static class YamlHelper
         };
     }
 
-    public static async Task<Result<(Grid<T> grid, IReadOnlyCollection<VariantBuilderArgumentPair<T>> variants)>>  Convert<T>(
+    public static async Task<Result<(Grid<T, TCell> grid, IReadOnlyCollection<VariantBuilderArgumentPair<T, TCell>> variants)>>  Convert<T, TCell>(
         this SerializableGrid serializableGrid,
-        IValueSource<T> vs,
-        IReadOnlyDictionary<string, IVariantBuilder<T>> possibleVariantBuilders, CancellationToken cancellation)
-        where T :notnull
+        IValueSource<T, TCell> vs,
+        IReadOnlyDictionary<string, IVariantBuilder<T, TCell>> possibleVariantBuilders, CancellationToken cancellation)
+        where T :struct where TCell : ICell<T, TCell>, new()
     {
 
         var variants = await serializableGrid.Variants
@@ -127,7 +127,7 @@ public static class YamlHelper
             .Combine()
             .Map(x => x.ToList());
         if (variants.IsFailure)
-            return variants.ConvertFailure<(Grid<T> grid, IReadOnlyCollection<VariantBuilderArgumentPair<T>> variants)>();
+            return variants.ConvertFailure<(Grid<T, TCell> grid, IReadOnlyCollection<VariantBuilderArgumentPair<T, TCell>> variants)>();
 
         var maxPosition = new Position(serializableGrid.Columns, serializableGrid.Rows);
 
@@ -135,35 +135,35 @@ public static class YamlHelper
             .Select(x => x.VariantBuilder.TryGetClueBuildersAsync(x.Pairs, cancellation))
             .Combine()
             .Map(x => x.SelectMany(y => y))
-            .Map(x => new ClueSource<T>(Position.Origin, maxPosition, vs, x.ToArray()));
+            .Map(x => new ClueSource<T, TCell>(Position.Origin, maxPosition, vs, x.ToArray()));
 
         if (clueSourceResult.IsFailure)
-            return clueSourceResult.ConvertFailure<(Grid<T> grid, IReadOnlyCollection<VariantBuilderArgumentPair<T>> variants)>();
+            return clueSourceResult.ConvertFailure<(Grid<T, TCell> grid, IReadOnlyCollection<VariantBuilderArgumentPair<T, TCell>> variants)>();
 
-        var gridResult = Grid<T>.CreateFromString(serializableGrid.Grid, clueSourceResult.Value, maxPosition);
+        var gridResult = Grid<T, TCell>.CreateFromString(serializableGrid.Grid, clueSourceResult.Value, maxPosition);
 
         if(gridResult.IsFailure)
-            return gridResult.ConvertFailure<(Grid<T> grid, IReadOnlyCollection<VariantBuilderArgumentPair<T>> variants)>();
+            return gridResult.ConvertFailure<(Grid<T, TCell> grid, IReadOnlyCollection<VariantBuilderArgumentPair<T, TCell>> variants)>();
 
-        return Result.Success<(Grid<T> grid, IReadOnlyCollection<VariantBuilderArgumentPair<T>> variants)>((gridResult.Value, variants.Value));
+        return Result.Success<(Grid<T, TCell> grid, IReadOnlyCollection<VariantBuilderArgumentPair<T, TCell>> variants)>((gridResult.Value, variants.Value));
 
     }
 
-    private static async Task<Result<VariantBuilderArgumentPair<T>>> DeserializeAsync<T>(Variant variant,
-        IReadOnlyDictionary<string, IVariantBuilder<T>> possibleVariantBuilders, CancellationToken cancellation)where T :notnull
+    private static async Task<Result<VariantBuilderArgumentPair<T, TCell>>> DeserializeAsync<T, TCell>(Variant variant,
+        IReadOnlyDictionary<string, IVariantBuilder<T, TCell>> possibleVariantBuilders, CancellationToken cancellation)where T :struct where TCell : ICell<T, TCell>, new()
     {
         if (!possibleVariantBuilders.TryGetValue(variant.Name, out var variantBuilder))
-            return Result.Failure<VariantBuilderArgumentPair<T>>($"Could not parse variant {variant.Name}");
+            return Result.Failure<VariantBuilderArgumentPair<T, TCell>>($"Could not parse variant {variant.Name}");
 
         var arguments = variant.Arguments ?? new Dictionary<string, string>();
 
         var r = await variantBuilder.TryGetClueBuildersAsync(arguments, cancellation);
-        return r.IsFailure ? r.ConvertFailure<VariantBuilderArgumentPair<T>>() :
-            new VariantBuilderArgumentPair<T>(variantBuilder, arguments);
+        return r.IsFailure ? r.ConvertFailure<VariantBuilderArgumentPair<T, TCell>>() :
+            new VariantBuilderArgumentPair<T, TCell>(variantBuilder, arguments);
 
     }
 
-    private static Variant Make<T>(VariantBuilderArgumentPair<T> variantBuilderArgumentPair)where T :notnull
+    private static Variant Make<T, TCell>(VariantBuilderArgumentPair<T, TCell> variantBuilderArgumentPair)where T :struct where TCell : ICell<T, TCell>, new()
     {
         var arguments = variantBuilderArgumentPair.Pairs.ToDictionary(x => x.Key, x => x.Value);
 

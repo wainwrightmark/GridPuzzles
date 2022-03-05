@@ -1,22 +1,18 @@
-﻿using System.Collections.Immutable;
-using System.Drawing;
-using System.Linq;
+﻿using System.Drawing;
 using CSharpFunctionalExtensions;
-using GridPuzzles.Cells;
-using GridPuzzles.Clues;
 
 namespace Crossword;
 
-public class CrosswordValueSource : IValueSource<char>
+public class CrosswordValueSource : IValueSource<char, CharCell>
 {
     public static CrosswordValueSource Instance => new();
 
     private CrosswordValueSource() { }
 
     /// <inheritdoc />
-    public Cell<char> AnyValueCell { get; } = new(AllValuesSet);
+    public CharCell AnyValueCell { get; } = new(AllValuesSet);
 
-    public Cell<char> BlockCell { get; } = new(ImmutableSortedSet<char>.Empty.Add(BlockChar));
+    public CharCell BlockCell { get; } = new(ImmutableSortedSet<char>.Empty.Add(BlockChar));
 
     public const char BlockChar = '.';
 

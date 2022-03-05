@@ -2,32 +2,32 @@
 
 namespace Sudoku.Variants;
 
-public class RestrictValuesVariantBuilder<T> : VariantBuilder<T> where T : notnull
+public class RestrictValuesVariantBuilder<T, TCell> : VariantBuilder<T, TCell> where T :struct where TCell : ICell<T, TCell>, new()
 {
     private RestrictValuesVariantBuilder() { }
 
-    public static IVariantBuilder<T> Instance { get; } = new RestrictValuesVariantBuilder<T>();
+    public static IVariantBuilder<T, TCell> Instance { get; } = new RestrictValuesVariantBuilder<T, TCell>();
 
     /// <inheritdoc />
     public override string Name => "Restrict Values";
 
     /// <inheritdoc />
-    public override Result<IReadOnlyCollection<IClueBuilder<T>>> TryGetClueBuilders1(IReadOnlyDictionary<string, string> arguments)
+    public override Result<IReadOnlyCollection<IClueBuilder<T, TCell>>> TryGetClueBuilders1(IReadOnlyDictionary<string, string> arguments)
     {
         var positionArgumentsResult = ListPositionArgument.TryGetFromDictionary(arguments);
         if (positionArgumentsResult.IsFailure)
-            return positionArgumentsResult.ConvertFailure<IReadOnlyCollection<IClueBuilder<T>>>();
+            return positionArgumentsResult.ConvertFailure<IReadOnlyCollection<IClueBuilder<T, TCell>>>();
 
 
         var valueArgumentResult = ValuesArgument.TryGetFromDictionary(arguments).Bind(DeserializeValues);
         if (valueArgumentResult.IsFailure)
-            return valueArgumentResult.ConvertFailure<IReadOnlyCollection<IClueBuilder<T>>>();
+            return valueArgumentResult.ConvertFailure<IReadOnlyCollection<IClueBuilder<T, TCell>>>();
 
 
 
-        var l = new List<IClueBuilder<T>>
+        var l = new List<IClueBuilder<T, TCell>>
         {
-            new RestrictValuesClueBuilder<T>(positionArgumentsResult.Value.ToImmutableSortedSet(), valueArgumentResult.Value)
+            new RestrictValuesClueBuilder<T, TCell>(positionArgumentsResult.Value.ToImmutableSortedSet(), valueArgumentResult.Value)
         };
 
         return l;
@@ -83,7 +83,7 @@ public class RestrictValuesVariantBuilder<T> : VariantBuilder<T> where T : notnu
 }
 
 [Equatable]
-public partial record RestrictValuesClueBuilder<T>([property:SetEquality] ImmutableSortedSet<Position> Positions,[property:SetEquality] ImmutableHashSet<T> Values ) : IClueBuilder<T>where T :notnull
+public partial record RestrictValuesClueBuilder<T, TCell>([property:SetEquality] ImmutableSortedSet<Position> Positions,[property:SetEquality] ImmutableHashSet<T> Values ) : IClueBuilder<T, TCell>where T :struct where TCell : ICell<T, TCell>, new()
 {
 
     /// <inheritdoc />
@@ -93,10 +93,10 @@ public partial record RestrictValuesClueBuilder<T>([property:SetEquality] Immuta
     public int Level => 2;
 
     /// <inheritdoc />
-    public IEnumerable<IClue<T>> CreateClues(Position minPosition, Position maxPosition, IValueSource<T> valueSource,
-        IReadOnlyCollection<IClue<T>> lowerLevelClues)
+    public IEnumerable<IClue<T, TCell>> CreateClues(Position minPosition, Position maxPosition, IValueSource<T, TCell> valueSource,
+        IReadOnlyCollection<IClue<T, TCell>> lowerLevelClues)
     {
-        yield return new RestrictedValuesClue<T>("Restricted Values", Positions, Values);
+        yield return new RestrictedValuesClue<T, TCell>("Restricted Values", Positions, Values);
     }
 
     /// <param name="minPosition"></param>

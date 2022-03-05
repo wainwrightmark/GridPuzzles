@@ -7,33 +7,33 @@ namespace GridPuzzles.Clues;
 public abstract class VirtualClue //TODO this can completely change. We should get rid of clue interfaces and introduce a mixin system
 {
 
-    public static IClue<T> Create<T>(IClue<T> clue, Color color) where T :notnull
+    public static IClue<T, TCell> Create<T, TCell>(IClue<T, TCell> clue, Color color) where T :struct where TCell : ICell<T, TCell>, new()
     {
         var overlays = clue.Positions.Select(x => new CellColorOverlay(color, x)).ToList();
 
-        if (clue is IRuleClue<T> ruleClue)
-            return new VirtualRuleClue<T>(ruleClue,
+        if (clue is IRuleClue<T, TCell> ruleClue)
+            return new VirtualRuleClue<T, TCell>(ruleClue,
                 overlays);
 
-        if (clue is IRelationshipClue<T> relationshipClue)
-            return new VirtualRelationshipClue<T>(relationshipClue, overlays);
+        if (clue is IRelationshipClue<T, TCell> relationshipClue)
+            return new VirtualRelationshipClue<T, TCell>(relationshipClue, overlays);
 
         throw new NotImplementedException($"Cannot Create Virtual clue for {clue}");
     }
 
-    public class VirtualRelationshipClue<T> : IRelationshipClue<T>, IDynamicOverlayClue<T> where T :notnull
+    public class VirtualRelationshipClue<T, TCell> : IRelationshipClue<T, TCell>, IDynamicOverlayClue<T, TCell> where T :struct where TCell : ICell<T, TCell>, new()
     {
         public IReadOnlyCollection<ICellOverlay> CellOverlays { get; }
-        public IRelationshipClue<T> Underlying { get; }
+        public IRelationshipClue<T, TCell> Underlying { get; }
 
-        public VirtualRelationshipClue(IRelationshipClue<T> underlying, IReadOnlyCollection<ICellOverlay> cellOverlays)
+        public VirtualRelationshipClue(IRelationshipClue<T, TCell> underlying, IReadOnlyCollection<ICellOverlay> cellOverlays)
         {
             CellOverlays = cellOverlays;
             Underlying = underlying;
         }
 
         /// <inheritdoc />
-        public IEnumerable<ICellOverlay> CreateCellOverlays(Grid<T> grid)
+        public IEnumerable<ICellOverlay> CreateCellOverlays(Grid<T, TCell> grid)
         {
             return CellOverlays;
         }
@@ -51,14 +51,14 @@ public abstract class VirtualClue //TODO this can completely change. We should g
         public Position Position2 => Underlying.Position2;
 
         /// <inheritdoc />
-        public IRelationshipClue<T> Flipped => Underlying.Flipped;
+        public IRelationshipClue<T, TCell> Flipped => Underlying.Flipped;
 
         /// <inheritdoc />
-        public IRelationshipClue<T> UniqueVersion => Underlying.UniqueVersion;
+        public IRelationshipClue<T, TCell> UniqueVersion => Underlying.UniqueVersion;
 
         /// <inheritdoc />
-        public (bool changed, ImmutableSortedSet<T> newSet1, ImmutableSortedSet<T> newSet2) FindValidValues(ImmutableSortedSet<T> set1,
-            ImmutableSortedSet<T> set2)
+        public (bool changed, TCell newSet1, TCell newSet2) FindValidValues(TCell set1,
+            TCell set2)
         {
             return Underlying.FindValidValues(set1, set2);
         }
@@ -76,27 +76,27 @@ public abstract class VirtualClue //TODO this can completely change. We should g
         public Constraint<T> Constraint => Underlying.Constraint;
     }
 
-    public class VirtualRuleClue<T> : IRuleClue<T>, IDynamicOverlayClue<T>
-        where T :notnull
+    public class VirtualRuleClue<T, TCell> : IRuleClue<T, TCell>, IDynamicOverlayClue<T, TCell>
+        where T :struct where TCell : ICell<T, TCell>, new()
     {
-        public VirtualRuleClue(IRuleClue<T> underlying, IReadOnlyCollection<ICellOverlay> cellOverlays)
+        public VirtualRuleClue(IRuleClue<T, TCell> underlying, IReadOnlyCollection<ICellOverlay> cellOverlays)
         {
             Underlying = underlying;
             CellOverlays = cellOverlays;
         }
 
-        public IRuleClue<T> Underlying { get; }
+        public IRuleClue<T, TCell> Underlying { get; }
 
         public IReadOnlyCollection<ICellOverlay> CellOverlays { get; }
 
         /// <inheritdoc />
-        public IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid<T> grid)
+        public IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid<T, TCell> grid)
         {
             return Underlying.CalculateCellUpdates(grid);
         }
 
         /// <inheritdoc />
-        public IEnumerable<ICellOverlay> CreateCellOverlays(Grid<T> grid)
+        public IEnumerable<ICellOverlay> CreateCellOverlays(Grid<T, TCell> grid)
         {
             return CellOverlays;
         }

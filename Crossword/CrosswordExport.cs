@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using GridPuzzles;
 
 namespace Crossword;
 
 public static class CrosswordExport
 {
-    public static string ExportCrossword(this Grid<char> grid)
+    public static string ExportCrossword(this Grid grid)
     {
         if (!grid.IsComplete)
             return "not Complete";
@@ -51,7 +48,7 @@ public static class CrosswordExport
         {
             foreach (var (key, value) in row)
             {
-                if(value.PossibleValues.Single() == CrosswordValueSource.BlockChar) sb.Append('.');
+                if(value.Single() == CrosswordValueSource.BlockChar) sb.Append('.');
                 else if (numbersDict.TryGetValue(key, out var v)) sb.Append(NumbersArray[v]);
                 else sb.Append(' ');
                 sb.Append('\t');
@@ -77,7 +74,7 @@ public static class CrosswordExport
             return !string.IsNullOrWhiteSpace(s) && s.Length > 1;
         }
 
-        static string GetWord(Position start, Grid<char> grid, ISet<Position> visited, Func<Position, Position> getNextPosition)
+        static string GetWord(Position start, Grid grid, ISet<Position> visited, Func<Position, Position> getNextPosition)
         {
             if (!visited.Add(start))
                 return "";
@@ -87,7 +84,7 @@ public static class CrosswordExport
 
             while (true)
             {
-                var value = grid.GetCell(position).PossibleValues.Single();
+                var value = grid.GetCell(position).Single();
                 if (value == CrosswordValueSource.BlockChar)
                     break;
 

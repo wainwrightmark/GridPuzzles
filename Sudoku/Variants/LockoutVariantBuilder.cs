@@ -1,27 +1,27 @@
 ﻿namespace Sudoku.Variants;
 
-public partial class LockoutVariantBuilder : VariantBuilder<int>
+public partial class LockoutVariantBuilder : VariantBuilder
 {
     private LockoutVariantBuilder()
     {
     }
 
-    public static VariantBuilder<int> Instance { get; } = new LockoutVariantBuilder();
+    public static VariantBuilder Instance { get; } = new LockoutVariantBuilder();
 
     /// <inheritdoc />
     public override string Name => "Lockout";
 
     /// <inheritdoc />
-    public override Result<IReadOnlyCollection<IClueBuilder<int>>> TryGetClueBuilders1(
+    public override Result<IReadOnlyCollection<IClueBuilder>> TryGetClueBuilders1(
         IReadOnlyDictionary<string, string> arguments)
     {
         var pr = Positions.TryGetFromDictionary(arguments);
-        if (pr.IsFailure) return pr.ConvertFailure<IReadOnlyCollection<IClueBuilder<int>>>();
+        if (pr.IsFailure) return pr.ConvertFailure<IReadOnlyCollection<IClueBuilder>>();
 
         var md = MinimumDifference.TryGetFromDictionary(arguments);
-        if (md.IsFailure) return md.ConvertFailure<IReadOnlyCollection<IClueBuilder<int>>>();
+        if (md.IsFailure) return md.ConvertFailure<IReadOnlyCollection<IClueBuilder>>();
 
-        return new List<IClueBuilder<int>>
+        return new List<IClueBuilder>
         {
             new LockoutClueBuilder(pr.Value.ToImmutableArray(), md.Value)
         };
@@ -39,7 +39,7 @@ public partial class LockoutVariantBuilder : VariantBuilder<int>
     };
 
     [Equatable]
-    public partial record LockoutClueBuilder([property:OrderedEquality] IReadOnlyList<Position> AllPositions, int MinDifference) : IClueBuilder<int>
+    public partial record LockoutClueBuilder([property:OrderedEquality] IReadOnlyList<Position> AllPositions, int MinDifference) : IClueBuilder
     {
 
         /// <inheritdoc />
@@ -49,13 +49,13 @@ public partial class LockoutVariantBuilder : VariantBuilder<int>
         public int Level => 4;
 
         /// <inheritdoc />
-        public IEnumerable<IClue<int>> CreateClues(Position minPosition, Position maxPosition,
-            IValueSource<int> valueSource,
-            IReadOnlyCollection<IClue<int>> lowerLevelClues)
+        public IEnumerable<IClue<int, IntCell>> CreateClues(Position minPosition, Position maxPosition,
+            IValueSource valueSource,
+            IReadOnlyCollection<IClue<int, IntCell>> lowerLevelClues)
         {
             if (AllPositions.Count > 2)
             {
-                yield return new RelationshipClue<int>(AllPositions[0], AllPositions.Last(),
+                yield return new RelationshipClue(AllPositions[0], AllPositions.Last(),
                     new DifferByAtLeastConstraint(MinDifference));
 
                 yield return new LockoutClue(AllPositions[0], AllPositions.Last(),

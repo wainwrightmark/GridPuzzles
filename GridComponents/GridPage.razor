@@ -2,6 +2,7 @@
 @using GridPuzzles.VariantBuilderArguments
 @using BlazorDownloadFile
 @typeparam T
+@typeparam TCell
 @namespace GridComponents
 
 @inject ClipboardService _clipboardService
@@ -96,7 +97,7 @@
 
         <MudItem xs="10" lg="5">
 
-            <MudTable T="SolveState<T>"
+            <MudTable T="SolveState<T, TCell>"
                       Dense="true"
                       Items="@MyGridSession.StateHistory"
                       Height="500px"

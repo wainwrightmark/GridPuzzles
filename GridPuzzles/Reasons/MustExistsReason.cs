@@ -2,9 +2,9 @@
 
 namespace GridPuzzles.Reasons;
 
-public sealed record MustExistsReason<T>(T Value, ICompletenessClue<T> CompletenessClue)
+public sealed record MustExistsReason<T, TCell>(T Value, ICompletenessClue<T, TCell> CompletenessClue)
     : ISingleReason
-    where T : notnull
+    where T :struct where TCell : ICell<T, TCell>, new()
 {
     /// <inheritdoc />
     public string Text => $"{Value} must exist in {CompletenessClue.Domain}.";

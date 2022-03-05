@@ -6,14 +6,14 @@ using GridPuzzles.VariantBuilderArguments;
 
 namespace GridPuzzles.Session.Actions;
 
-public record RemoveVariantBuilderAction<T>(VariantBuilderArgumentPair<T> VariantBuilderArgumentPair) : IGridViewAction<T>
-    where T : notnull
+public record RemoveVariantBuilderAction<T, TCell>(VariantBuilderArgumentPair<T, TCell> VariantBuilderArgumentPair) : IGridViewAction<T, TCell>
+    where T :struct where TCell : ICell<T, TCell>, new()
 {
     /// <inheritdoc />
     public string Name => $"Remove {VariantBuilderArgumentPair.AsString(true)}";
 
     /// <inheritdoc />
-    public async IAsyncEnumerable<ActionResult<T>> Execute(ImmutableStack<SolveState<T>> history,
+    public async IAsyncEnumerable<ActionResult<T, TCell>> Execute(ImmutableStack<SolveState<T, TCell>> history,
         SessionSettings settings, [EnumeratorCancellation] CancellationToken cancellation)
     {
         var sw = Stopwatch.StartNew();
@@ -26,7 +26,7 @@ public record RemoveVariantBuilderAction<T>(VariantBuilderArgumentPair<T> Varian
 
         current = current with { VariantBuilders = current.VariantBuilders.Remove(VariantBuilderArgumentPair) };
 
-        var clueSourceResult  = await ClueSource<T>.TryCreateAsync(
+        var clueSourceResult  = await ClueSource<T, TCell>.TryCreateAsync(
             current.VariantBuilders, 
             current.Grid.MaxPosition, 
             current.Grid.ClueSource.ValueSource,
@@ -35,16 +35,16 @@ public record RemoveVariantBuilderAction<T>(VariantBuilderArgumentPair<T> Varian
         sw.Stop();
         if (clueSourceResult.IsFailure)
         {
-            yield return new ActionResult<T>.ErrorResult(clueSourceResult.Error, sw.Elapsed);
+            yield return new ActionResult<T, TCell>.ErrorResult(clueSourceResult.Error, sw.Elapsed);
             yield break;
         }
 
         var newGrid = current.Grid;
         newGrid = newGrid.CloneWithClueSource(clueSourceResult.Value);
-        newGrid = newGrid.CloneWithUpdates(UpdateResult<T>.Empty, true);
+        newGrid = newGrid.CloneWithUpdates(UpdateResult<T, TCell>.Empty, true);
 
-        current = current with { Grid = newGrid, UpdateResult = UpdateResult<T>.Empty, ChangeType = ChangeType.VariantChange, Duration = sw.Elapsed, Message = message, };
+        current = current with { Grid = newGrid, UpdateResult = UpdateResult<T, TCell>.Empty, ChangeType = ChangeType.VariantChange, Duration = sw.Elapsed, Message = message, };
 
-        yield return (ActionResult<T>)current;
+        yield return (ActionResult<T, TCell>)current;
     }
 }

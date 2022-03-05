@@ -3,19 +3,19 @@ using GridPuzzles.Bifurcation;
 
 namespace GridPuzzles.Clues;
 
-public interface IClueUpdateHelper<T> where T : notnull
+public interface IClueUpdateHelper<T, TCell> where T :struct where TCell : ICell<T, TCell>, new()
 {
     /// <summary>
     /// Calculate Updates related to this clue
     /// </summary>
     [Pure]
-    IEnumerable<ICellChangeResult> CalculateUpdates(Grid<T> grid, int bifurcationLevel,
+    IEnumerable<ICellChangeResult> CalculateUpdates(Grid<T, TCell> grid, int bifurcationLevel,
         Maybe<IReadOnlySet<Position>> positionsToLookAt);
 }
 
-public abstract class ClueHelper<TClue,T> where TClue : IClue<T>where T: notnull
+public abstract class ClueHelper<TClue,T, TCell> where TClue : IClue<T, TCell>where T :struct where TCell : ICell<T, TCell>, new()
 {
-    protected ClueHelper(IEnumerable<IClue<T>> clues)
+    protected ClueHelper(IEnumerable<IClue<T, TCell>> clues)
     {
         Clues = clues.OfType<TClue>().ToImmutableArray();
     }
@@ -23,23 +23,23 @@ public abstract class ClueHelper<TClue,T> where TClue : IClue<T>where T: notnull
     public ImmutableArray<TClue> Clues { get; }
 }
 
-public sealed class BifurcationClueHelper<T> : ClueHelper<IBifurcationClue<T>, T>
-    where T: notnull
+public sealed class BifurcationClueHelper<T, TCell> : ClueHelper<IBifurcationClue<T, TCell>, T, TCell>
+    where T :struct where TCell : ICell<T, TCell>, new()
 {
-    public BifurcationClueHelper(IEnumerable<IClue<T>> allClues) : base(allClues)
+    public BifurcationClueHelper(IEnumerable<IClue<T, TCell>> allClues) : base(allClues)
     {
         Lookup = Clues
             .SelectMany(clue => clue.Positions.Select(p => (p, clue)))
             .ToLookup(x => x.p, x => x.clue);
     }
         
-    public ILookup<Position, IBifurcationClue<T>> Lookup;
+    public ILookup<Position, IBifurcationClue<T, TCell>> Lookup;
         
     /// <summary>
     /// Find Bifurcation Options relating to this clue
     /// </summary>
     [Pure]
-    public IEnumerable<IBifurcationOption<T>> CalculateBifurcationOptions(Grid<T> grid, 
+    public IEnumerable<IBifurcationOption<T, TCell>> CalculateBifurcationOptions(Grid<T, TCell> grid, 
         Maybe<IEnumerable<Position>>
             positionsToLookAt,
             
@@ -55,32 +55,32 @@ public sealed class BifurcationClueHelper<T> : ClueHelper<IBifurcationClue<T>, T
     }
 }
 
-public sealed class DynamicOverlayClueHelper<T> : ClueHelper<IDynamicOverlayClue<T>, T>
-    where T: notnull
+public sealed class DynamicOverlayClueHelper<T, TCell> : ClueHelper<IDynamicOverlayClue<T, TCell>, T, TCell>
+    where T :struct where TCell : ICell<T, TCell>, new()
 {
-    public DynamicOverlayClueHelper(IEnumerable<IClue<T>> allClues) : base(allClues) { }
+    public DynamicOverlayClueHelper(IEnumerable<IClue<T, TCell>> allClues) : base(allClues) { }
 
     /// <summary>
     /// Create the Cell Overlays relating to this clue
     /// </summary>
     [Pure]
-    public IEnumerable<CellOverlayWrapper> CreateCellOverlays(Grid<T> grid)
+    public IEnumerable<CellOverlayWrapper> CreateCellOverlays(Grid<T, TCell> grid)
     {
         return Clues.SelectMany(x => x.CreateCellOverlays(grid))
             .Select(x=> new CellOverlayWrapper(x, CellOverlayMetadata.Empty));
     }
 }
 
-public sealed class MetaRuleClueHelper<T> : ClueHelper<IMetaClue<T>, T>, IClueUpdateHelper<T>
-    where T: notnull
+public sealed class MetaRuleClueHelper<T, TCell> : ClueHelper<IMetaClue<T, TCell>, T, TCell>, IClueUpdateHelper<T, TCell>
+    where T :struct where TCell : ICell<T, TCell>, new()
 {
     /// <inheritdoc />
-    public MetaRuleClueHelper(IEnumerable<IClue<T>> clues) : base(clues)
+    public MetaRuleClueHelper(IEnumerable<IClue<T, TCell>> clues) : base(clues)
     {
     }
 
     /// <inheritdoc />
-    public IEnumerable<ICellChangeResult> CalculateUpdates(Grid<T> grid,
+    public IEnumerable<ICellChangeResult> CalculateUpdates(Grid<T, TCell> grid,
         int bifurcationLevel,
         Maybe<IReadOnlySet<Position>> positionsToLookAt)
     {
@@ -91,12 +91,12 @@ public sealed class MetaRuleClueHelper<T> : ClueHelper<IMetaClue<T>, T>, IClueUp
             .SelectMany(x => x.CreateClues(grid, positionsToLookAt))
             .ToList();
 
-        var relationshipClues = new List<IRelationshipClue<T>>();
+        var relationshipClues = new List<IRelationshipClue<T, TCell>>();
         foreach (var newClue in newClues)
         {
             if (positionsToLookAt.HasNoValue || newClue.Positions.Overlaps(positionsToLookAt.Value))
             {
-                if (newClue is IRuleClue<T> ruleClue)
+                if (newClue is IRuleClue<T, TCell> ruleClue)
                 {
                 
                     foreach (var r in ruleClue.CalculateCellUpdates(grid))
@@ -104,7 +104,7 @@ public sealed class MetaRuleClueHelper<T> : ClueHelper<IMetaClue<T>, T>, IClueUp
                         yield return r;
                     }
                 }
-                else if(newClue is IRelationshipClue<T> relationshipClue)
+                else if(newClue is IRelationshipClue<T, TCell> relationshipClue)
                 {
                     relationshipClues.Add(relationshipClue);   
                 }
@@ -113,7 +113,7 @@ public sealed class MetaRuleClueHelper<T> : ClueHelper<IMetaClue<T>, T>, IClueUp
 
         if (relationshipClues.Any())
         {
-            var helper = new RelationshipClueHelper<T>(grid.ClueSource.UniquenessClueHelper, relationshipClues);
+            var helper = new RelationshipClueHelper<T, TCell>(grid.ClueSource.UniquenessClueHelper, relationshipClues);
 
             foreach (var update in helper.CalculateUpdates(grid, 0, positionsToLookAt))
             {
@@ -125,25 +125,25 @@ public sealed class MetaRuleClueHelper<T> : ClueHelper<IMetaClue<T>, T>, IClueUp
     
 }
 
-public sealed class RuleClueHelper<T> : ClueHelper<IRuleClue<T>, T>, IClueUpdateHelper<T>
-    where T: notnull
+public sealed class RuleClueHelper<T, TCell> : ClueHelper<IRuleClue<T, TCell>, T, TCell>, IClueUpdateHelper<T, TCell>
+    where T :struct where TCell : ICell<T, TCell>, new()
 {
     /// <inheritdoc />
-    public RuleClueHelper(IEnumerable<IClue<T>> allClues) : base(allClues)
+    public RuleClueHelper(IEnumerable<IClue<T, TCell>> allClues) : base(allClues)
     {
         Lookup = Clues
             .SelectMany(clue => clue.Positions.Select(p => (p, clue)))
             .ToLookup(x => x.p, x => x.clue);
     }
 
-    public ILookup<Position, IRuleClue<T>> Lookup;
+    public ILookup<Position, IRuleClue<T, TCell>> Lookup;
 
     /// <inheritdoc />
-    public IEnumerable<ICellChangeResult> CalculateUpdates(Grid<T> grid,
+    public IEnumerable<ICellChangeResult> CalculateUpdates(Grid<T, TCell> grid,
         int bifurcationLevel,
         Maybe<IReadOnlySet<Position>> positionsToLookAt)
     {
-        IEnumerable<IRuleClue<T>> clues;
+        IEnumerable<IRuleClue<T, TCell>> clues;
         if (positionsToLookAt.HasValue && positionsToLookAt.Value.Count < grid.AllPositions.Length)
             clues = positionsToLookAt.Value.SelectMany(x => Lookup[x]).Distinct();
         else
@@ -153,11 +153,11 @@ public sealed class RuleClueHelper<T> : ClueHelper<IRuleClue<T>, T>, IClueUpdate
     }
 }
 
-public sealed class RelationshipClueHelper<T> : ClueHelper<IRelationshipClue<T>, T>, IClueUpdateHelper<T>//TODO special helper for if lookup is empty
-    where T: notnull
+public sealed class RelationshipClueHelper<T, TCell> : ClueHelper<IRelationshipClue<T, TCell>, T, TCell>, IClueUpdateHelper<T, TCell>//TODO special helper for if lookup is empty
+    where T :struct where TCell : ICell<T, TCell>, new()
 {
     /// <inheritdoc />
-    public RelationshipClueHelper(UniquenessClueHelper<T> uniquenessClueHelper, IEnumerable<IClue<T>> allClues) : base(allClues)
+    public RelationshipClueHelper(UniquenessClueHelper<T, TCell> uniquenessClueHelper, IEnumerable<IClue<T, TCell>> allClues) : base(allClues)
     {
         //TODO combine clues
         //Note this does not include uniqueness clues
@@ -170,10 +170,10 @@ public sealed class RelationshipClueHelper<T> : ClueHelper<IRelationshipClue<T>,
     /// <summary>
     /// Lookup from positions to clues where Position1 is that position
     /// </summary>
-    public ILookup<Position, IRelationshipClue<T>> Lookup { get; }
+    public ILookup<Position, IRelationshipClue<T, TCell>> Lookup { get; }
 
     /// <inheritdoc />
-    public IEnumerable<ICellChangeResult> CalculateUpdates(Grid<T> grid,
+    public IEnumerable<ICellChangeResult> CalculateUpdates(Grid<T, TCell> grid,
         int bifurcationLevel,
         Maybe<IReadOnlySet<Position>> positionsToLookAt)
     {
@@ -191,11 +191,12 @@ public sealed class RelationshipClueHelper<T> : ClueHelper<IRelationshipClue<T>,
 
                 foreach (var (clue, otherCell) in clueCellPairs)
                 {
-                    var (changed, newSet1, newSet2) = clue.FindValidValues(cell.Value.PossibleValues, otherCell.Value.PossibleValues);
+                    var (changed, newSet1, newSet2) = 
+                        clue.FindValidValues(cell.Value, otherCell.Value);
                     if (changed)
                     {
-                        yield return cell.CloneWithOnlyValues(newSet1, clue.Reason);
-                        yield return otherCell.CloneWithOnlyValues(newSet2, clue.Reason);
+                        yield return cell.CloneWithOnlyValues<T, TCell>(newSet1, clue.Reason);
+                        yield return otherCell.CloneWithOnlyValues<T, TCell>(newSet2, clue.Reason);
                     }
                 }
 
@@ -227,33 +228,33 @@ public sealed class RelationshipClueHelper<T> : ClueHelper<IRelationshipClue<T>,
         return clues.All(c => c.IsValidCombination(v1, v2));
     }
 
-    public IEnumerable<bool> CheckRelationship(Position p1, Position p2, Func<IRelationshipClue<T>, bool> func)
+    public IEnumerable<bool> CheckRelationship(Position p1, Position p2, Func<IRelationshipClue<T, TCell>, bool> func)
     {
         var clues = GetClues(p1, p2);
 
         return clues.Select(func);
     }
 
-    private IReadOnlyCollection<IRelationshipClue<T>> GetClues(Position p1, Position p2)
+    private IReadOnlyCollection<IRelationshipClue<T, TCell>> GetClues(Position p1, Position p2)
     {
-        if (!Lookup.Any()) return ArraySegment<IRelationshipClue<T>>.Empty;
+        if (!Lookup.Any()) return ArraySegment<IRelationshipClue<T, TCell>>.Empty;
         var clues = _pairWiseCluesConcurrentDictionary.GetOrAdd((p1, p2), FindPairwiseClues);
         return clues;
-        IReadOnlyList<IRelationshipClue<T>> FindPairwiseClues((Position p1, Position p2) pair) =>
+        IReadOnlyList<IRelationshipClue<T, TCell>> FindPairwiseClues((Position p1, Position p2) pair) =>
             Lookup[pair.p1].Where(x => x.Position2 == pair.p2).ToList();
     }
 
     
 
-    private readonly ConcurrentDictionary<(Position p1, Position p2), IReadOnlyCollection<IRelationshipClue<T>>>
+    private readonly ConcurrentDictionary<(Position p1, Position p2), IReadOnlyCollection<IRelationshipClue<T, TCell>>>
         _pairWiseCluesConcurrentDictionary = new();
 
 
 }
 
-public class SortedSetElementsComparer<T> : IEqualityComparer<ImmutableSortedSet<T>> where T : notnull
+public class SortedSetElementsComparer<T> : IEqualityComparer<ImmutableSortedSet<T>>
 {
-    private SortedSetElementsComparer() {}
+    private SortedSetElementsComparer() { }
 
     public static IEqualityComparer<ImmutableSortedSet<T>> Instance { get; } = new SortedSetElementsComparer<T>();
 

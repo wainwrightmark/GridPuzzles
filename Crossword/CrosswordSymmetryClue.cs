@@ -1,13 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using GridPuzzles;
-using GridPuzzles.Cells;
-using GridPuzzles.Clues;
+﻿
 
 namespace Crossword;
 
-public abstract class CrosswordSymmetryClue : IRuleClue<char>
+public abstract class CrosswordSymmetryClue : IRuleClue
 {
 
     /// <inheritdoc />
@@ -19,7 +14,7 @@ public abstract class CrosswordSymmetryClue : IRuleClue<char>
     public abstract ImmutableSortedSet<Position> Positions { get; }
 
     /// <inheritdoc />
-    public abstract IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid<char> grid);
+    public abstract IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid grid);
 }
 
 public class CrosswordSymmetryClueRotational4 : CrosswordSymmetryClue
@@ -69,7 +64,7 @@ public class CrosswordSymmetryClueRotational4 : CrosswordSymmetryClue
     public override ImmutableSortedSet<Position> Positions { get; }
 
     /// <inheritdoc />
-    public override IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid<char> grid)
+    public override IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid grid)
     {
         var cells = Positions.Select(grid.GetCellKVP).ToList();
 
@@ -151,14 +146,14 @@ public class CrosswordSymmetryClueRotational2 : CrosswordSymmetryClue
     public override ImmutableSortedSet<Position> Positions { get; }
 
     /// <inheritdoc />
-    public override IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid<char> grid)
+    public override IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid grid)
     {
         var cell1 = grid.GetCellKVP(Position1);
         var cell2 = grid.GetCellKVP(Position2);
 
         if (cell1.CouldBeBlock())
         {
-            if (cell1.Value.PossibleValues.Count == 1)
+            if (cell1.Value.HasSingleValue())
             {
                 var update = cell2.CloneWithOnlyValue(CrosswordValueSource.BlockChar,new CrosswordReason( "Must be box due to symmetry"));
                 yield return (update);
@@ -168,7 +163,7 @@ public class CrosswordSymmetryClueRotational2 : CrosswordSymmetryClue
                 var update = cell1.CloneWithoutValue(CrosswordValueSource.BlockChar, new CrosswordReason("Must not be a box due to symmetry"));
                 yield return (update);
             }
-            else if(cell2.Value.PossibleValues.Count == 1)//Cell 2 is a box therefore this should be a box
+            else if(cell2.Value.HasSingleValue())//Cell 2 is a box therefore this should be a box
             {
                 var update = cell1.CloneWithOnlyValue(CrosswordValueSource.BlockChar, new CrosswordReason("Must be box due to symmetry"));
                 yield return (update);

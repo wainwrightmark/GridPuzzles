@@ -3,19 +3,19 @@ using GridPuzzles.VariantBuilderArguments;
 
 namespace GridPuzzles.Clues;
 
-public abstract class NoArgumentVariantBuilder<T> : VariantBuilder<T>, IClueBuilder<T> where T : notnull
+public abstract class NoArgumentVariantBuilder<T, TCell> : VariantBuilder<T, TCell>, IClueBuilder<T, TCell> where T :struct where TCell : ICell<T, TCell>, new()
 {
 
     /// <inheritdoc />
     public abstract int Level { get; }
 
     /// <inheritdoc />
-    public abstract IEnumerable<IClue<T>> CreateClues(Position minPosition, Position maxPosition,
-        IValueSource<T> valueSource,
-        IReadOnlyCollection<IClue<T>> lowerLevelClues);
+    public abstract IEnumerable<IClue<T, TCell>> CreateClues(Position minPosition, Position maxPosition,
+        IValueSource<T, TCell> valueSource,
+        IReadOnlyCollection<IClue<T, TCell>> lowerLevelClues);
 
     /// <inheritdoc />
-    public override Result<IReadOnlyCollection<IClueBuilder<T>>> TryGetClueBuilders1(IReadOnlyDictionary<string, string> arguments)
+    public override Result<IReadOnlyCollection<IClueBuilder<T, TCell>>> TryGetClueBuilders1(IReadOnlyDictionary<string, string> arguments)
     {
         return new[] {this};
     }

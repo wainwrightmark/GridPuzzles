@@ -4,17 +4,17 @@ using System.Threading.Tasks;
 
 namespace GridPuzzles.Session.Actions;
 
-public record ClearHistoryAction<T> : IGridViewAction<T>  where T:notnull
+public record ClearHistoryAction<T, TCell> : IGridViewAction<T, TCell>  where T :struct where TCell : ICell<T, TCell>, new()
 {
     private ClearHistoryAction() { }
 
-    public static ClearHistoryAction<T> Instance { get; } = new ();
+    public static ClearHistoryAction<T, TCell> Instance { get; } = new ();
 
     /// <inheritdoc />
     public string Name => "Clear History";
 
     /// <inheritdoc />
-    public async IAsyncEnumerable<ActionResult<T>> Execute(ImmutableStack<SolveState<T>> history,
+    public async IAsyncEnumerable<ActionResult<T, TCell>> Execute(ImmutableStack<SolveState<T, TCell>> history,
         SessionSettings settings,[EnumeratorCancellation] CancellationToken cancellation)
     {
         await Task.CompletedTask;
@@ -22,10 +22,10 @@ public record ClearHistoryAction<T> : IGridViewAction<T>  where T:notnull
 
         top = top with
         {
-            UpdateResult = UpdateResult<T>.Empty, ChangeType = ChangeType.InitialState,
+            UpdateResult = UpdateResult<T, TCell>.Empty, ChangeType = ChangeType.InitialState,
             Duration = TimeSpan.Zero, Message = "History Cleared"
         };
 
-        yield return new ActionResult<T>.ChangeHistoryResult(ImmutableStack<SolveState<T>>.Empty.Push(top));
+        yield return new ActionResult<T, TCell>.ChangeHistoryResult(ImmutableStack<SolveState<T, TCell>>.Empty.Push(top));
     }
 }

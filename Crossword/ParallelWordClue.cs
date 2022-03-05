@@ -1,18 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using CSharpFunctionalExtensions;
-using GridPuzzles;
 using GridPuzzles.Bifurcation;
-using GridPuzzles.Cells;
-using GridPuzzles.Clues;
 using GridPuzzles.Reasons;
 using MoreLinq;
 
 namespace Crossword;
 
-public class ParallelWordClue : IRuleClue<char>, IBifurcationClue<char>
+public class ParallelWordClue : IRuleClue, IBifurcationClue<char, CharCell>
 {
     /// <inheritdoc />
     public string Name => "Parallels should contain words";
@@ -51,7 +44,7 @@ public class ParallelWordClue : IRuleClue<char>, IBifurcationClue<char>
     }
 
     /// <inheritdoc />
-    public IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid<char> grid)
+    public IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid grid)
     {
         var cells = PositionList.Select(grid.GetCellKVP).ToList();
 
@@ -69,21 +62,21 @@ public class ParallelWordClue : IRuleClue<char>, IBifurcationClue<char>
             {
                 var cell = cells[index];
                 var index1 = index + 1;
-                var impossibleValues = cell.Value.PossibleValues
+                var impossibleValues = cell.Value
                     .Where(x => x != CrosswordValueSource.BlockChar)
                     .Where(pv => !
                         fullLengthOptions.Concat(leftOptions).Concat(rightOptions)
-                            .Any(w => w.CouldHaveCharacterAtIndex(pv, index1))).ToList();
+                            .Any(w => w.CouldHaveCharacterAtIndex(pv, index1))).ToCharCell();
 
                 if (impossibleValues.Any())
-                    yield return cell.CloneWithoutValues(impossibleValues,
+                    yield return cell.CloneWithoutValues<char, CharCell>(impossibleValues,
                         new CrosswordReason("No words exist using this letter here."));
             }
         }
     }
 
     /// <inheritdoc />
-    public IEnumerable<IBifurcationOption<char>> FindBifurcationOptions(Grid<char> grid, int maxChoices)
+    public IEnumerable<IBifurcationOption<char, CharCell>> FindBifurcationOptions(Grid grid, int maxChoices)
     {
         var cells = PositionList.Select(grid.GetCellKVP).ToList();
 
@@ -116,19 +109,19 @@ public class ParallelWordClue : IRuleClue<char>, IBifurcationClue<char>
 
     private (IReadOnlyList<WordOption> rightOptions, IReadOnlyList<WordOption> leftOptions,
         IReadOnlyList<WordOption> fullLengthOptions, IReadOnlyList<ICellChangeResult> changes)
-        GetAllWordOptions(Grid<char> grid, IReadOnlyList<KeyValuePair<Position, Cell<char>>> cells)
+        GetAllWordOptions(Grid grid, IReadOnlyList<KeyValuePair<Position, CharCell>> cells)
     {
-        //if (cells.All(x => x.Value.PossibleValues.Count == 1))
+        //if (cells.All(x => x.Value.HasSingleValue))
         //    return (ImmutableArray<WordOption>.Empty, ImmutableArray<WordOption>.Empty,
         //        ImmutableArray<WordOption>.Empty, ImmutableArray<CellChangeResult<char>>.Empty);
 
-        if (cells.All(x => x.Value.PossibleValues.Count != 1) && !Symmetrical)
+        if (cells.All(x => !x.Value.HasSingleValue()) && !Symmetrical)
             return (ImmutableArray<WordOption>.Empty, ImmutableArray<WordOption>.Empty,
                 ImmutableArray<WordOption>.Empty, ImmutableArray<ICellChangeResult>.Empty);
 
         var (minLeftBlocks, maxLeftBlocks, minRightBlocks, maxRightBlocks) = GetPossibleBlocks(cells, Symmetrical);
 
-        IEnumerable<(KeyValuePair<Position, Cell<char>> cell, int i)> possibleBlocks;
+        IEnumerable<(KeyValuePair<Position, CharCell> cell, int i)> possibleBlocks;
 
         var changes = new List<ICellChangeResult>();
 
@@ -143,7 +136,7 @@ public class ParallelWordClue : IRuleClue<char>, IBifurcationClue<char>
 
             possibleBlocks = centreBlocks;
 
-            changes.AddRange(from KeyValuePair<Position, Cell<char>> cell in nonBlocks
+            changes.AddRange(from KeyValuePair<Position, CharCell> cell in nonBlocks
                 select cell.CloneWithoutValue(CrosswordValueSource.BlockChar, new CrosswordReason("Must not be a block, by symmetry")));
         }
         else
@@ -215,14 +208,14 @@ public class ParallelWordClue : IRuleClue<char>, IBifurcationClue<char>
         return (allRightOptions, allLeftOptions, fullLengthOptions, changes);
     }
 
-    private IEnumerable<WordOption> GetWordOptions(IEnumerable<KeyValuePair<Position, Cell<char>>> cells, int skip,
+    private IEnumerable<WordOption> GetWordOptions(IEnumerable<KeyValuePair<Position, CharCell>> cells, int skip,
         int wordLength, int startBlocks, int endBlocks)
     {
         var cellList = cells.Skip(skip).Take(wordLength).ToList();
 
         var cellsToCheck = cellList
             .Select((x, i) => (cell: x.Value, i))
-            .Where(x => !x.cell.CouldBeAnyLetter() && x.cell.PossibleValues.Count != 1).ToList();
+            .Where(x => !x.cell.CouldBeAnyLetter() && !x.cell.HasSingleValue()).ToList();
 
         var word = ExpressionWord.TryCreate(cellList);
 
@@ -245,7 +238,7 @@ public class ParallelWordClue : IRuleClue<char>, IBifurcationClue<char>
                 return words;
 
             var filteredWords = words.Where(w =>
-                cellsToCheck.All(x => x.cell.PossibleValues.Contains(w.NormalizedText[x.i]))).ToList();
+                cellsToCheck.All(x => x.cell.Contains(w.NormalizedText[x.i]))).ToList();
 
             return filteredWords;
         }
@@ -254,7 +247,7 @@ public class ParallelWordClue : IRuleClue<char>, IBifurcationClue<char>
 
     private static (ushort minLeftBlocks, ushort maxLeftBlocks, ushort minRightBlocks, ushort maxRightBlocks)
         GetPossibleBlocks(
-            IReadOnlyList<KeyValuePair<Position, Cell<char>>> keyValuePairs, bool symmetrical)
+            IReadOnlyList<KeyValuePair<Position, CharCell>> keyValuePairs, bool symmetrical)
     {
         ushort minLeftBlocks;
         ushort maxLeftBlocks;
@@ -341,7 +334,7 @@ public class ParallelWordClue : IRuleClue<char>, IBifurcationClue<char>
         }
     }
 
-    private class WordOptionList : IBifurcationOption<char>
+    private class WordOptionList : IBifurcationOption
     {
         public WordOptionList(IReadOnlyList<WordOption> wordOptions, bool across, ushort parallelIndex)
         {
@@ -363,7 +356,7 @@ public class ParallelWordClue : IRuleClue<char>, IBifurcationClue<char>
         public ISingleReason Reason => new WordOptionReason(ParallelIndex, Across);
 
         /// <inheritdoc />
-        public IEnumerable<IBifurcationChoice<char>> Choices
+        public IEnumerable<IBifurcationChoice<char, CharCell>> Choices
         {
             get { return WordOptions.SelectMany(x => x.GetBifurcationWords(Across, ParallelIndex)); }
         }
@@ -372,7 +365,7 @@ public class ParallelWordClue : IRuleClue<char>, IBifurcationClue<char>
         public int ChoiceCount { get; }
 
         /// <inheritdoc />
-        public IBifurcationChoice<char> this[int index]
+        public IBifurcationChoice<char, CharCell> this[int index]
         {
             get
             {
@@ -416,7 +409,7 @@ public class ParallelWordClue : IRuleClue<char>, IBifurcationClue<char>
         }
     }
 
-    private sealed class BifurcationWord : IBifurcationChoice<char>
+    private sealed class BifurcationWord : IBifurcationChoice<char, CharCell>
     {
         //Note this is a bit dodgy, but I'm cool with it
         public static BifurcationWord Create(Word word, bool across, ushort parallelIndex, ushort firstLetterIndex,
@@ -460,7 +453,7 @@ public class ParallelWordClue : IRuleClue<char>, IBifurcationClue<char>
             return HashCode.Combine(StartPosition, Across, Text);
         }
 
-        public IEnumerable<ICellChangeResult> GetChanges(Grid<char> grid)
+        public IEnumerable<ICellChangeResult> GetChanges(Grid grid)
         {
             for (var i = 0; i < Text.Length; i++)
             {
@@ -479,11 +472,11 @@ public class ParallelWordClue : IRuleClue<char>, IBifurcationClue<char>
         }
 
         /// <inheritdoc />
-        public UpdateResult<char> UpdateResult
+        public UpdateResult UpdateResult
         {
             get
             {
-                var updateResult = UpdateResult<char>.Empty;
+                var updateResult = UpdateResult.Empty;
 
 
                 for (var i = 0; i < Text.Length; i++)
@@ -494,7 +487,7 @@ public class ParallelWordClue : IRuleClue<char>, IBifurcationClue<char>
                         : new Position(StartPosition.Column, StartPosition.Row + i);
 
 
-                    var cellUpdate = CellHelper.Create(character, position,
+                    var cellUpdate = CellHelper.Create<char, CharCell>(character, position,
                         new CrosswordReason("Part of " + Text.Trim(CrosswordValueSource.BlockChar))
                     );
 
@@ -507,7 +500,7 @@ public class ParallelWordClue : IRuleClue<char>, IBifurcationClue<char>
         }
 
         /// <inheritdoc />
-        public int CompareTo(IBifurcationChoice<char>? other)
+        public int CompareTo(IBifurcationChoice<char, CharCell>? other)
         {
             if (other is BifurcationWord bsc)
                 return string.CompareOrdinal(Text, bsc.Text);

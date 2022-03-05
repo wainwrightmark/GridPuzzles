@@ -1,7 +1,7 @@
 ﻿namespace GridPuzzles.Clues;
 
-public sealed class UniquenessClue<T> : IUniquenessClue<T>
-    where T : notnull
+public sealed class UniquenessClue<T, TCell> : IUniquenessClue<T, TCell>
+    where T :struct where TCell : ICell<T, TCell>, new()
 {
 
     /// <inheritdoc />

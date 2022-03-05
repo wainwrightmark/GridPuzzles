@@ -5,25 +5,25 @@ using Sudoku.Overlays;
 
 namespace Sudoku.Variants;
 
-public partial class ThermometerVariantBuilder : VariantBuilder<int>
+public partial class ThermometerVariantBuilder : VariantBuilder
 {
     private ThermometerVariantBuilder()
     {
     }
 
-    public static VariantBuilder<int> Instance { get; } = new ThermometerVariantBuilder();
+    public static VariantBuilder Instance { get; } = new ThermometerVariantBuilder();
 
     /// <inheritdoc />
     public override string Name => "Thermometer";
 
     /// <inheritdoc />
-    public override Result<IReadOnlyCollection<IClueBuilder<int>>> TryGetClueBuilders1(
+    public override Result<IReadOnlyCollection<IClueBuilder>> TryGetClueBuilders1(
         IReadOnlyDictionary<string, string> arguments)
     {
         var pr = Positions.TryGetFromDictionary(arguments);
-        if (pr.IsFailure) return pr.ConvertFailure<IReadOnlyCollection<IClueBuilder<int>>>();
+        if (pr.IsFailure) return pr.ConvertFailure<IReadOnlyCollection<IClueBuilder>>();
 
-        return new List<IClueBuilder<int>>
+        return new List<IClueBuilder>
         {
             new ThermometerClueBuilder(pr.Value.ToImmutableArray())
         };
@@ -35,7 +35,7 @@ public partial class ThermometerVariantBuilder : VariantBuilder<int>
     public override IReadOnlyList<VariantBuilderArgument> Arguments => new[] { Positions };
 
     [Equatable]
-    public partial record ThermometerClueBuilder([property:OrderedEquality] IReadOnlyList<Position> Positions) : IClueBuilder<int>
+    public partial record ThermometerClueBuilder([property:OrderedEquality] IReadOnlyList<Position> Positions) : IClueBuilder
     {
 
         /// <inheritdoc />
@@ -45,9 +45,9 @@ public partial class ThermometerVariantBuilder : VariantBuilder<int>
         public int Level => 2;
 
         /// <inheritdoc />
-        public IEnumerable<IClue<int>> CreateClues(Position minPosition, Position maxPosition,
-            IValueSource<int> valueSource,
-            IReadOnlyCollection<IClue<int>> lowerLevelClues)
+        public IEnumerable<IClue<int, IntCell>> CreateClues(Position minPosition, Position maxPosition,
+            IValueSource valueSource,
+            IReadOnlyCollection<IClue<int, IntCell>> lowerLevelClues)
         {
             for (var i = 0; i < Positions.Count - 1; i++)
             {
@@ -55,7 +55,7 @@ public partial class ThermometerVariantBuilder : VariantBuilder<int>
                 for (var j = i + 1; j < Positions.Count; j++)
                 {
                     var p2 = Positions[j];
-                    yield return RelationshipClue<int>.Create(p1, p2, new XLessThanConstraint(j - i));
+                    yield return RelationshipClue.Create(p1, p2, new XLessThanConstraint(j - i));
                 }
             }
         }

@@ -1,21 +1,21 @@
 ﻿namespace Sudoku.Variants;
 
-public class UnconstrainedPairsSumVariantBuilder : VariantBuilder<int>
+public class UnconstrainedPairsSumVariantBuilder : VariantBuilder
 {
     private UnconstrainedPairsSumVariantBuilder() {}
 
-    public static VariantBuilder<int> Instance { get; } = new UnconstrainedPairsSumVariantBuilder();
+    public static VariantBuilder Instance { get; } = new UnconstrainedPairsSumVariantBuilder();
 
     /// <inheritdoc />
     public override string Name => "Unconstrained Pairs cannot add to";
 
     /// <inheritdoc />
-    public override Result<IReadOnlyCollection<IClueBuilder<int>>> TryGetClueBuilders1(
+    public override Result<IReadOnlyCollection<IClueBuilder>> TryGetClueBuilders1(
         IReadOnlyDictionary<string, string> arguments)
     {
         var sr = ValuesArgument.TryGetFromDictionary(arguments);
         if (sr.IsFailure)
-            return sr.ConvertFailure<IReadOnlyCollection<IClueBuilder<int>>>();
+            return sr.ConvertFailure<IReadOnlyCollection<IClueBuilder>>();
 
         var values = ImmutableSortedSet.CreateBuilder<int>();
 
@@ -24,10 +24,10 @@ public class UnconstrainedPairsSumVariantBuilder : VariantBuilder<int>
             if(int.TryParse(term.Trim(), out var r))
                 values.Add(r);
             else
-                return Result.Failure<IReadOnlyCollection<IClueBuilder<int>>>($"Could not parse '{term}'");
+                return Result.Failure<IReadOnlyCollection<IClueBuilder>>($"Could not parse '{term}'");
         }
 
-        return Result.Success<IReadOnlyCollection<IClueBuilder<int>>>(new List<IClueBuilder<int>>()
+        return Result.Success<IReadOnlyCollection<IClueBuilder>>(new List<IClueBuilder>()
         {
             new UnconstrainedPairsSumClueBuilder(values.ToImmutable())
         });
@@ -46,7 +46,7 @@ public class UnconstrainedPairsSumVariantBuilder : VariantBuilder<int>
 }
 
 [Equatable]
-public partial record UnconstrainedPairsSumClueBuilder([property:SetEquality] ImmutableSortedSet<int> BadSums) : IClueBuilder<int>
+public partial record UnconstrainedPairsSumClueBuilder([property:SetEquality] ImmutableSortedSet<int> BadSums) : IClueBuilder
 {
     /// <inheritdoc />
     public string Name => "Unconstrained Pairs Sum";
@@ -55,15 +55,15 @@ public partial record UnconstrainedPairsSumClueBuilder([property:SetEquality] Im
     public int Level => 3;
 
     /// <inheritdoc />
-    public IEnumerable<IClue<int>> CreateClues(Position minPosition, Position maxPosition, IValueSource<int> valueSource,
-        IReadOnlyCollection<IClue<int>> lowerLevelClues)
+    public IEnumerable<IClue<int, IntCell>> CreateClues(Position minPosition, Position maxPosition, IValueSource valueSource,
+        IReadOnlyCollection<IClue<int, IntCell>> lowerLevelClues)
     {
         if (!BadSums.Any()) yield break;
 
         var name = $"Adjacent Cells must not add to {string.Join(",", BadSums)}";
 
         var constrainedPairs =
-            lowerLevelClues.OfType<RelationshipClue<int>>()
+            lowerLevelClues.OfType<RelationshipClue>()
                 .Where(x=>x.Constraint is SumConstraint)
                 .Select(x => (x.Positions.Min(), x.Positions.Max())).ToHashSet();
 

@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using GridPuzzles;
-using Words;
+﻿using Words;
 
 namespace Crossword;
 
@@ -9,8 +6,8 @@ public static class CrosswordVariant
 {
     private static readonly DictionaryHelper DictionaryHelper = new ();
 
-    public static readonly IReadOnlyList<IVariantBuilder<char>> CrosswordVariantBuilders =
-        new List<IVariantBuilder<char>>
+    public static readonly IReadOnlyList<IVariantBuilder<char, CharCell>> CrosswordVariantBuilders =
+        new List<IVariantBuilder<char, CharCell>>
         {
             WordListClueBuilder.Instance,
             RowStartBoxClueBuilder.Instance,
@@ -28,7 +25,7 @@ public static class CrosswordVariant
             new DictionaryWordsVariantBuilder(DictionaryHelper)
         };
 
-    public static readonly IReadOnlyDictionary<string, IVariantBuilder<char>> CrosswordVariantBuildersDictionary =
+    public static readonly IReadOnlyDictionary<string, IVariantBuilder<char, CharCell>> CrosswordVariantBuildersDictionary =
         CrosswordVariantBuilders.ToDictionary(x => x.Name);
 
 }

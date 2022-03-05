@@ -3,6 +3,7 @@ using System.Text;
 using CSharpFunctionalExtensions;
 using GridPuzzles;
 using GridPuzzles.Bifurcation;
+using GridPuzzles.Cells;
 using GridPuzzles.Clues;
 using GridPuzzles.Session;
 using GridPuzzles.SVG;
@@ -17,7 +18,7 @@ using Position = GridPuzzles.Position;
 
 namespace GridComponents;
 
-public partial class GridPage<T> where T : notnull
+public partial class GridPage<T, TCell> where T :struct where TCell : ICell<T, TCell>, new()
 {
     /// <inheritdoc />
     protected override async Task OnParametersSetAsync()
@@ -33,7 +34,7 @@ public partial class GridPage<T> where T : notnull
 
             var r = await createResult.Match(Task.FromResult, _=> GridCreator.GetDefault());
 
-            MyGridSession = await GridSession<T>.CreateAsync(r.Grid,
+            MyGridSession = await GridSession<T, TCell>.CreateAsync(r.Grid,
                 r.VariantBuilders, r.VariantsInPlay, CancellationToken.None);
 
             if (createResult.IsFailure)
@@ -47,7 +48,7 @@ public partial class GridPage<T> where T : notnull
     }
 
 #pragma warning disable 8618
-    public GridSession<T> MyGridSession { get; private set; }
+    public GridSession<T, TCell> MyGridSession { get; private set; }
 #pragma warning restore 8618
 
     [EditorRequired]
@@ -59,18 +60,18 @@ public partial class GridPage<T> where T : notnull
     [Parameter] public string? GridText { get; set; }
 
     [EditorRequired]
-    [Parameter] public GridCreator<T> GridCreator { get; set; }
+    [Parameter] public GridCreator<T, TCell> GridCreator { get; set; }
 
     [Parameter]
     public IReadOnlyList<Example>? Examples { get; set; }
 
-    [Parameter] public Func<Grid<T>, string>? GetExtraFunc { get; set; }
+    [Parameter] public Func<Grid<T, TCell>, string>? GetExtraFunc { get; set; }
 
     private MudChip[] _selectedVariantBuilderChips = Array.Empty<MudChip>();
 
     private IReadOnlySet<IClueBuilder> SelectedClueBuilders =>
         _selectedVariantBuilderChips.Select(x => x.Value)
-            .Cast<VariantBuilderArgumentPair<T>>()
+            .Cast<VariantBuilderArgumentPair<T, TCell>>()
             .SelectMany(x =>
                 x.VariantBuilder.TryGetClueBuilders(x.Pairs).OnFailureCompensate(_ => new List<IClueBuilder>()).Value)
             .ToHashSet();
@@ -88,7 +89,7 @@ public partial class GridPage<T> where T : notnull
 
         if (r.IsSuccess)
         {
-            MyGridSession = await GridSession<T>.CreateAsync(r.Value.Grid,
+            MyGridSession = await GridSession<T, TCell>.CreateAsync(r.Value.Grid,
                 r.Value.VariantBuilders, r.Value.VariantsInPlay, CancellationToken.None);
 
             MyGridSession.StateHasChangedAction = StateHasChanged;
@@ -145,7 +146,7 @@ public partial class GridPage<T> where T : notnull
         //TODO set focus
     }
 
-    public async Task RemoveVariantBuilder(VariantBuilderArgumentPair<T> variantBuilderArgumentPair)
+    public async Task RemoveVariantBuilder(VariantBuilderArgumentPair<T, TCell> variantBuilderArgumentPair)
     {
         await MyGridSession.RemoveVariantBuilder(variantBuilderArgumentPair);
     }
@@ -166,7 +167,7 @@ public partial class GridPage<T> where T : notnull
         }
     }
 
-    private string? GetExtra(Grid<T> grid) => GetExtraFunc?.Invoke(grid);
+    private string? GetExtra(Grid<T, TCell> grid) => GetExtraFunc?.Invoke(grid);
 
 
     private bool DownloadPopoverOpen { get; set; } = false;
@@ -254,15 +255,15 @@ public partial class GridPage<T> where T : notnull
         }
     }
 
-    private async Task<Result> ImportYamlAsync(string yaml, IValueSource<T> valueSource,
-        IReadOnlyDictionary<string, IVariantBuilder<T>> variantBuilders)
+    private async Task<Result> ImportYamlAsync(string yaml, IValueSource<T, TCell> valueSource,
+        IReadOnlyDictionary<string, IVariantBuilder<T, TCell>> variantBuilders)
     {
         var r = await YamlHelper.DeserializeGrid(yaml)
             .Bind(x => x.Convert(valueSource, variantBuilders, CancellationToken.None));
 
         if (!r.IsSuccess) return r;
 
-        var newGridSession = await GridSession<T>.CreateAsync(r.Value.grid, variantBuilders.Values,
+        var newGridSession = await GridSession<T, TCell>.CreateAsync(r.Value.grid, variantBuilders.Values,
             r.Value.variants,
             CancellationToken.None);
 
@@ -315,7 +316,7 @@ public partial class GridPage<T> where T : notnull
                 dict.Remove(VariantBuilderArgumentForm.AgainString);
 
                 await MyGridSession.AddVariantBuilder(
-                    new VariantBuilderArgumentPair<T>(builder, dict.ToImmutableDictionary()));
+                    new VariantBuilderArgumentPair<T, TCell>(builder, dict.ToImmutableDictionary()));
 
                 if (@continue)
                     foreach (var variantBuilderArgument in builder.Arguments.Where(x => x.ClearOnAdded))
@@ -325,7 +326,7 @@ public partial class GridPage<T> where T : notnull
         else
         {
             await MyGridSession.AddVariantBuilder(
-                new VariantBuilderArgumentPair<T>(builder, new Dictionary<string, string>()));
+                new VariantBuilderArgumentPair<T, TCell>(builder, new Dictionary<string, string>()));
         }
     }
 }

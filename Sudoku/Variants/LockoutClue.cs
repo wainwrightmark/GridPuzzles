@@ -2,7 +2,7 @@
 
 namespace Sudoku.Variants;
 
-public sealed class LockoutClue : IRuleClue<int>
+public sealed class LockoutClue : IRuleClue
 {
     public LockoutClue(Position pAlpha,
         Position pOmega,
@@ -29,14 +29,14 @@ public sealed class LockoutClue : IRuleClue<int>
     public int MinimumDifference { get; }
 
     /// <inheritdoc />
-    public IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid<int> grid)
+    public IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid grid)
     {
         var cellAlpha = grid.GetCellKVP(PAlpha);
         var cellOmega = grid.GetCellKVP(POmega);
 
 
-        var canGoAZ = cellAlpha.Value.PossibleValues.Min + MinimumDifference <= cellOmega.Value.PossibleValues.Max;
-        var canGoZA = cellOmega.Value.PossibleValues.Min + MinimumDifference <= cellAlpha.Value.PossibleValues.Max;
+        var canGoAZ = cellAlpha.Value.Min() + MinimumDifference <= cellOmega.Value.Max();
+        var canGoZA = cellOmega.Value.Min() + MinimumDifference <= cellAlpha.Value.Max();
 
         var reason = new LockoutClueReason(this);
 
@@ -58,30 +58,30 @@ public sealed class LockoutClue : IRuleClue<int>
         if (canGoAZ && canGoZA)
         {
             maxBottomEdge = Math.Max(
-                cellAlpha.Value.PossibleValues.Where(a =>
-                    a + MinimumDifference <= cellOmega.Value.PossibleValues.Max).DefaultIfEmpty(0).Max(),
-                cellOmega.Value.PossibleValues
-                    .Where(a => a + MinimumDifference <= cellAlpha.Value.PossibleValues.Max)
+                cellAlpha.Value.Where(a =>
+                    a + MinimumDifference <= cellOmega.Value.Max()).DefaultIfEmpty(0).Max(),
+                cellOmega.Value
+                    .Where(a => a + MinimumDifference <= cellAlpha.Value.Max())
                     .DefaultIfEmpty(0)
                     .Max()
             );
                 
             minTopEdge = Math.Min(
-                cellAlpha.Value.PossibleValues.Where(a =>
-                        a  >= cellOmega.Value.PossibleValues.Min + MinimumDifference)
+                cellAlpha.Value.Where(a =>
+                        a  >= cellOmega.Value.Min() + MinimumDifference)
                     .DefaultIfEmpty(grid.ClueSource.ValueSource.AllValues.Max + 1).Min(),
-                cellOmega.Value.PossibleValues
-                    .Where(a => a  >= cellAlpha.Value.PossibleValues.Min + MinimumDifference)
+                cellOmega.Value
+                    .Where(a => a  >= cellAlpha.Value.Min() + MinimumDifference)
                     .DefaultIfEmpty(grid.ClueSource.ValueSource.AllValues.Max + 1)
                     .Min()
             );
         }
         else if (canGoAZ)
         {
-            maxBottomEdge = cellAlpha.Value.PossibleValues.Where(a =>
-                a + MinimumDifference <= cellOmega.Value.PossibleValues.Max).DefaultIfEmpty(0).Max();
-            minTopEdge = cellOmega.Value.PossibleValues
-                .Where(a => a >= cellAlpha.Value.PossibleValues.Min + MinimumDifference)
+            maxBottomEdge = cellAlpha.Value.Where(a =>
+                a + MinimumDifference <= cellOmega.Value.Max()).DefaultIfEmpty(0).Max();
+            minTopEdge = cellOmega.Value
+                .Where(a => a >= cellAlpha.Value.Min() + MinimumDifference)
                 .DefaultIfEmpty(grid.ClueSource.ValueSource.AllValues.Max + 1)
                 .Min();
 
@@ -90,10 +90,10 @@ public sealed class LockoutClue : IRuleClue<int>
         }
         else
         {
-            maxBottomEdge = cellOmega.Value.PossibleValues.Where(a =>
-                a + MinimumDifference <= cellAlpha.Value.PossibleValues.Max).DefaultIfEmpty(0).Max();
-            minTopEdge = cellAlpha.Value.PossibleValues
-                .Where(a => a >= cellOmega.Value.PossibleValues.Min + MinimumDifference)
+            maxBottomEdge = cellOmega.Value.Where(a =>
+                a + MinimumDifference <= cellAlpha.Value.Max()).DefaultIfEmpty(0).Max();
+            minTopEdge = cellAlpha.Value
+                .Where(a => a >= cellOmega.Value.Min() + MinimumDifference)
                 .DefaultIfEmpty(grid.ClueSource.ValueSource.AllValues.Max + 1)
                 .Min();
 

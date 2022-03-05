@@ -1,15 +1,15 @@
 ﻿namespace GridPuzzles.Clues;
-//public class ParallelClueHelper<T> : ClueTypeHelper<ICompletenessClue<T>, T>where T :notnull
+//public class ParallelClueHelper<T, TCell> : ClueTypeHelper<ICompletenessClue<T, TCell>, T>where T :struct where TCell : ICell<T, TCell>, new()
 //{
-//    public ParallelClueHelper(IEnumerable<IClue<T>> clues)
+//    public ParallelClueHelper(IEnumerable<IClue<T, TCell>> clues)
 //    {
-//        ParallelClues = clues.OfType<IParallelClue<T>>().ToList();
+//        ParallelClues = clues.OfType<IParallelClue<T, TCell>>().ToList();
 //    }
 
-//    public IReadOnlyCollection<IParallelClue<T>> ParallelClues { get; }
+//    public IReadOnlyCollection<IParallelClue<T, TCell>> ParallelClues { get; }
 
 //    /// <inheritdoc />
-//    public override IEnumerable<ICellChangeResult> GetUpdates(Grid<T> grid,
+//    public override IEnumerable<ICellChangeResult> GetUpdates(Grid<T, TCell> grid,
 //        IEnumerable<Position> positionsToLookAt)
 //    {
 //        yield break; //TODO fix this
@@ -39,11 +39,11 @@
 //    }
 //}
 
-public sealed class CompletenessClueHelper<T> : ClueHelper<ICompletenessClue<T>, T>, IClueUpdateHelper<T>
+public sealed class CompletenessClueHelper<T, TCell> : ClueHelper<ICompletenessClue<T, TCell>, T, TCell>, IClueUpdateHelper<T, TCell>
         
-    where T :notnull
+    where T :struct where TCell : ICell<T, TCell>, new()
 {
-    public CompletenessClueHelper(IEnumerable<IClue<T>> clues) : base(clues)
+    public CompletenessClueHelper(IEnumerable<IClue<T, TCell>> clues) : base(clues)
     {
         CluesByPosition = Clues
             .SelectMany(clue =>
@@ -51,9 +51,9 @@ public sealed class CompletenessClueHelper<T> : ClueHelper<ICompletenessClue<T>,
             .ToLookup(x => x.position, x => x.clue);
     }
 
-    public ILookup<Position, ICompletenessClue<T>> CluesByPosition { get; }
+    public ILookup<Position, ICompletenessClue<T, TCell>> CluesByPosition { get; }
         
-    public IEnumerable<ICellChangeResult> CalculateUpdates(Grid<T> grid,
+    public IEnumerable<ICellChangeResult> CalculateUpdates(Grid<T, TCell> grid,
         int bifurcationLevel,
         Maybe<IReadOnlySet<Position>> positionsToLookAt)
     {
@@ -66,7 +66,7 @@ public sealed class CompletenessClueHelper<T> : ClueHelper<ICompletenessClue<T>,
     }
 
 
-    private static IEnumerable<ICellChangeResult> UpdateCells(ICompletenessClue<T> completenessClue, Grid<T> grid)
+    private static IEnumerable<ICellChangeResult> UpdateCells(ICompletenessClue<T, TCell> completenessClue, Grid<T, TCell> grid)
     {
         var positions = completenessClue.Positions;
 
@@ -75,30 +75,30 @@ public sealed class CompletenessClueHelper<T> : ClueHelper<ICompletenessClue<T>,
         //TODO look at efficiency
 
 
-        var totalUnfixedCells = myCells.Count(x => x.Value.PossibleValues.Count != 1);
+        var totalUnfixedCells = myCells.Count(x => !x.Value.HasSingleValue());
         if (totalUnfixedCells == 0) //nothing to do
             yield break;
 
         var cellsByValue =
             grid.ClueSource.ValueSource.AllValues.ToDictionary(v => v, v =>
-                myCells.Where(x => x.Value.PossibleValues.Contains(v)).ToList() as
-                    IReadOnlyCollection<KeyValuePair<Position, Cell<T>>>);
+                myCells.Where(x => x.Value.Contains(v)).ToList() as
+                    IReadOnlyCollection<KeyValuePair<Position, TCell>>);
 
         foreach (var (v, cellsContainingV) in cellsByValue)
         {
-            var fixedCells = cellsContainingV.Count(x => x.Value.PossibleValues.Count == 1);
+            var fixedCells = cellsContainingV.Count(x => x.Value.HasSingleValue());
 
             if (fixedCells > 1)
             {
-                yield return new Contradiction(new AlreadyExistsReason<T>(v, completenessClue), cellsContainingV.Select(x=>x.Key).ToImmutableArray());
+                yield return new Contradiction(new AlreadyExistsReason<T, TCell>(v, completenessClue), cellsContainingV.Select(x=>x.Key).ToImmutableArray());
             }
 
             else if (fixedCells == 1)
             {
                 if (cellsContainingV.Count <= 1) continue; //Nothing to do here
 
-                foreach (var cp in cellsContainingV.Where(x => x.Value.PossibleValues.Count != 1))
-                    yield return cp.CloneWithoutValue(v,  new AlreadyExistsReason<T>(v, completenessClue));
+                foreach (var cp in cellsContainingV.Where(x =>! x.Value.HasSingleValue()))
+                    yield return cp.CloneWithoutValue(v,  new AlreadyExistsReason<T, TCell>(v, completenessClue));
             }
             else
             {
@@ -106,10 +106,10 @@ public sealed class CompletenessClueHelper<T> : ClueHelper<ICompletenessClue<T>,
                 {
                     case 1:
                         yield return cellsContainingV.Single()
-                            .CloneWithOnlyValue(v, new MustExistsReason<T>(v, completenessClue));
+                            .CloneWithOnlyValue(v, new MustExistsReason<T, TCell>(v, completenessClue));
                         break;
                     case 0:
-                        yield return new Contradiction(new MustExistsReason<T>(v, completenessClue), positions);
+                        yield return new Contradiction(new MustExistsReason<T, TCell>(v, completenessClue), positions);
                         break;
                     default:
                     {
@@ -124,10 +124,10 @@ public sealed class CompletenessClueHelper<T> : ClueHelper<ICompletenessClue<T>,
                                 .Where(x => !positions.Contains(x));
 
                             foreach (var cell in excludedPositions.Select(grid.GetCellKVP)
-                                         .Where(x => x.Value.PossibleValues.Contains(v)))
+                                         .Where(x => x.Value.Contains(v)))
                             {
                                 yield return cell.CloneWithoutValue(v,
-                                    new PossibilityStormReason<T>(v, completenessClue));
+                                    new PossibilityStormReason<T, TCell>(v, completenessClue));
                             }
                         }
 
@@ -155,29 +155,32 @@ public sealed class CompletenessClueHelper<T> : ClueHelper<ICompletenessClue<T>,
                     foreach (var n in possibleHiddenGroup)
                     {
                         var containingCells = cellsByValue[n];
-                        var matchingRestrictions = restrictedValues.Where(x => !n.Equals(x))
-                            .Where(x =>
-                                cellsByValue[x].All(y => containingCells.Any(z => y.Key == z.Key)))
-                            .ToList();
+                        var matchingRestrictions =
+                            
+                            new TCell()
+                                .AddRange(
+                                    restrictedValues.Where(x => !n.Equals(x))
+                                        .Where(x =>
+                                            cellsByValue[x].All(y => containingCells.Any(z => y.Key == z.Key)))      
+                                        .Append(n)
+                                    );    
 
-                        matchingRestrictions.Add(n);
-
-                        if (matchingRestrictions.Count > groupSize)
+                        if (matchingRestrictions.Count() > groupSize)
                         {
                             yield return new Contradiction(
-                                new HiddenGroupReason<T>(matchingRestrictions, completenessClue),
+                                new HiddenGroupReason<T, TCell>(matchingRestrictions, completenessClue),
                                 containingCells.Select(x => x.Key).ToImmutableArray()
                             );
                         }
-                        else if (matchingRestrictions.Count == groupSize)
+                        else if (matchingRestrictions.Count() == groupSize)
                         {
                             //we've struck gold
                             restrictedValues.ExceptWith(
                                 matchingRestrictions); //no need to check these again //TODO think about this?
 
                             foreach (var containingCell in containingCells)
-                                yield return containingCell.CloneWithOnlyValues(matchingRestrictions,
-                                    new HiddenGroupReason<T>(matchingRestrictions, completenessClue));
+                                yield return containingCell.CloneWithOnlyValues<T, TCell>(matchingRestrictions,
+                                    new HiddenGroupReason<T, TCell>(matchingRestrictions, completenessClue));
                         }
                     }
                 }
@@ -187,8 +190,8 @@ public sealed class CompletenessClueHelper<T> : ClueHelper<ICompletenessClue<T>,
         //Permutations
         {
             var cellsByNumberOfPossibilities = myCells
-                .Where(x => x.Value.PossibleValues.Count != 1)
-                .GroupBy(x => x.Value.PossibleValues.Count)
+                .Where(x =>! x.Value.HasSingleValue())
+                .GroupBy(x => x.Value.Count())
                 .OrderBy(x => x.Key).ToList();
 
 
@@ -206,17 +209,17 @@ public sealed class CompletenessClueHelper<T> : ClueHelper<ICompletenessClue<T>,
                 if (groupsThisSizeOrLess.Count >= permutationSize)
                 {
                     foreach (var (_, value) in groupsThisSizeOrLess
-                                 .Where(x => x.Value.PossibleValues.Count == permutationSize)
+                                 .Where(x => x.Value.Count() == permutationSize)
                                  .GroupBy(x => x.Value.ToString()).Select(x => x.First())
                             )
                     {
                         var subGroups = groupsThisSizeOrLess
-                            .Where(x => x.Value.PossibleValues.IsSupersetOf(value.PossibleValues)).ToList();
+                            .Where(x => x.Value.IsSupersetOf(value)).ToList();
 
                         if (subGroups.Count > permutationSize)
                         {
                             yield return new Contradiction(
-                                new PermutationReason<T>(value.PossibleValues, completenessClue),
+                                new PermutationReason<T, TCell>(value, completenessClue),
                                 subGroups.Select(x => x.Key).ToImmutableArray()
                             );
                         }
@@ -228,11 +231,11 @@ public sealed class CompletenessClueHelper<T> : ClueHelper<ICompletenessClue<T>,
                             var cellsToChange = myCells
                                 .Where(x =>
                                     !subGroupPositions.Contains(x.Key) &&
-                                    x.Value.PossibleValues.Overlaps(value.PossibleValues)).ToList();
+                                    x.Value.Overlaps(value)).ToList();
 
                             foreach (var r in cellsToChange
-                                         .Select(cellToChange => cellToChange.CloneWithoutValues(value.PossibleValues,
-                                             new PermutationReason<T>(value.PossibleValues, completenessClue)
+                                         .Select(cellToChange => cellToChange.CloneWithoutValues<T, TCell>(value,
+                                             new PermutationReason<T, TCell>(value, completenessClue)
                                          )))
                                 yield return r;
                         }

@@ -1,6 +1,6 @@
 ﻿namespace Sudoku;
 
-public class NumbersValueSource : IValueSource<int>
+public class NumbersValueSource : IValueSource
 {
     public static IDictionary<int, NumbersValueSource> Sources = //TODO make more efficient
         Enumerable.Range(1, 16).ToDictionary(x => x, x => new NumbersValueSource(x));
@@ -8,13 +8,13 @@ public class NumbersValueSource : IValueSource<int>
     private NumbersValueSource(int max)
     {
         Numbers  = Enumerable.Range(1, max).ToImmutableSortedSet();
-        AnyValueCell = new Cell<int>(Numbers);
+        AnyValueCell = new IntCell(Numbers);
     }
 
     public readonly ImmutableSortedSet<int> Numbers;
 
     /// <inheritdoc />
-    public Cell<int> AnyValueCell { get; }
+    public IntCell AnyValueCell { get; }
 
     /// <inheritdoc />
     public ImmutableSortedSet<int> AllValues => Numbers;

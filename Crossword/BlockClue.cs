@@ -1,13 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using GridPuzzles;
-using GridPuzzles.Cells;
-using GridPuzzles.Clues;
+﻿namespace Crossword;
 
-namespace Crossword;
-
-public class BlockClue : IRuleClue<char>
+public class BlockClue : IRuleClue
 {
     public BlockClue(ImmutableSortedSet<Position> positions)
     {
@@ -21,7 +14,7 @@ public class BlockClue : IRuleClue<char>
     public ImmutableSortedSet<Position> Positions { get; }
 
     /// <inheritdoc />
-    public IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid<char> grid)
+    public IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid grid)
     {
         var updates = Positions.Select(grid.GetCellKVP)
             .Select(x => x.CloneWithOnlyValue(CrosswordValueSource.BlockChar,

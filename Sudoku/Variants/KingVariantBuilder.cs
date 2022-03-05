@@ -1,8 +1,8 @@
 ﻿namespace Sudoku.Variants;
 
-public class KingVariantBuilder <T> : MutexVariantBuilder<T>where T : notnull
+public class KingVariantBuilder <T, TCell> : MutexVariantBuilder<T, TCell>where T :struct where TCell : ICell<T, TCell>, new()
 {
-    public static KingVariantBuilder<T> Instance = new();
+    public static KingVariantBuilder<T, TCell> Instance = new();
 
     private KingVariantBuilder()
     {
@@ -19,7 +19,7 @@ public class KingVariantBuilder <T> : MutexVariantBuilder<T>where T : notnull
     public override int Level => 3;
 
     /// <inheritdoc />
-    protected override IEnumerable<UniquenessClue<T>> GetClues(Position minPosition, Position maxPosition)
+    protected override IEnumerable<UniquenessClue<T, TCell>> GetClues(Position minPosition, Position maxPosition)
     {
         var positionsChecked = new HashSet<Position>();
 
@@ -32,7 +32,7 @@ public class KingVariantBuilder <T> : MutexVariantBuilder<T>where T : notnull
                     .Where(x => !positionsChecked.Contains(x));
 
             foreach (var newKingsPosition in newKingsPositions)
-                yield return new UniquenessClue<T>(position, newKingsPosition, "king's move");
+                yield return new UniquenessClue<T, TCell>(position, newKingsPosition, "king's move");
         }
     }
 

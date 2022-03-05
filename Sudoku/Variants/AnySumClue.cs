@@ -5,24 +5,24 @@ namespace Sudoku.Variants;
 /// <summary>
 /// One of the numbers must be the sum of the other numbers
 /// </summary>
-public partial class AnySumVariantBuilder : VariantBuilder<int>
+public partial class AnySumVariantBuilder : VariantBuilder
 {
     private AnySumVariantBuilder()
     {
     }
 
-    public static VariantBuilder<int> Instance { get; } = new AnySumVariantBuilder();
+    public static VariantBuilder Instance { get; } = new AnySumVariantBuilder();
 
     /// <inheritdoc />
     public override string Name => "Any Sum";
 
     /// <inheritdoc />
-    public override Result<IReadOnlyCollection<IClueBuilder<int>>> TryGetClueBuilders1(IReadOnlyDictionary<string, string> arguments)
+    public override Result<IReadOnlyCollection<IClueBuilder>> TryGetClueBuilders1(IReadOnlyDictionary<string, string> arguments)
     {
         var pr = PositionArgument.TryGetFromDictionary(arguments);
-        if (pr.IsFailure) return pr.ConvertFailure<IReadOnlyCollection<IClueBuilder<int>>>();
+        if (pr.IsFailure) return pr.ConvertFailure<IReadOnlyCollection<IClueBuilder>>();
 
-        var l = new List<IClueBuilder<int>>
+        var l = new List<IClueBuilder>
         {
             new AnySumClueBuilder(pr.Value.ToImmutableSortedSet())
         };
@@ -40,7 +40,7 @@ public partial class AnySumVariantBuilder : VariantBuilder<int>
         4,
         4);
     [Equatable]
-    public partial record AnySumClueBuilder([property:SetEquality] ImmutableSortedSet<Position> Positions) : IClueBuilder<int>
+    public partial record AnySumClueBuilder([property:SetEquality] ImmutableSortedSet<Position> Positions) : IClueBuilder
     {
         /// <inheritdoc />
         public string Name => "Cells Add up to";
@@ -49,12 +49,12 @@ public partial class AnySumVariantBuilder : VariantBuilder<int>
         public int Level => 3;
 
         /// <inheritdoc />
-        public IEnumerable<IClue<int>> CreateClues(Position minPosition, Position maxPosition,
-            IValueSource<int> valueSource,
-            IReadOnlyCollection<IClue<int>> lowerLevelClues)
+        public IEnumerable<IClue<int, IntCell>> CreateClues(Position minPosition, Position maxPosition,
+            IValueSource valueSource,
+            IReadOnlyCollection<IClue<int, IntCell>> lowerLevelClues)
         {
             var unique = true;
-            var uniquenessClues = lowerLevelClues.OfType<IUniquenessClue<int>>().ToList();
+            var uniquenessClues = lowerLevelClues.OfType<IUniquenessClue>().ToList();
             var size2Subsets = Positions.Subsets().Where(x => x.Count == 2);
                  
             foreach (var subset in size2Subsets)
@@ -106,9 +106,9 @@ public sealed record AnySumReason(AnySumClue AnySumClue) : ISingleReason
 /// <summary>
 /// One of the numbers must be the sum of the other numbers
 /// </summary>
-public class AnySumClue : IRuleClue<int>
+public class AnySumClue : IRuleClue
 {
-    public static IClue<int> Create(string name, ImmutableSortedSet<Position> sums, bool unique)
+    public static IClue<int, IntCell> Create(string name, ImmutableSortedSet<Position> sums, bool unique)
     {
         return new AnySumClue(name, sums, unique);
     }
@@ -125,9 +125,9 @@ public class AnySumClue : IRuleClue<int>
     public ImmutableSortedSet<Position> Positions { get; }
     public bool Unique { get; }
 
-    public IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid<int> grid)
+    public IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid grid)
     {
-        var cells = Positions.Select(grid.GetCellKVP).OrderBy(x => x.Value.PossibleValues.Count).ToArray();
+        var cells = Positions.Select(grid.GetCellKVP).OrderBy(x => x.Value.Count()).ToArray();
         var solution = Solve(cells,
             0,
             Unique
@@ -141,26 +141,26 @@ public class AnySumClue : IRuleClue<int>
             foreach (var (position, possibleValues) in solution.Value)
             {
                 var currentCell = grid.GetCellKVP(position);
-                if (possibleValues.Count != currentCell.Value.PossibleValues.Count)
-                    yield return currentCell.CloneWithOnlyValues(possibleValues, new AnySumReason(this));
+                if (!Equals(possibleValues, currentCell.Value))
+                    yield return currentCell.CloneWithOnlyValues<int, IntCell>(possibleValues, new AnySumReason(this));
             }
         }
     }
 
 
-    private static Maybe<IReadOnlyCollection<(Position position, IReadOnlyCollection<int> possibleValues)>> Solve(
-        KeyValuePair<Position, Cell<int>>[] cells, int extraAmount, Maybe<ImmutableHashSet<int>> proscribedValues)
+    private static Maybe<IReadOnlyCollection<(Position position, IntCell possibleValues)>> Solve(
+        KeyValuePair<Position, IntCell>[] cells, int extraAmount, Maybe<ImmutableHashSet<int>> proscribedValues)
     {
         if (cells.Length == 0)
-            return Maybe<IReadOnlyCollection<(Position position, IReadOnlyCollection<int> possibleValues)>>.None;
+            return Maybe<IReadOnlyCollection<(Position position, IntCell possibleValues)>>.None;
         if (cells.Length == 1)
         {
-            if (cells.Single().Value.PossibleValues.Contains(extraAmount))
+            if (cells.Single().Value.Contains(extraAmount))
             {
-                return new (Position position, IReadOnlyCollection<int> possibleValues)[]
-                    { (cells.Single().Key, new[] { extraAmount }) };
+                return new (Position position, IntCell possibleValues)[]
+                    { (cells.Single().Key, new IntCell().Add(extraAmount)) };
             }
-            return Maybe<IReadOnlyCollection<(Position position, IReadOnlyCollection<int> possibleValues)>>.None;
+            return Maybe<IReadOnlyCollection<(Position position, IntCell possibleValues)>>.None;
         }
 
         var allProscribedValues = proscribedValues.GetValueOrDefault(ImmutableHashSet<int>.Empty);
@@ -169,7 +169,7 @@ public class AnySumClue : IRuleClue<int>
         var otherCells = cells[1..];
 
         var isSumOptions = Combine(
-            cells.First().Value.PossibleValues
+            cells.First().Value
                 .Except(allProscribedValues)
                 .Where(v => v >= extraAmount + otherCells.Length)
                 .Select(v =>
@@ -184,7 +184,7 @@ public class AnySumClue : IRuleClue<int>
         //Assume focus is not sum
 
         var isNotSumOptions = Combine(
-            cells.First().Value.PossibleValues
+            cells.First().Value
                 .Except(allProscribedValues)
                 .Select(v =>
                     Solve(otherCells, v + extraAmount, proscribedValues.Map(x => x.Add(v)))
@@ -201,27 +201,27 @@ public class AnySumClue : IRuleClue<int>
 
         return 
             isSumOptions.Value.Concat(isNotSumOptions.Value).GroupBy(x => x.position)
-                .Select(x => (x.Key, x.SelectMany(o => o.possibleValues).ToHashSet() as IReadOnlyCollection<int>)).ToList();
+                .Select(x => (x.Key, x.SelectMany(o => o.possibleValues).ToIntCell())).ToList();
             
     }
 
-    private static Maybe<IReadOnlyCollection<(Position position, IReadOnlyCollection<int> possibleValues)>>
+    private static Maybe<IReadOnlyCollection<(Position position, IntCell possibleValues)>>
         SolveSum(
-            KeyValuePair<Position, Cell<int>>[] cells, int expectedSum,
+            KeyValuePair<Position, IntCell>[] cells, int expectedSum,
             Maybe<ImmutableHashSet<int>> proscribedValues)
     {
         if (expectedSum <= 0)
-            return Maybe<IReadOnlyCollection<(Position position, IReadOnlyCollection<int> possibleValues)>>.None;
+            return Maybe<IReadOnlyCollection<(Position position, IntCell possibleValues)>>.None;
 
         if (cells.Length == 0)
-            return Maybe<IReadOnlyCollection<(Position position, IReadOnlyCollection<int> possibleValues)>>.None;
+            return Maybe<IReadOnlyCollection<(Position position, IntCell possibleValues)>>.None;
 
         if (cells.Length == 1)
         {
-            if (cells.Single().Value.PossibleValues.Contains(expectedSum))
-                return new (Position position, IReadOnlyCollection<int> possibleValues)[]
-                    { (cells.Single().Key, new[] { expectedSum }) };
-            return Maybe<IReadOnlyCollection<(Position position, IReadOnlyCollection<int> possibleValues)>>.None;
+            if (cells.Single().Value.Contains(expectedSum))
+                return new (Position position, IntCell possibleValues)[]
+                    { (cells.Single().Key, new IntCell().Add(expectedSum)) };
+            return Maybe<IReadOnlyCollection<(Position position, IntCell possibleValues)>>.None;
         }
 
 
@@ -229,7 +229,7 @@ public class AnySumClue : IRuleClue<int>
         var allProscribedValues = proscribedValues.GetValueOrDefault(ImmutableHashSet<int>.Empty);
 
         return Combine(
-            cells.First().Value.PossibleValues
+            cells.First().Value
                 .Except(allProscribedValues)
                 .Where(v => v + otherCells.Length <= expectedSum)
                 .Select(v => SolveSum(otherCells, expectedSum - v, proscribedValues.Map(x => x.Add(v))
@@ -240,24 +240,24 @@ public class AnySumClue : IRuleClue<int>
         );
     }
 
-    private static Maybe<IReadOnlyCollection<(Position position, IReadOnlyCollection<int> possibleValues)>> Combine(
-        IReadOnlyCollection<Maybe<(IReadOnlyCollection<(Position position, IReadOnlyCollection<int> possibleValues)>
+    private static Maybe<IReadOnlyCollection<(Position position, IntCell possibleValues)>> Combine(
+        IReadOnlyCollection<Maybe<(IReadOnlyCollection<(Position position, IntCell possibleValues)>
             , int positionValue)>> options,
         int expectedNumberOfCells, Position positionToAdd)
     {
         var result = options.Where(x => x.HasValue)
             .SelectMany(x => x.Value.Item1)
             .GroupBy(x => x.position)
-            .Select(x => (x.Key, x.SelectMany(y => y.possibleValues).ToHashSet() as IReadOnlyCollection<int>))
+            .Select(x =>(x.Key, x.SelectMany(y => y.possibleValues).ToIntCell()))
             .ToList();
 
-        if (result.Count == expectedNumberOfCells)
+        if (result.Count() == expectedNumberOfCells)
         {
             result.Add((positionToAdd, options.Where(x => x.HasValue)
-                .Select(x => x.Value.positionValue).ToList()));
+                .Select(x => x.Value.positionValue).ToIntCell()));
             return result;
         }
 
-        return Maybe<IReadOnlyCollection<(Position position, IReadOnlyCollection<int> possibleValues)>>.None;
+        return Maybe<IReadOnlyCollection<(Position position, IntCell possibleValues)>>.None;
     }
 }

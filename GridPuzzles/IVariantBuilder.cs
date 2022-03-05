@@ -21,9 +21,9 @@ public interface IVariantBuilder
         IReadOnlyDictionary<string, string> arguments);
 }
 
-public interface IVariantBuilder<T> : IVariantBuilder where T : notnull
+public interface IVariantBuilder<T, TCell> : IVariantBuilder where T :struct where TCell : ICell<T, TCell>, new()
 {
-    Task<Result<IReadOnlyCollection<IClueBuilder<T>>>> TryGetClueBuildersAsync(
+    Task<Result<IReadOnlyCollection<IClueBuilder<T, TCell>>>> TryGetClueBuildersAsync(
         IReadOnlyDictionary<string, string> arguments, CancellationToken cancellationToken);
 
 }

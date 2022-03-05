@@ -2,7 +2,7 @@
 ///// <summary>
 ///// All the numbers in this group are consecutive (in some order) and unique
 ///// </summary>
-//public class ConsecutiveGroup : IUniquenessClue<int>, IRuleClue<int>
+//public class ConsecutiveGroup : IUniquenessClue, IRuleClue
 //{
 //    public ConsecutiveGroup(ImmutableSortedSet<Position> positions)
 //    {
@@ -10,7 +10,7 @@
 //    }
 
 //    /// <inheritdoc />
-//    public void GetCellUpdates(Grid<int> grid, IClueResultBuilder<int> clueResultBuilder)
+//    public void GetCellUpdates(Grid grid, IClueResultBuilder<int> clueResultBuilder)
 //    {
 //        var cells = Positions.Select(grid.GetCellKVP).ToList();
 //        HashSet<int>? allAllowedValues;
@@ -46,7 +46,7 @@
 //    public ImmutableSortedSet<Position> Positions { get; }
 //}
 
-public class TaxicabClue : IRuleClue<int>
+public class TaxicabClue : IRuleClue
 {
     public TaxicabClue(Position position, Position minPosition, Position maxPosition) //TODO change to some sort of option clue so we can use uniqueness
     {
@@ -70,13 +70,13 @@ public class TaxicabClue : IRuleClue<int>
     public ImmutableSortedSet<Position> Positions { get; }
 
     /// <inheritdoc />
-    public IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid<int> grid)
+    public IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid grid)
     {
         var cell = grid.GetCell(Position);
 
-        if (cell.PossibleValues.Count == 1)
+        if (cell.HasSingleValue())
         {
-            var cellValue = cell.PossibleValues.Single();
+            var cellValue = cell.Single();
 
             var taxiCabPositions = GetTaxicabPositions(Position, cellValue);
 

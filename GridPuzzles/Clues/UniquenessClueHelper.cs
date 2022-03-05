@@ -3,12 +3,12 @@
 
 namespace GridPuzzles.Clues;
 
-public sealed class UniquenessClueHelper<T> : ClueHelper<IUniquenessClue<T>, T>, IClueUpdateHelper<T>
-    where T : notnull
+public sealed class UniquenessClueHelper<T, TCell> : ClueHelper<IUniquenessClue<T, TCell>, T, TCell>, IClueUpdateHelper<T, TCell>
+    where T :struct where TCell : ICell<T, TCell>, new()
 {
     /// <inheritdoc />
-    public UniquenessClueHelper(IEnumerable<IClue<T>> allClues) : base(
-        MergeClues(allClues.OfType<IUniquenessClue<T>>()))
+    public UniquenessClueHelper(IEnumerable<IClue<T, TCell>> allClues) : base(
+        MergeClues(allClues.OfType<IUniquenessClue<T, TCell>>()))
     {
         Lookup = Clues
             .SelectMany(clue => clue.Positions.Select(p => (p, clue)))
@@ -18,7 +18,7 @@ public sealed class UniquenessClueHelper<T> : ClueHelper<IUniquenessClue<T>, T>,
             new Lazy<IReadOnlyDictionary<Position, IReadOnlySet<Position>>>(() => CreateUniquePairs(Lookup));
     }
 
-    public readonly ILookup<Position, IUniquenessClue<T>> Lookup;
+    public readonly ILookup<Position, IUniquenessClue<T, TCell>> Lookup;
 
     private Lazy<IReadOnlyDictionary<Position, IReadOnlySet<Position>>> LazyUniquePairs { get; }
 
@@ -51,7 +51,7 @@ public sealed class UniquenessClueHelper<T> : ClueHelper<IUniquenessClue<T>, T>,
 
 
     private static IReadOnlyDictionary<Position, IReadOnlySet<Position>> CreateUniquePairs(
-        ILookup<Position, IUniquenessClue<T>> lookup)
+        ILookup<Position, IUniquenessClue<T, TCell>> lookup)
     {
         var pairs =
             lookup.SelectMany(x => x).Distinct().SelectMany(clue =>
@@ -91,7 +91,7 @@ public sealed class UniquenessClueHelper<T> : ClueHelper<IUniquenessClue<T>, T>,
     }
 
 
-    private static IEnumerable<IUniquenessClue<T>> MergeClues(IEnumerable<IUniquenessClue<T>> sourceClues)
+    private static IEnumerable<IUniquenessClue<T, TCell>> MergeClues(IEnumerable<IUniquenessClue<T, TCell>> sourceClues)
     {
         var sets = new HashSet<ImmutableSortedSet<Position>>(SortedSetElementsComparer<Position>.Instance);
 
@@ -104,7 +104,7 @@ public sealed class UniquenessClueHelper<T> : ClueHelper<IUniquenessClue<T>, T>,
         }
     }
 
-    public IEnumerable<ICellChangeResult> CalculateUpdates(Grid<T> grid,
+    public IEnumerable<ICellChangeResult> CalculateUpdates(Grid<T, TCell> grid,
         int bifurcationLevel,
         Maybe<IReadOnlySet<Position>> positions)
     {
@@ -114,7 +114,7 @@ public sealed class UniquenessClueHelper<T> : ClueHelper<IUniquenessClue<T>, T>,
             .SelectMany(clue => GetCellUpdates(clue, grid));
     }
 
-    private static IEnumerable<ICellChangeResult> GetCellUpdates(IUniquenessClue<T> clue, Grid<T> grid)
+    private static IEnumerable<ICellChangeResult> GetCellUpdates(IUniquenessClue<T, TCell> clue, Grid<T, TCell> grid)
     {
         var cellPositionsGroups = clue.Positions
             .Select(grid.GetCellKVP)
@@ -125,13 +125,13 @@ public sealed class UniquenessClueHelper<T> : ClueHelper<IUniquenessClue<T>, T>,
             var positionsCount = cellPositions.Count();
             var reason = GetReason(cellPositions.Key);
 
-            if (cellPositions.Key.PossibleValues.Count < positionsCount)
+            if (cellPositions.Key.Count() < positionsCount)
             {
                 yield return (new Contradiction(
                     reason,
                     cellPositions.ToImmutableArray()));
             }
-            else if (cellPositions.Key.PossibleValues.Count == positionsCount)
+            else if (cellPositions.Key.Count() == positionsCount)
             {
                 IEnumerable<Position> positionsToCheck;
 
@@ -146,21 +146,21 @@ public sealed class UniquenessClueHelper<T> : ClueHelper<IUniquenessClue<T>, T>,
 
                 foreach (var p in positionsToCheck)
                 {
-                    var cell = grid.GetCellKVP(p);
-                    if (cell.Value.PossibleValues.Overlaps(cellPositions.Key.PossibleValues))
+                    var kvp = grid.GetCellKVP(p);
+                    if (kvp.Value.Overlaps(cellPositions.Key))
                     {
-                        yield return cell.CloneWithoutValues(cellPositions.Key.PossibleValues,
+                        yield return kvp.CloneWithoutValues<T, TCell>(cellPositions.Key,
                             reason);
                     }
                 }
             }
         }
 
-        ISingleReason GetReason(Cell<T> cell)
+        ISingleReason GetReason(TCell cell)
         {
-            if (cell.PossibleValues.Count == 1)
-                return new AlreadyExistsReason<T>(cell.PossibleValues.Single(), clue);
-            else return new PermutationReason<T>(cell.PossibleValues, clue);
+            if (cell.HasSingleValue())
+                return new AlreadyExistsReason<T, TCell>(cell.Single(), clue);
+            else return new PermutationReason<T, TCell>(cell, clue);
         }
     }
 }

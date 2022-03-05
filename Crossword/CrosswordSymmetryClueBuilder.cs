@@ -1,32 +1,27 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
 using CSharpFunctionalExtensions;
-using GridPuzzles;
-using GridPuzzles.Clues;
 using GridPuzzles.Overlays;
 using GridPuzzles.VariantBuilderArguments;
 
 namespace Crossword;
 
-public class CrosswordSymmetryVariantBuilder : VariantBuilder<char>
+public class CrosswordSymmetryVariantBuilder : VariantBuilder
 {
     private CrosswordSymmetryVariantBuilder()
     {
     }
 
-    public static IVariantBuilder<char> Instance { get; } = new CrosswordSymmetryVariantBuilder();
+    public static IVariantBuilder<char, CharCell> Instance { get; } = new CrosswordSymmetryVariantBuilder();
 
     /// <inheritdoc />
     public override string Name => "Symmetry";
 
     /// <inheritdoc />
-    public override Result<IReadOnlyCollection<IClueBuilder<char>>> TryGetClueBuilders1(IReadOnlyDictionary<string, string> arguments)
+    public override Result<IReadOnlyCollection<IClueBuilder>> TryGetClueBuilders1(IReadOnlyDictionary<string, string> arguments)
     {
         var blockTypeResult = RotationTypeArgument.TryGetFromDictionary(arguments);
         if (blockTypeResult.IsFailure)
-            return blockTypeResult.ConvertFailure<IReadOnlyCollection<IClueBuilder<char>>>();
+            return blockTypeResult.ConvertFailure<IReadOnlyCollection<IClueBuilder>>();
 
         return blockTypeResult.Value switch
         {
@@ -53,7 +48,7 @@ public enum RotationType
     Rotation4
 }
 
-public record CrosswordSymmetryClueBuilder(RotationType RotationalType) : IClueBuilder<char>
+public record CrosswordSymmetryClueBuilder(RotationType RotationalType) : IClueBuilder
 {
     public static CrosswordSymmetryClueBuilder Rotation2 = new(RotationType.Rotation2);
     public static CrosswordSymmetryClueBuilder Rotation4 = new(RotationType.Rotation4);
@@ -66,8 +61,8 @@ public record CrosswordSymmetryClueBuilder(RotationType RotationalType) : IClueB
     public int Level => 2;
 
     /// <inheritdoc />
-    public IEnumerable<IClue<char>> CreateClues(Position minPosition, Position maxPosition, IValueSource<char> valueSource,
-        IReadOnlyCollection<IClue<char>> lowerLevelClues)
+    public IEnumerable<IClue<char, CharCell>> CreateClues(Position minPosition, Position maxPosition, IValueSource<char, CharCell> valueSource,
+        IReadOnlyCollection<IClue<char, CharCell>> lowerLevelClues)
     {
         var blocks = lowerLevelClues.OfType<BlockClue>().SelectMany(x => x.Positions).ToImmutableHashSet();
 
@@ -83,7 +78,7 @@ public record CrosswordSymmetryClueBuilder(RotationType RotationalType) : IClueB
 #pragma warning restore CS8619 // Nullability of reference types in value doesn't match target type.
     }
 
-    private static IClue<char>? TryMake(Position p, Position minPosition, Position maxPosition, RotationType rotationType)
+    private static IClue<char, CharCell>? TryMake(Position p, Position minPosition, Position maxPosition, RotationType rotationType)
     {
         return rotationType switch
         {

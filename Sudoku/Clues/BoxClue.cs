@@ -1,6 +1,6 @@
 ﻿namespace Sudoku.Clues;
 
-public class BoxClue<T> : BasicClue<T>  where T: notnull
+public class BoxClue<T, TCell> : BasicClue<T, TCell>  where T :struct where TCell : ICell<T, TCell>, new()
 {
     public BoxClue(Position topLeft, Position bottomRight, int index) : base($"Box {index}")
     {

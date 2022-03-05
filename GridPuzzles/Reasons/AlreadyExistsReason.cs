@@ -2,9 +2,9 @@
 
 namespace GridPuzzles.Reasons;
 
-public sealed record AlreadyExistsReason<T>(T Value, IUniquenessClue<T> UniquenessClue)
+public sealed record AlreadyExistsReason<T, TCell>(T Value, IUniquenessClue<T, TCell> UniquenessClue)
     : ISingleReason
-    where T : notnull
+    where T :struct where TCell : ICell<T, TCell>, new()
 {
     /// <inheritdoc />
     public string Text => $"{Value} already exists in {UniquenessClue.Domain}.";
@@ -12,11 +12,11 @@ public sealed record AlreadyExistsReason<T>(T Value, IUniquenessClue<T> Uniquene
     /// <inheritdoc />
     public IEnumerable<Position> GetContributingPositions(IGrid grid)
     {
-        if (grid is Grid<T> gridT)
+        if (grid is Grid<T, TCell> gridT)
         {
             return 
                 UniquenessClue.Positions.Select(gridT.GetCellKVP)
-                    .Where(x => x.Value.PossibleValues.Count == 1 && x.Value.PossibleValues.Contains(Value))
+                    .Where(x => x.Value.HasSingleValue() && x.Value.Contains(Value))
                     .Select(x=>x.Key);
         }
 

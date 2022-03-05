@@ -2,7 +2,7 @@
 
 namespace Sudoku.Variants;
 
-public class SumClue : IRuleClue<int>
+public class SumClue : IRuleClue
 {
     private SumClue(string name, ISumChecker sumChecker, ImmutableSortedSet<Position> positions, bool alwaysAllUnique)
     {
@@ -12,7 +12,7 @@ public class SumClue : IRuleClue<int>
         AlwaysAllUnique = alwaysAllUnique;
     }
 
-    public static IClue<int> Create(string name, ImmutableSortedSet<int> sums, bool sumsGivenAreValid,
+    public static IClue<int, IntCell> Create(string name, ImmutableSortedSet<int> sums, bool sumsGivenAreValid,
         ImmutableDictionary<Position, int> multipliers, bool alwaysAllUnique)
     {
         var positions = multipliers
@@ -33,9 +33,9 @@ public class SumClue : IRuleClue<int>
                 var p1 = multipliers.Keys.First();
                 var p2 = multipliers.Keys.Skip(1).First();
                 if (sums.Count == 1 && sumsGivenAreValid)
-                    return RelationshipClue<int>.Create(p1, p2, new SumConstraint(sums.Single()));
+                    return RelationshipClue.Create(p1, p2, new SumConstraint(sums.Single()));
                 if (!sumsGivenAreValid)
-                    return RelationshipClue<int>.Create(p1, p2, new NonSumConstraint(sums));
+                    return RelationshipClue.Create(p1, p2, new NonSumConstraint(sums));
             }
         }
 
@@ -63,14 +63,14 @@ public class SumClue : IRuleClue<int>
 
 
     /// <inheritdoc />
-    public IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid<int> grid)
+    public IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid grid)
     {
         var updates = GetCellUpdates1(grid);
         return updates;
     }
 
 
-    private IEnumerable<ICellChangeResult> GetCellUpdates1(Grid<int> grid)
+    private IEnumerable<ICellChangeResult> GetCellUpdates1(Grid grid)
     {
         var cells = Positions.Select(grid.GetCellKVP).ToList();
 
@@ -78,12 +78,12 @@ public class SumClue : IRuleClue<int>
         var allUnique = AlwaysAllUnique || grid.ClueSource.UniquenessClueHelper.ArePositionsMutuallyUnique(Positions);
         var anyRelations = grid.ClueSource.RelationshipClueHelper.DoAnyRelationshipsExist(Positions);
         var relationshipChecker = new SimpleRelationshipChecker(
-            !anyRelations ? Maybe<RelationshipClueHelper<int>>.None : grid.ClueSource.RelationshipClueHelper,
-            allUnique ? Maybe<UniquenessClueHelper<int>>.None : grid.ClueSource.UniquenessClueHelper);
+            !anyRelations ? Maybe<RelationshipClueHelper<int, IntCell>>.None : grid.ClueSource.RelationshipClueHelper,
+            allUnique ? Maybe<UniquenessClueHelper<int, IntCell>>.None : grid.ClueSource.UniquenessClueHelper);
 
         var pvsToCheck = new HashSet<PositionValue>();
         var unassignedValuesBuilder =
-            ImmutableSortedDictionary<Position, ImmutableSortedSet<int>>.Empty.ToBuilder();
+            ImmutableSortedDictionary<Position, IntCell>.Empty.ToBuilder();
         var possiblePositionValues = new HashSet<PositionValue>();
         var assignedValues = ImmutableArray<PositionValue>.Empty;
 
@@ -96,11 +96,11 @@ public class SumClue : IRuleClue<int>
             var cell = grouping.Key;
 
             var newPossibleValues = usedValues.HasValue
-                ? cell.PossibleValues.Except(usedValues.Value)
-                : cell.PossibleValues;
+                ? cell.Except(usedValues.Value.ToIntCell())
+                : cell;
 
             //If cells of this type only have one possible value, assign that value
-            if (newPossibleValues.Count == 1)
+            if (newHasSingleValue())
             {
                 if (usedValues.HasValue)
                     usedValues.Value.Add(newPossibleValues.Single());
@@ -123,7 +123,7 @@ public class SumClue : IRuleClue<int>
             }
             else
             {
-                if (allUnique && newPossibleValues.Count <= count)
+                if (allUnique && newPossibleValues.Count() <= count)
                     usedValues.Value.UnionWith(newPossibleValues);
 
                 foreach (var position in grouping)
@@ -202,6 +202,7 @@ public class SumClue : IRuleClue<int>
         }
 
         var cellPossibleValues = possiblePositionValues.ToLookup(x => x.Position, x => x.Value);
+        //TODO see if using cells here improves performance
 
         //If there is only one set of possible values, check the sum of those values
         if (cellPossibleValues.All(x => x.Count() == 1))
@@ -217,7 +218,7 @@ public class SumClue : IRuleClue<int>
 
         foreach (var cell in cells)
         {
-            var possibleValues = cellPossibleValues[cell.Key];
+            var possibleValues = cellPossibleValues[cell.Key].ToIntCell();
             // ReSharper disable PossibleMultipleEnumeration
             var count = possibleValues.Count();
 
@@ -229,8 +230,8 @@ public class SumClue : IRuleClue<int>
                 yield break;
             }
 
-            if (count < cell.Value.PossibleValues.Count)
-                yield return cell.CloneWithOnlyValues(possibleValues,
+            if (count < cell.Value.Count())
+                yield return cell.CloneWithOnlyValues<int, IntCell>(possibleValues,
                     new SumReason(this)
                 );
             // ReSharper restore PossibleMultipleEnumeration
@@ -239,7 +240,7 @@ public class SumClue : IRuleClue<int>
 
     private static Maybe<ImmutableArray<PositionValue>> FindValidAssignment(
         ImmutableArray<PositionValue> assignedValues,
-        ImmutableSortedDictionary<Position, ImmutableSortedSet<int>> unassignedCells, ISumChecker sumChecker,
+        ImmutableSortedDictionary<Position, IntCell> unassignedCells, ISumChecker sumChecker,
         IRelationshipChecker relationshipChecker)
     {
         if (!unassignedCells.Any())
@@ -318,15 +319,15 @@ public class SumClue : IRuleClue<int>
     private class SimpleRelationshipChecker : IRelationshipChecker
     {
         public SimpleRelationshipChecker(
-            Maybe<RelationshipClueHelper<int>> relationshipClueHelper,
-            Maybe<UniquenessClueHelper<int>> uniquenessClueHelper)
+            Maybe<RelationshipClueHelper<int, IntCell>> relationshipClueHelper,
+            Maybe<UniquenessClueHelper<int, IntCell>> uniquenessClueHelper)
         {
             RelationshipClueHelper = relationshipClueHelper;
             UniquenessClueHelper = uniquenessClueHelper;
         }
 
-        private Maybe<RelationshipClueHelper<int>> RelationshipClueHelper { get; }
-        private Maybe<UniquenessClueHelper<int>> UniquenessClueHelper { get; }
+        private Maybe<RelationshipClueHelper<int, IntCell>> RelationshipClueHelper { get; }
+        private Maybe<UniquenessClueHelper<int, IntCell>> UniquenessClueHelper { get; }
 
         public bool AreValuesPossible(PositionValue pv1, PositionValue pv2)
         {
@@ -373,7 +374,7 @@ public class SumClue : IRuleClue<int>
             var r2 = RelationshipClueHelper.Value.Lookup[p2]
                 .Where(x => otherPositions.Contains(x.Position2));
 
-            if (!r1.ToHashSet(RelationshipCluePosition1AgnosticComparer<int>.Instance).SetEquals(r2))
+            if (!r1.ToHashSet(RelationshipCluePosition1AgnosticComparer<int, IntCell>.Instance).SetEquals(r2))
                 return false;
 
 
@@ -403,7 +404,7 @@ public class SumClue : IRuleClue<int>
         bool CorrectSumsAreLegal { get; }
 
         IEnumerable<IReadOnlySet<Position>> GroupPositions(IRelationshipChecker relationshipChecker,
-            ImmutableSortedDictionary<Position, ImmutableSortedSet<int>> cells);
+            ImmutableSortedDictionary<Position, IntCell> cells);
     }
 
     public class KillerSumChecker : ISumChecker
@@ -419,7 +420,7 @@ public class SumClue : IRuleClue<int>
 
         /// <inheritdoc />
         public IEnumerable<IReadOnlySet<Position>> GroupPositions(IRelationshipChecker relationshipChecker,
-            ImmutableSortedDictionary<Position, ImmutableSortedSet<int>> cells)
+            ImmutableSortedDictionary<Position, IntCell> cells)
         {
             var allPositions = cells.Select(x => x.Key).ToList();
             foreach (var grouping in
@@ -532,7 +533,7 @@ public class SumClue : IRuleClue<int>
 
         /// <inheritdoc />
         public bool SumIsAlwaysPossible(IRelationshipChecker relationshipChecker,
-            IReadOnlyList<KeyValuePair<Position, Cell<int>>> cells, Grid<int> grid)
+            IReadOnlyList<KeyValuePair<Position, IntCell>> cells, Grid grid)
         {
             return false;
             //TODO if all cells have the same number of choices DOF then return true maybe?
@@ -554,7 +555,7 @@ public class SumClue : IRuleClue<int>
 
         /// <inheritdoc />
         public IEnumerable<IReadOnlySet<Position>> GroupPositions(IRelationshipChecker relationshipChecker,
-            ImmutableSortedDictionary<Position, ImmutableSortedSet<int>> cells)
+            ImmutableSortedDictionary<Position, IntCell> cells)
         {
             var allPositions = cells.Select(x => x.Key).ToList();
             foreach (var grouping in

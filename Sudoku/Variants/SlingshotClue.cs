@@ -3,36 +3,36 @@ using GridPuzzles.Enums;
 
 namespace Sudoku.Variants;
 
-public class SlingshotVariantBuilder : VariantBuilder<int>
+public class SlingshotVariantBuilder : VariantBuilder
 {
     private SlingshotVariantBuilder()
     {
     }
 
-    public static VariantBuilder<int> Instance { get; } = new SlingshotVariantBuilder();
+    public static VariantBuilder Instance { get; } = new SlingshotVariantBuilder();
 
     /// <inheritdoc />
     public override string Name => "Slingshot";
 
     /// <inheritdoc />
-    public override Result<IReadOnlyCollection<IClueBuilder<int>>> TryGetClueBuilders1(
+    public override Result<IReadOnlyCollection<IClueBuilder>> TryGetClueBuilders1(
         IReadOnlyDictionary<string, string> arguments)
     {
         var positionArgumentsResult = SlingshotPosition.TryGetFromDictionary(arguments);
         if (positionArgumentsResult.IsFailure)
-            return positionArgumentsResult.ConvertFailure<IReadOnlyCollection<IClueBuilder<int>>>();
+            return positionArgumentsResult.ConvertFailure<IReadOnlyCollection<IClueBuilder>>();
 
 
         var fromArgumentResult = FromArgument.TryGetFromDictionary(arguments);
         if (fromArgumentResult.IsFailure)
-            return fromArgumentResult.ConvertFailure<IReadOnlyCollection<IClueBuilder<int>>>();
+            return fromArgumentResult.ConvertFailure<IReadOnlyCollection<IClueBuilder>>();
 
         var toArgumentResult = ToArgument.TryGetFromDictionary(arguments);
         if (toArgumentResult.IsFailure)
-            return toArgumentResult.ConvertFailure<IReadOnlyCollection<IClueBuilder<int>>>();
+            return toArgumentResult.ConvertFailure<IReadOnlyCollection<IClueBuilder>>();
 
 
-        var l = new List<IClueBuilder<int>>
+        var l = new List<IClueBuilder>
         {
             new SlingshotClueBuilder(positionArgumentsResult.Value, fromArgumentResult.Value,
                 toArgumentResult.Value)
@@ -53,7 +53,7 @@ public class SlingshotVariantBuilder : VariantBuilder<int>
     }
 }
 
-public record SlingshotClueBuilder(Position CellPosition, CompassDirection FromDirection, CompassDirection ToDirection) : IClueBuilder<int>
+public record SlingshotClueBuilder(Position CellPosition, CompassDirection FromDirection, CompassDirection ToDirection) : IClueBuilder
 {
 
     /// <inheritdoc />
@@ -63,9 +63,9 @@ public record SlingshotClueBuilder(Position CellPosition, CompassDirection FromD
     public int Level => 2;
 
     /// <inheritdoc />
-    public IEnumerable<IClue<int>> CreateClues(Position minPosition, Position maxPosition,
-        IValueSource<int> valueSource,
-        IReadOnlyCollection<IClue<int>> lowerLevelClues)
+    public IEnumerable<IClue<int, IntCell>> CreateClues(Position minPosition, Position maxPosition,
+        IValueSource valueSource,
+        IReadOnlyCollection<IClue<int, IntCell>> lowerLevelClues)
     {
         yield return new SlingshotClue(CellPosition, FromDirection, ToDirection,
             ToDirection.GetMaxDistance(CellPosition, minPosition, maxPosition));
@@ -117,7 +117,7 @@ public record SlingshotClueBuilder(Position CellPosition, CompassDirection FromD
         };
 }
 
-public class SlingshotClue : IRuleClue<int>
+public class SlingshotClue : IRuleClue
 {
     public SlingshotClue(Position cellPosition, CompassDirection fromDirection, CompassDirection toDirection,
         int maxDistance)
@@ -149,18 +149,18 @@ public class SlingshotClue : IRuleClue<int>
     public ImmutableSortedSet<Position> Positions { get; }
 
     /// <inheritdoc />
-    public IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid<int> grid)
+    public IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid grid)
     {
         var centreCell = grid.GetCellKVP(CellPosition);
 
-        if (centreCell.Value.PossibleValues.Any(x => x > MaxDistance))
-            yield return centreCell.CloneWithOnlyValues(
-                centreCell.Value.PossibleValues.Where(x => x <= MaxDistance),
+        if (centreCell.Value.Any(x => x > MaxDistance))
+            yield return centreCell.CloneWithOnlyValues<int, IntCell>(
+                centreCell.Value.Where(x => x <= MaxDistance).ToIntCell(),
                 new SlingshotReason(this)
                 //"Maximum Slingshot length"
             );
 
-        var newMax = Math.Min(MaxDistance, centreCell.Value.PossibleValues.Max());
+        var newMax = Math.Min(MaxDistance, centreCell.Value.Max());
 
         var toCells = ToDirection.GetAdjacentPositions(CellPosition, newMax)
             .Select(grid.GetCellKVP)
@@ -171,10 +171,10 @@ public class SlingshotClue : IRuleClue<int>
 
         //Set froms possible values to those implied by the centre cell
 
-        var fromPossibles = centreCell.Value.PossibleValues.Where(x => x <= MaxDistance)
-            .SelectMany(x => toCells[x].Value.PossibleValues).Distinct();
+        var fromPossibles = centreCell.Value.Where(x => x <= MaxDistance)
+            .SelectMany(x => toCells[x].Value).Distinct().ToIntCell();
 
-        yield return fromCell.CloneWithOnlyValues(fromPossibles,
+        yield return fromCell.CloneWithOnlyValues<int, IntCell>(fromPossibles,
             new SlingshotReason(this)
             //"Possible Slingshot targets"
                 
@@ -182,12 +182,12 @@ public class SlingshotClue : IRuleClue<int>
 
         //if centre cell is set, to must equal from
 
-        if (centreCell.Value.PossibleValues.Count == 1)
+        if (centreCell.Value.HasSingleValue())
         {
-            if (toCells.TryGetValue(centreCell.Value.PossibleValues.Single(), out var kvp))
+            if (toCells.TryGetValue(centreCell.Value.Single(), out var kvp))
             {
                 yield return kvp
-                    .CloneWithOnlyValues(fromCell.Value.PossibleValues, 
+                    .CloneWithOnlyValues<int, IntCell>(fromCell.Value, 
                         new SlingshotReason(this)
                         //"Possible Slingshot sources"
                             
@@ -204,17 +204,17 @@ public class SlingshotClue : IRuleClue<int>
         }
 
 
-        var fps = fromCell.Value.PossibleValues.ToHashSet();
+        var fps = fromCell.Value.ToHashSet();
 
         //if only one cell in the from collection could share a value with two, that is the centre cell
         //Centre cell cannot have a value that puts to and from in the same uniqueness set
 
         var possibleToCells = toCells
-            .Where(x => fps.Overlaps(x.Value.Value.PossibleValues))
+            .Where(x => fps.Overlaps(x.Value.Value))
             .Where(x => !grid.ClueSource.UniquenessClueHelper.ArePositionsMutuallyUnique(fromCell.Key, x.Value.Key))
-            .Select(x => x.Key);
+            .Select(x => x.Key).ToIntCell();
 
-        yield return centreCell.CloneWithOnlyValues(possibleToCells,
+        yield return centreCell.CloneWithOnlyValues<int, IntCell>(possibleToCells,
             new SlingshotReason(this)
             //"Possible Slingshot lengths"
         );

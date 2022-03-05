@@ -1,13 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using GridPuzzles;
-using GridPuzzles.Clues;
-using MoreLinq;
+﻿using MoreLinq;
 
 namespace Crossword;
 
-public class ParallelWordClueBuilder : NoArgumentVariantBuilder<char>
+public class ParallelWordClueBuilder : NoArgumentVariantBuilder
 {
     public static ParallelWordClueBuilder Instance = new();
 
@@ -21,8 +16,8 @@ public class ParallelWordClueBuilder : NoArgumentVariantBuilder<char>
     public override int Level => 4;
 
     /// <inheritdoc />
-    public override IEnumerable<IClue<char>> CreateClues(Position minPosition, Position maxPosition, IValueSource<char> valueSource,
-        IReadOnlyCollection<IClue<char>> lowerLevelClues)
+    public override IEnumerable<IClue<char, CharCell>> CreateClues(Position minPosition, Position maxPosition, IValueSource<char, CharCell> valueSource,
+        IReadOnlyCollection<IClue<char, CharCell>> lowerLevelClues)
     {
         var blocks = lowerLevelClues.OfType<BlockClue>().SelectMany(x => x.Positions).ToImmutableHashSet();
 

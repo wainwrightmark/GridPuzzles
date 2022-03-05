@@ -1,20 +1,22 @@
 ﻿namespace GridPuzzles.Bifurcation;
 
-public interface IBifurcationChoice<T> : IComparable<IBifurcationChoice<T>>
+public interface IBifurcationChoice<T, TCell> : IComparable<IBifurcationChoice<T, TCell>>
+    where T :struct where TCell : ICell<T, TCell>, new()
 {
-    UpdateResult<T> UpdateResult { get; }
+    UpdateResult<T, TCell> UpdateResult { get; }
 }
 
-public sealed class BifurcationCellChoice<T> : IBifurcationChoice<T>
+public sealed class BifurcationCellChoice<T, TCell> : IBifurcationChoice<T, TCell>
+    where T :struct where TCell : ICell<T, TCell>, new()
 {
-    public BifurcationCellChoice(CellUpdate<T> cellUpdate)
+    public BifurcationCellChoice(CellUpdate<T, TCell> cellUpdate)
     {
         CellUpdate = cellUpdate;
     }
 
-    public CellUpdate<T> CellUpdate { get; }
+    public CellUpdate<T, TCell> CellUpdate { get; }
 
-    public UpdateResult<T> UpdateResult => UpdateResult<T>.Empty.CloneWithCellUpdate(CellUpdate);
+    public UpdateResult<T, TCell> UpdateResult => UpdateResult<T, TCell>.Empty.CloneWithCellUpdate(CellUpdate);
 
     /// <inheritdoc />
     public override string ToString() => CellUpdate.ToString();
@@ -24,30 +26,30 @@ public sealed class BifurcationCellChoice<T> : IBifurcationChoice<T>
         
 
     /// <inheritdoc />
-    public int CompareTo(IBifurcationChoice<T>? other)
+    public int CompareTo(IBifurcationChoice<T, TCell>? other)
     {
-        if (other is BifurcationCellChoice<T> bcc)
+        if (other is BifurcationCellChoice<T, TCell> bcc)
             return StringComparer.OrdinalIgnoreCase.Compare(CellUpdate.ToString(), bcc.CellUpdate.ToString());
 
         return 0;
     }
 
     /// <inheritdoc />
-    public override bool Equals(object? obj) => obj is BifurcationCellChoice<T> bcc && CellUpdate.Equals(bcc.CellUpdate);
+    public override bool Equals(object? obj) => obj is BifurcationCellChoice<T, TCell> bcc && CellUpdate.Equals(bcc.CellUpdate);
 
-    public static bool operator ==(BifurcationCellChoice<T> left, BifurcationCellChoice<T> right)
+    public static bool operator ==(BifurcationCellChoice<T, TCell> left, BifurcationCellChoice<T, TCell> right)
     {
 
         return left.Equals(right);
     }
 
-    public static bool operator !=(BifurcationCellChoice<T> left, BifurcationCellChoice<T> right) => !(left == right);
+    public static bool operator !=(BifurcationCellChoice<T, TCell> left, BifurcationCellChoice<T, TCell> right) => !(left == right);
 
-    public static bool operator <(BifurcationCellChoice<T> left, BifurcationCellChoice<T> right) => left.CompareTo(right) < 0;
+    public static bool operator <(BifurcationCellChoice<T, TCell> left, BifurcationCellChoice<T, TCell> right) => left.CompareTo(right) < 0;
 
-    public static bool operator <=(BifurcationCellChoice<T> left, BifurcationCellChoice<T> right) => left.CompareTo(right) <= 0;
+    public static bool operator <=(BifurcationCellChoice<T, TCell> left, BifurcationCellChoice<T, TCell> right) => left.CompareTo(right) <= 0;
 
-    public static bool operator >(BifurcationCellChoice<T> left, BifurcationCellChoice<T> right) => left.CompareTo(right) > 0;
+    public static bool operator >(BifurcationCellChoice<T, TCell> left, BifurcationCellChoice<T, TCell> right) => left.CompareTo(right) > 0;
 
-    public static bool operator >=(BifurcationCellChoice<T> left, BifurcationCellChoice<T> right) => left.CompareTo(right) >= 0;
+    public static bool operator >=(BifurcationCellChoice<T, TCell> left, BifurcationCellChoice<T, TCell> right) => left.CompareTo(right) >= 0;
 }

@@ -1,6 +1,6 @@
 ﻿namespace Sudoku.Variants;
 
-public class NonConsecutiveVariantBuilder : NoArgumentVariantBuilder<int>
+public class NonConsecutiveVariantBuilder : NoArgumentVariantBuilder
 {
 
     public static readonly NonConsecutiveVariantBuilder Instance = new();
@@ -10,8 +10,8 @@ public class NonConsecutiveVariantBuilder : NoArgumentVariantBuilder<int>
     }
 
     /// <inheritdoc />
-    public override IEnumerable<IClue<int>> CreateClues(Position minPosition, Position maxPosition, IValueSource<int> valueSource,
-        IReadOnlyCollection<IClue<int>> lowerLevelClues)
+    public override IEnumerable<IClue<int, IntCell>> CreateClues(Position minPosition, Position maxPosition, IValueSource valueSource,
+        IReadOnlyCollection<IClue<int, IntCell>> lowerLevelClues)
     {
         var positionsChecked = new HashSet<Position>();
 
@@ -24,7 +24,7 @@ public class NonConsecutiveVariantBuilder : NoArgumentVariantBuilder<int>
 
             foreach (var adjacent in adjacentPositions)
             {
-                yield return RelationshipClue<int>.Create(position, adjacent, NonConsecutiveConstraint.Instance);
+                yield return RelationshipClue.Create(position, adjacent, NonConsecutiveConstraint.Instance);
             }
         }
     }

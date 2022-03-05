@@ -2,13 +2,13 @@
 
 namespace GridPuzzles.Bifurcation;
 
-public class BifurcationNode<T> where T : notnull
+public class BifurcationNode<T, TCell> where T :struct where TCell : ICell<T, TCell>, new()
 {
     /// <summary>
     /// Create a new bifurcation node.
     /// </summary>
-    protected BifurcationNode(Grid<T> grid, UpdateResult<T> updateResult,
-        ImmutableHashSet<IBifurcationChoice<T>> choicesNotToTake)
+    protected BifurcationNode(Grid<T, TCell> grid, UpdateResult<T, TCell> updateResult,
+        ImmutableHashSet<IBifurcationChoice<T, TCell>> choicesNotToTake)
     {
         Grid = grid;
         UpdateResult = updateResult;
@@ -21,30 +21,30 @@ public class BifurcationNode<T> where T : notnull
         }
     }
 
-    public static BifurcationNode<T> CreateTopLevel(Grid<T> grid) => new(grid, UpdateResult<T>.Empty,
-        ImmutableHashSet<IBifurcationChoice<T>>.Empty);
+    public static BifurcationNode<T, TCell> CreateTopLevel(Grid<T, TCell> grid) => new(grid, UpdateResult<T, TCell>.Empty,
+        ImmutableHashSet<IBifurcationChoice<T, TCell>>.Empty);
 
 
-    public Grid<T> Grid { get; private set; }
+    public Grid<T, TCell> Grid { get; private set; }
 
-    public UpdateResult<T> UpdateResult { get; private set; }
+    public UpdateResult<T, TCell> UpdateResult { get; private set; }
 
-    private Maybe<UpdateResult<T>> UpdateResultToPropagate { get; set; }
+    private Maybe<UpdateResult<T, TCell>> UpdateResultToPropagate { get; set; }
 
     public int LevelsDescended { get; private set; }
 
     /// <summary>
     /// Choices precluded by a different step
     /// </summary>
-    public ImmutableHashSet<IBifurcationChoice<T>> ChoicesNotToTake { get; }
+    public ImmutableHashSet<IBifurcationChoice<T, TCell>> ChoicesNotToTake { get; }
 
-    private ImmutableHashSet<IBifurcationChoice<T>>.Builder UsedChoices { get; }
+    private ImmutableHashSet<IBifurcationChoice<T, TCell>>.Builder UsedChoices { get; }
 
     public virtual int InitialHeight => 0;
 
     private Dictionary<int, List<PossibleChoice>>? NextLevelChoices { get; set; }
 
-    private HashSet<ChoiceNode<T>> NextLevelNodes { get; } = new();
+    private HashSet<ChoiceNode<T, TCell>> NextLevelNodes { get; } = new();
 
     public bool IsFinished { get; private set; }
 
@@ -65,21 +65,21 @@ public class BifurcationNode<T> where T : notnull
     /// <summary>
     /// Possible complete grid that the Grid could lead to.
     /// </summary>
-    public IReadOnlyCollection<Grid<T>>? CompleteGrids { get; private set; } = null;
+    public IReadOnlyCollection<Grid<T, TCell>>? CompleteGrids { get; private set; } = null;
 
-    private void ApplyUpdate(UpdateResult<T> updateResult)
+    private void ApplyUpdate(UpdateResult<T, TCell> updateResult)
     {
         if (!updateResult.IsNotEmpty) return;
 
         if (UpdateResultToPropagate.HasValue)
         {
             updateResult = updateResult.Combine(UpdateResultToPropagate.Value, out _);
-            UpdateResultToPropagate = Maybe<UpdateResult<T>>.None;
+            UpdateResultToPropagate = Maybe<UpdateResult<T, TCell>>.None;
         }
 
-        UpdateResult<T> newUpdateResult;
+        UpdateResult<T, TCell> newUpdateResult;
 
-        (Grid, newUpdateResult) = Grid.IterateRepeatedly(UpdateResultCombiner<T>.Fast, LevelsDescended + 1, updateResult);
+        (Grid, newUpdateResult) = Grid.IterateRepeatedly(UpdateResultCombiner<T, TCell>.Fast, LevelsDescended + 1, updateResult);
 
         foreach (var choiceNode in NextLevelNodes)
             choiceNode.ApplyUpdate(newUpdateResult);
@@ -110,17 +110,17 @@ public class BifurcationNode<T> where T : notnull
                 ? Maybe<IEnumerable<Position>>.From(UpdateResult.UpdatedPositions)
                 : Maybe<IEnumerable<Position>>.None;
 
-            IEnumerable<IBifurcationOption<T>> cellBifurcationOptions;
+            IEnumerable<IBifurcationOption<T, TCell>> cellBifurcationOptions;
 
             if (positions.HasValue)
             {
                 cellBifurcationOptions = positions.Value.Select(Grid.GetCellKVP)
-                    .SelectMany(x => x.Value.GetBifurcationOptions(x.Key, maxChoices));
+                    .SelectMany(x => x.Value.EnumerateBifurcationOptions(x.Key, maxChoices));
             }
             else
             {
                 cellBifurcationOptions = Grid.AllCells
-                    .SelectMany(x => x.Value.GetBifurcationOptions(x.Key, maxChoices));
+                    .SelectMany(x => x.Value.EnumerateBifurcationOptions(x.Key, maxChoices));
             }
 
             var bifurcationOptions =
@@ -152,7 +152,7 @@ public class BifurcationNode<T> where T : notnull
         else if (UpdateResultToPropagate.HasValue)
         {
             NextLevelNodes.ForEach(x => x.ApplyUpdate(UpdateResultToPropagate.Value));
-            UpdateResultToPropagate = Maybe<UpdateResult<T>>.None;
+            UpdateResultToPropagate = Maybe<UpdateResult<T, TCell>>.None;
         }
 
         var newHeight = InitialHeight + LevelsDescended + 1;
@@ -172,7 +172,7 @@ public class BifurcationNode<T> where T : notnull
             }
         }
 
-        ChoiceNode<T>.CombineAll(NextLevelNodes);
+        ChoiceNode<T, TCell>.CombineAll(NextLevelNodes);
 
         if (NextLevelNodes.Count == 0 && NextLevelChoices.Count == 0)
         {
@@ -197,7 +197,7 @@ public class BifurcationNode<T> where T : notnull
             .SelectMany(choiceNode => choiceNode.Options.Select(option => (option, choiceNode)))
             .GroupBy(x => x.option, x => x.choiceNode);
 
-        var newUpdateResultToPropagate = UpdateResult<T>.Empty;
+        var newUpdateResultToPropagate = UpdateResult<T, TCell>.Empty;
 
         foreach (var group in optionGroups)
         {
@@ -220,7 +220,7 @@ public class BifurcationNode<T> where T : notnull
 
         if (!newUpdateResultToPropagate.IsEmpty)
         {
-            (Grid, UpdateResult) = Grid.IterateRepeatedly(UpdateResultCombiner<T>.Fast, newHeight, newUpdateResultToPropagate);
+            (Grid, UpdateResult) = Grid.IterateRepeatedly(UpdateResultCombiner<T, TCell>.Fast, newHeight, newUpdateResultToPropagate);
 
             if (UpdateResult.HasContradictions)
                 IsFinished = true;
@@ -232,7 +232,7 @@ public class BifurcationNode<T> where T : notnull
 
     private class PossibleChoice
     {
-        public PossibleChoice(IBifurcationChoice<T> choice, IReadOnlyCollection<IBifurcationOption<T>> options,
+        public PossibleChoice(IBifurcationChoice<T, TCell> choice, IReadOnlyCollection<IBifurcationOption<T, TCell>> options,
             int parentHeight)
         {
             Choice = choice;
@@ -245,21 +245,21 @@ public class BifurcationNode<T> where T : notnull
         /// <summary>
         /// The choice
         /// </summary>
-        public IBifurcationChoice<T> Choice { get; }
+        public IBifurcationChoice<T, TCell> Choice { get; }
 
         /// <summary>
         /// Options whose choices led to this node.
         /// </summary>
-        public IReadOnlyCollection<IBifurcationOption<T>> Options { get; }
+        public IReadOnlyCollection<IBifurcationOption<T, TCell>> Options { get; }
 
         public int Height { get; }
 
-        public ChoiceNode<T> ToChoiceNode(Grid<T> grid, int levelsDescended, ImmutableHashSet<IBifurcationChoice<T>> choicesNotToTake)
+        public ChoiceNode<T, TCell> ToChoiceNode(Grid<T, TCell> grid, int levelsDescended, ImmutableHashSet<IBifurcationChoice<T, TCell>> choicesNotToTake)
         {
             var (newGrid, newUpdateResult) =
-                grid.IterateRepeatedly(UpdateResultCombiner<T>.Fast, levelsDescended, Choice.UpdateResult);
+                grid.IterateRepeatedly(UpdateResultCombiner<T, TCell>.Fast, levelsDescended, Choice.UpdateResult);
 
-            return new ChoiceNode<T>(newGrid, newUpdateResult, Height, choicesNotToTake, Options, new[] { Choice });
+            return new ChoiceNode<T, TCell>(newGrid, newUpdateResult, Height, choicesNotToTake, Options, new[] { Choice });
         }
 
 
@@ -280,22 +280,22 @@ public class BifurcationNode<T> where T : notnull
     }
 
 
-    static ICellChangeResult CombineCellUpdates(IGrouping<Position, CellUpdate<T>> cells,
+    static ICellChangeResult CombineCellUpdates(IGrouping<Position, CellUpdate<T, TCell>> cells,
         ISingleReason reason,
-        Func<Position, Cell<T>> getCellValue)
+        Func<Position, TCell> getCellValue)
     {
         if (cells.Count() == 1)
             return cells.Single();
 
-        var r = CellHelper.TryCreate(
-            cells.Select(x => x.NewCell.PossibleValues).UnionAllSortedSets(), cells.Key,
+        var r = CellHelper.TryCreate<T, TCell>(
+            cells.Select(x => x.NewCell).UnionAllSortedSets<T, TCell>(), cells.Key,
             new ImpliedByAllReason(reason));
 
-        if (r is CellUpdate<T> cellUpdate)
+        if (r is CellUpdate<T, TCell> cellUpdate)
         {
             var currentValue = getCellValue(cells.Key);
 
-            if (currentValue.PossibleValues.Count == cellUpdate.NewCell.PossibleValues.Count)
+            if (currentValue.Equals(cellUpdate.NewCell))
                 return NoChange.Instance;
         }
 
@@ -303,10 +303,10 @@ public class BifurcationNode<T> where T : notnull
         return r;
     }
 
-    private static UpdateResult<T> BifurcationCombine(
+    private static UpdateResult<T, TCell> BifurcationCombine(
         ISingleReason reason,
-        IEnumerable<ChoiceNode<T>> results,
-        Grid<T> startGrid)
+        IEnumerable<ChoiceNode<T, TCell>> results,
+        Grid<T, TCell> startGrid)
     {
         var (withContradictions, withoutContradictions) =
             results.Partition(x => x.UpdateResult.Contradictions.Any());
@@ -321,7 +321,7 @@ public class BifurcationNode<T> where T : notnull
 
             if (commonContradictions
                 .Any()) //This is the best case - the contradiction happens whatever choice was chosen
-                return new UpdateResult<T>(ImmutableDictionary<Position, CellUpdate<T>>.Empty,
+                return new UpdateResult<T, TCell>(ImmutableDictionary<Position, CellUpdate<T, TCell>>.Empty,
                     commonContradictions);
 
             var positions = resultsWithContradictions
@@ -329,7 +329,7 @@ public class BifurcationNode<T> where T : notnull
                 .SelectMany(x => x.UpdateResult.UpdatedPositions)
                 .ToImmutableSortedSet();
 
-            return new UpdateResult<T>(ImmutableDictionary<Position, CellUpdate<T>>.Empty,
+            return new UpdateResult<T, TCell>(ImmutableDictionary<Position, CellUpdate<T, TCell>>.Empty,
                 ImmutableHashSet<Contradiction>.Empty.Add(
                     new Contradiction(new AllLedToContradiction(reason), positions)));
         }
@@ -343,6 +343,6 @@ public class BifurcationNode<T> where T : notnull
             .Where(x => x.Count() == resultsWithoutContradictions.Count)
             .Select(x => CombineCellUpdates(x, reason, startGrid.GetCell));
 
-        return UpdateResultCombiner<T>.Fast.Combine(cellUpdates);
+        return UpdateResultCombiner<T, TCell>.Fast.Combine(cellUpdates);
     }
 }

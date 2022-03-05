@@ -2,9 +2,9 @@
 
 namespace GridPuzzles.Reasons;
 
-public sealed record PossibilityStormReason<T>(T Value, ICompletenessClue<T> CompletenessClue)
+public sealed record PossibilityStormReason<T, TCell>(T Value, ICompletenessClue<T, TCell> CompletenessClue)
     : ISingleReason
-    where T : notnull
+    where T :struct where TCell : ICell<T, TCell>, new()
 {
         
     /// <inheritdoc />
@@ -13,11 +13,11 @@ public sealed record PossibilityStormReason<T>(T Value, ICompletenessClue<T> Com
     /// <inheritdoc />
     public IEnumerable<Position> GetContributingPositions(IGrid grid)
     {
-        if (grid is Grid<T> gridT)
+        if (grid is Grid<T, TCell> gridT)
         {
             return 
                 CompletenessClue.Positions.Select(gridT.GetCellKVP)
-                    .Where(x => x.Value.PossibleValues.Contains(Value))
+                    .Where(x => x.Value.Contains(Value))
                     .Select(x=>x.Key);
         }
 

@@ -7,19 +7,19 @@ using MoreLinq;
 
 namespace GridPuzzles.Session.Actions;
 
-public class RandomSolveAction<T> : IGridViewAction<T> where T :notnull
+public class RandomSolveAction<T, TCell> : IGridViewAction<T, TCell> where T :struct where TCell : ICell<T, TCell>, new()
 {
     private RandomSolveAction()
     {
     }
 
-    public static IGridViewAction<T> Instance { get; } = new RandomSolveAction<T>();
+    public static IGridViewAction<T, TCell> Instance { get; } = new RandomSolveAction<T, TCell>();
 
     /// <inheritdoc />
     public string Name => "Random Solve";
 
     /// <inheritdoc />
-    public IAsyncEnumerable<ActionResult<T>> Execute(ImmutableStack<SolveState<T>> history,
+    public IAsyncEnumerable<ActionResult<T, TCell>> Execute(ImmutableStack<SolveState<T, TCell>> history,
         SessionSettings settings, CancellationToken cancellation)
     {
         var originalState = history.Peek();
@@ -29,7 +29,7 @@ public class RandomSolveAction<T> : IGridViewAction<T> where T :notnull
         var results =
             originalState.Grid
                 .RandomSolveIncremental(null, cancellation)
-                .Prepend((originalState.Grid, UpdateResult<T>.Empty))
+                .Prepend((originalState.Grid, UpdateResult<T, TCell>.Empty))
                 .Pairwise((previous, current) =>
                     CreateActionResult(
                         current.Grid, 
@@ -43,15 +43,15 @@ public class RandomSolveAction<T> : IGridViewAction<T> where T :notnull
 
         //await foreach (var incrementalGrid in currentState.Grid.RandomSolveIncremental(null).WithCancellation(cancellation))
         //{
-        //    var solveState = new SolveState<T>(incrementalGrid,
+        //    var solveState = new SolveState<T, TCell>(incrementalGrid,
         //        currentState.VariantBuilders,
-        //        UpdateResult<T>.Empty,
+        //        UpdateResult<T, TCell>.Empty,
         //        ChangeType.RandomMove,
         //        "Random Solve",
         //        sw.Elapsed,
         //        currentState.FixedValues,
         //        currentState.Grid);
-        //    yield return (ActionResult<T>)solveState;
+        //    yield return (ActionResult<T, TCell>)solveState;
         //}
         //sw.Stop();
 
@@ -72,9 +72,9 @@ public class RandomSolveAction<T> : IGridViewAction<T> where T :notnull
         }
     }
 
-    private static ActionResult<T> CreateActionResult(Grid<T> latestGrid, UpdateResult<T> updateResult, SolveState<T> originalState, Grid<T> previousGrid, Stopwatch sw)
+    private static ActionResult<T, TCell> CreateActionResult(Grid<T, TCell> latestGrid, UpdateResult<T, TCell> updateResult, SolveState<T, TCell> originalState, Grid<T, TCell> previousGrid, Stopwatch sw)
     {
-        var solveState = new SolveState<T>(latestGrid,
+        var solveState = new SolveState<T, TCell>(latestGrid,
             originalState.VariantBuilders,
             updateResult,
             ChangeType.RandomMove,
@@ -83,6 +83,6 @@ public class RandomSolveAction<T> : IGridViewAction<T> where T :notnull
             originalState.FixedValues,
             previousGrid);
         sw.Reset();
-        return(ActionResult<T>) solveState;
+        return(ActionResult<T, TCell>) solveState;
     }
 }

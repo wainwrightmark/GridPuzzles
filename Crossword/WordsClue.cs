@@ -1,12 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using GridPuzzles;
-using GridPuzzles.Clues;
+﻿namespace Crossword;
 
-namespace Crossword;
-
-public class WordsClue : IClue<char>
+public class WordsClue : IClue<char, CharCell>
 {
     public WordsClue(IEnumerable<(ushort priority, IReadOnlyCollection<string>)> words)
     {

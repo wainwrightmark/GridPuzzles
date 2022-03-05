@@ -6,7 +6,7 @@ using MoreLinq.Extensions;
 
 namespace GridPuzzles.Session.Actions;
 
-public record TransformAction<T>(int QuarterTurns, bool FlipHorizontal, bool FlipVertical) : IGridViewAction<T> where T : notnull
+public record TransformAction<T, TCell>(int QuarterTurns, bool FlipHorizontal, bool FlipVertical) : IGridViewAction<T, TCell> where T :struct where TCell : ICell<T, TCell>, new()
 {
     /// <inheritdoc />
     public string Name
@@ -27,8 +27,8 @@ public record TransformAction<T>(int QuarterTurns, bool FlipHorizontal, bool Fli
     }
 
     /// <inheritdoc />
-    public async IAsyncEnumerable<ActionResult<T>> Execute
-        (ImmutableStack<SolveState<T>> history, SessionSettings settings,  [EnumeratorCancellation] CancellationToken cancellation)
+    public async IAsyncEnumerable<ActionResult<T, TCell>> Execute
+        (ImmutableStack<SolveState<T, TCell>> history, SessionSettings settings,  [EnumeratorCancellation] CancellationToken cancellation)
     {
         var current = history.Peek();
 
@@ -38,18 +38,18 @@ public record TransformAction<T>(int QuarterTurns, bool FlipHorizontal, bool Fli
 
         var sw = Stopwatch.StartNew();
 
-        var newClueSource = await ClueSource<T>.TryCreateAsync(newVariantBuilders, current.Grid.MaxPosition,
+        var newClueSource = await ClueSource<T, TCell>.TryCreateAsync(newVariantBuilders, current.Grid.MaxPosition,
             current.Grid.ClueSource.ValueSource, cancellation);
 
         if (newClueSource.IsFailure)
         {
-            yield return new ActionResult<T>.ErrorResult(newClueSource.Error, sw.Elapsed);
+            yield return new ActionResult<T, TCell>.ErrorResult(newClueSource.Error, sw.Elapsed);
             yield break;
         }
 
 
         var newCells = current.Grid.Cells.Select(x =>
-                new KeyValuePair<Position, Cell<T>>(x.Key.Transform(QuarterTurns, FlipHorizontal, FlipVertical,
+                new KeyValuePair<Position, TCell>(x.Key.Transform(QuarterTurns, FlipHorizontal, FlipVertical,
                     current.Grid.MaxPosition), x.Value))
             .ToList();
 
@@ -57,17 +57,17 @@ public record TransformAction<T>(int QuarterTurns, bool FlipHorizontal, bool Fli
             new KeyValuePair<Position, T>(x.Key.Transform(QuarterTurns, FlipHorizontal, FlipVertical,
                 current.Grid.MaxPosition), x.Value)).ToImmutableSortedDictionary();
 
-        var newGrid = Grid<T>.Create(newCells, current.Grid.MaxPosition, newClueSource.Value);
-        var newSolveState = new SolveState<T>(
+        var newGrid = Grid<T, TCell>.Create(newCells, current.Grid.MaxPosition, newClueSource.Value);
+        var newSolveState = new SolveState<T, TCell>(
             newGrid,
             newVariantBuilders,
-            UpdateResult<T>.Empty, ChangeType.ManualChange,
+            UpdateResult<T, TCell>.Empty, ChangeType.ManualChange,
             Name,
             sw.Elapsed,
             newFixedValues,
             null);
 
-        yield return (ActionResult<T>)newSolveState;
+        yield return (ActionResult<T, TCell>)newSolveState;
 
     }
 }

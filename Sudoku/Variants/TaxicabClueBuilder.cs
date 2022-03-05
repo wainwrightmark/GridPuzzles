@@ -1,6 +1,6 @@
 ﻿namespace Sudoku.Variants;
 
-public class TaxicabClueBuilder : NoArgumentVariantBuilder<int>
+public class TaxicabClueBuilder : NoArgumentVariantBuilder
 {
     public static TaxicabClueBuilder Instance = new();
 
@@ -15,8 +15,8 @@ public class TaxicabClueBuilder : NoArgumentVariantBuilder<int>
     public override int Level => 2;
 
     /// <inheritdoc />
-    public override IEnumerable<IClue<int>> CreateClues(Position minPosition, Position maxPosition, IValueSource<int> valueSource,
-        IReadOnlyCollection<IClue<int>> lowerLevelClues)
+    public override IEnumerable<IClue<int, IntCell>> CreateClues(Position minPosition, Position maxPosition, IValueSource valueSource,
+        IReadOnlyCollection<IClue<int, IntCell>> lowerLevelClues)
     {
         return minPosition.GetPositionsBetween(maxPosition, true).SelectMany(x=>x).Select(position => new TaxicabClue(position, minPosition, maxPosition));
     }

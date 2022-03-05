@@ -1,23 +1,23 @@
 ﻿namespace Sudoku.Variants;
 
-public class IndexVariantBuilder : VariantBuilder<int>
+public class IndexVariantBuilder : VariantBuilder
 {
     private IndexVariantBuilder()
     {
     }
 
-    public static VariantBuilder<int> Instance { get; } = new IndexVariantBuilder();
+    public static VariantBuilder Instance { get; } = new IndexVariantBuilder();
 
     /// <inheritdoc />
-    public override Result<IReadOnlyCollection<IClueBuilder<int>>> TryGetClueBuilders1(IReadOnlyDictionary<string, string> arguments)
+    public override Result<IReadOnlyCollection<IClueBuilder>> TryGetClueBuilders1(IReadOnlyDictionary<string, string> arguments)
     {
         var pr = Parallel.TryGetFromDictionary(arguments);
-        if (pr.IsFailure) return pr.ConvertFailure<IReadOnlyCollection<IClueBuilder<int>>>();
+        if (pr.IsFailure) return pr.ConvertFailure<IReadOnlyCollection<IClueBuilder>>();
 
         var ir = Index.TryGetFromDictionary(arguments);
-        if (ir.IsFailure) return ir.ConvertFailure<IReadOnlyCollection<IClueBuilder<int>>>();
+        if (ir.IsFailure) return ir.ConvertFailure<IReadOnlyCollection<IClueBuilder>>();
 
-        return new List<IClueBuilder<int>>
+        return new List<IClueBuilder>
         {
             new IndexClueBuilder(pr.Value, ir.Value)
         };
@@ -34,12 +34,12 @@ public class IndexVariantBuilder : VariantBuilder<int>
     public static readonly EnumArgument<Parallel> Parallel = new(nameof(Parallel), Maybe<Parallel>.None);
 
         
-    public record IndexClueBuilder(Parallel ClueParallel,int ClueIndex) : IClueBuilder<int>
+    public record IndexClueBuilder(Parallel ClueParallel,int ClueIndex) : IClueBuilder
     {
 
         /// <inheritdoc />
-        public IEnumerable<IClue<int>> CreateClues(Position minPosition, Position maxPosition, IValueSource<int> valueSource,
-            IReadOnlyCollection<IClue<int>> lowerLevelClues)
+        public IEnumerable<IClue<int, IntCell>> CreateClues(Position minPosition, Position maxPosition, IValueSource valueSource,
+            IReadOnlyCollection<IClue<int, IntCell>> lowerLevelClues)
         {
             yield return new IndexClue(ClueParallel, ClueIndex, maxPosition);
         }
@@ -97,7 +97,7 @@ public class IndexReason : ISingleReason
     }
 }
 
-public class IndexClue : IRuleClue<int>
+public class IndexClue : IRuleClue
 {
     public IndexClue(Parallel parallel, int index, Position maxPosition)
     {
@@ -119,7 +119,7 @@ public class IndexClue : IRuleClue<int>
     public ImmutableSortedSet<Position> Positions { get; }
 
     /// <inheritdoc />
-    public IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid<int> grid)
+    public IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid grid)
     {
         if (Parallel == Parallel.Column)
         {
@@ -128,9 +128,9 @@ public class IndexClue : IRuleClue<int>
                 var keyPosition = new Position(Index, r);
                 var keyCell = grid.GetCellKVP(keyPosition);
 
-                if (keyCell.Value.HasFixedValue)
+                if (keyCell.Value.HasSingleValue())
                 {
-                    var matchPosition = new Position(keyCell.Value.PossibleValues.Single(), r);
+                    var matchPosition = new Position(keyCell.Value.Single(), r);
                     var matchCell = grid.GetCellKVP(matchPosition);
                     yield return matchCell.CloneWithOnlyValue(Index, new IndexReason(this, keyPosition, matchPosition));
 
@@ -142,12 +142,12 @@ public class IndexClue : IRuleClue<int>
                         var matchPosition = new Position(c, r);
                         var matchCell = grid.GetCellKVP(matchPosition);
 
-                        if (!keyCell.Value.PossibleValues.Contains(c))
+                        if (!keyCell.Value.Contains(c))
                         {
                             yield return matchCell.CloneWithoutValue(Index, new IndexReason(this, keyPosition, matchPosition));
                         }
 
-                        if (!matchCell.Value.PossibleValues.Contains(Index))
+                        if (!matchCell.Value.Contains(Index))
                         {
                             yield return keyCell.CloneWithoutValue(c, new IndexReason(this, keyPosition, matchPosition));
                         }
@@ -162,9 +162,9 @@ public class IndexClue : IRuleClue<int>
                 var keyPosition = new Position(c, Index);
                 var keyCell = grid.GetCellKVP(keyPosition);
 
-                if (keyCell.Value.HasFixedValue)
+                if (keyCell.Value.HasSingleValue())
                 {
-                    var matchPosition = new Position(c, keyCell.Value.PossibleValues.Single());
+                    var matchPosition = new Position(c, keyCell.Value.Single());
                     var matchCell = grid.GetCellKVP(matchPosition);
                     yield return matchCell.CloneWithOnlyValue(Index, new IndexReason(this, keyPosition, matchPosition));
 
@@ -176,12 +176,12 @@ public class IndexClue : IRuleClue<int>
                         var matchPosition = new Position(c, r);
                         var matchCell = grid.GetCellKVP(matchPosition);
 
-                        if (!keyCell.Value.PossibleValues.Contains(r))
+                        if (!keyCell.Value.Contains(r))
                         {
                             yield return matchCell.CloneWithoutValue(Index, new IndexReason(this, keyPosition, matchPosition));
                         }
 
-                        if (!matchCell.Value.PossibleValues.Contains(Index))
+                        if (!matchCell.Value.Contains(Index))
                         {
                             yield return keyCell.CloneWithoutValue(r, new IndexReason(this, keyPosition, matchPosition));
                         }

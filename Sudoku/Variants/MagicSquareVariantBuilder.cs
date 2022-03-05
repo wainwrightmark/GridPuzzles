@@ -2,23 +2,23 @@
 
 namespace Sudoku.Variants;
 
-public partial class MagicSquareVariantBuilder : VariantBuilder<int>
+public partial class MagicSquareVariantBuilder : VariantBuilder
 {
     private MagicSquareVariantBuilder()
     {
     }
 
-    public static VariantBuilder<int> Instance { get; } = new MagicSquareVariantBuilder();
+    public static VariantBuilder Instance { get; } = new MagicSquareVariantBuilder();
 
     /// <inheritdoc />
     public override string Name => "Magic Square";
 
     /// <inheritdoc />
-    public override Result<IReadOnlyCollection<IClueBuilder<int>>> TryGetClueBuilders1(
+    public override Result<IReadOnlyCollection<IClueBuilder>> TryGetClueBuilders1(
         IReadOnlyDictionary<string, string> arguments)
     {
         var cr = CentreArgument.TryGetFromDictionary(arguments);
-        if (!cr.IsSuccess) return cr.ConvertFailure<IReadOnlyCollection<IClueBuilder<int>>>();
+        if (!cr.IsSuccess) return cr.ConvertFailure<IReadOnlyCollection<IClueBuilder>>();
 
         var clues = CreateMagicSquaresClues(GetCellsAround(cr.Value)).ToList();
 
@@ -54,11 +54,11 @@ public partial class MagicSquareVariantBuilder : VariantBuilder<int>
         return cells;
     }
 
-    private static IReadOnlyCollection<IClueBuilder<int>> CreateMagicSquaresClues(IReadOnlyList<Position> positions) => new []{new MagicSquareClueBuilder(positions.ToImmutableArray())};
+    private static IReadOnlyCollection<IClueBuilder> CreateMagicSquaresClues(IReadOnlyList<Position> positions) => new []{new MagicSquareClueBuilder(positions.ToImmutableArray())};
 
 
     [Equatable]
-    public partial record MagicSquareClueBuilder([property:OrderedEquality] ImmutableArray<Position> Positions) : IClueBuilder<int>
+    public partial record MagicSquareClueBuilder([property:OrderedEquality] ImmutableArray<Position> Positions) : IClueBuilder
     {
 
         /// <inheritdoc />
@@ -68,14 +68,14 @@ public partial class MagicSquareVariantBuilder : VariantBuilder<int>
         public int Level => 2;
 
         /// <inheritdoc />
-        public IEnumerable<IClue<int>> CreateClues(Position minPosition, Position maxPosition, IValueSource<int> valueSource,
-            IReadOnlyCollection<IClue<int>> lowerLevelClues)
+        public IEnumerable<IClue<int, IntCell>> CreateClues(Position minPosition, Position maxPosition, IValueSource valueSource,
+            IReadOnlyCollection<IClue<int, IntCell>> lowerLevelClues)
         {
-            yield return new UniqueCompleteClue<int>("Magic Square", Positions);
+            yield return new UniqueCompleteClue<int, IntCell>("Magic Square", Positions);
 
-            yield return new RestrictedValuesClue<int>("Centre of Magic Square", new[] { Positions[4] }, new[] { 5 });
-            yield return new RestrictedValuesClue<int>("Corner of Magic Square", new[] { Positions[0], Positions[2], Positions[6], Positions[8] }, new[] { 2, 4, 6, 8 });
-            yield return new RestrictedValuesClue<int>("Edge of Magic Square", new[] { Positions[1], Positions[3], Positions[5], Positions[7] }, new[] { 1, 3, 7, 9 });
+            yield return new RestrictedValuesClue<int, IntCell>("Centre of Magic Square", new[] { Positions[4] }, new[] { 5 });
+            yield return new RestrictedValuesClue<int, IntCell>("Corner of Magic Square", new[] { Positions[0], Positions[2], Positions[6], Positions[8] }, new[] { 2, 4, 6, 8 });
+            yield return new RestrictedValuesClue<int, IntCell>("Edge of Magic Square", new[] { Positions[1], Positions[3], Positions[5], Positions[7] }, new[] { 1, 3, 7, 9 });
 
 
             var triples = new List<(int a, int b, int c)>()

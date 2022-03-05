@@ -1,26 +1,26 @@
 ﻿namespace Sudoku.Variants;
 
-public partial class ConsecutiveGroupVariantBuilder : VariantBuilder<int>
+public partial class ConsecutiveGroupVariantBuilder : VariantBuilder
 {
     private ConsecutiveGroupVariantBuilder()
     {
     }
 
-    public static VariantBuilder<int> Instance { get; } = new ConsecutiveGroupVariantBuilder();
+    public static VariantBuilder Instance { get; } = new ConsecutiveGroupVariantBuilder();
 
     /// <inheritdoc />
     public override string Name => "Consecutive Group";
 
 
     /// <inheritdoc />
-    public override Result<IReadOnlyCollection<IClueBuilder<int>>> TryGetClueBuilders1(
+    public override Result<IReadOnlyCollection<IClueBuilder>> TryGetClueBuilders1(
         IReadOnlyDictionary<string, string> arguments)
     {
         var pr = PositionArgument.TryGetFromDictionary(arguments);
-        if (pr.IsFailure) return pr.ConvertFailure<IReadOnlyCollection<IClueBuilder<int>>>();
+        if (pr.IsFailure) return pr.ConvertFailure<IReadOnlyCollection<IClueBuilder>>();
 
 
-        var l = new List<IClueBuilder<int>>
+        var l = new List<IClueBuilder>
         {
             new ConsecutiveGroupClueBuilder(pr.Value.ToImmutableArray())
         };
@@ -40,7 +40,7 @@ public partial class ConsecutiveGroupVariantBuilder : VariantBuilder<int>
         8);
 
     [Equatable]
-    public partial record ConsecutiveGroupClueBuilder([property:OrderedEquality] ImmutableArray<Position> Positions) : IClueBuilder<int>
+    public partial record ConsecutiveGroupClueBuilder([property:OrderedEquality] ImmutableArray<Position> Positions) : IClueBuilder
     {
 
         /// <inheritdoc />
@@ -50,18 +50,18 @@ public partial class ConsecutiveGroupVariantBuilder : VariantBuilder<int>
         public int Level => 1;
 
         /// <inheritdoc />
-        public IEnumerable<IClue<int>> CreateClues(Position minPosition, Position maxPosition,
-            IValueSource<int> valueSource,
-            IReadOnlyCollection<IClue<int>> lowerLevelClues)
+        public IEnumerable<IClue<int, IntCell>> CreateClues(Position minPosition, Position maxPosition,
+            IValueSource valueSource,
+            IReadOnlyCollection<IClue<int, IntCell>> lowerLevelClues)
         {
             var amount = Positions.Length - 1;
             var constraint = new DifferByAtMostConstraint(amount);
 
-            yield return new UniquenessClue<int>(Positions.ToImmutableSortedSet(), "Consecutive Group");
+            yield return new UniquenessClue<int, IntCell>(Positions.ToImmutableSortedSet(), "Consecutive Group");
 
             foreach (var (p, q) in Positions.SelectMany(p => Positions.Select(q => (p, q))).Where(x => x.p != x.q))
             {
-                yield return new RelationshipClue<int>(p, q, constraint);
+                yield return new RelationshipClue(p, q, constraint);
             }
         }
 

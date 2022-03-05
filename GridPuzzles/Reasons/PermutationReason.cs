@@ -3,8 +3,8 @@ using MoreLinq;
 
 namespace GridPuzzles.Reasons;
 
-public sealed record PermutationReason<T>(ImmutableSortedSet<T> Values, IUniquenessClue<T> UniquenessClue): ISingleReason
-    where T : notnull
+public sealed record PermutationReason<T, TCell>(TCell Values, IUniquenessClue<T, TCell> UniquenessClue): ISingleReason
+    where T :struct where TCell : ICell<T, TCell>, new()
 {
         
     /// <inheritdoc />
@@ -13,27 +13,15 @@ public sealed record PermutationReason<T>(ImmutableSortedSet<T> Values, IUniquen
     /// <inheritdoc />
     public IEnumerable<Position> GetContributingPositions(IGrid grid)
     {
-        if (grid is Grid<T> gridT)
+        if (grid is Grid<T, TCell> gridT)
         {
             return 
                 UniquenessClue.Positions.Select(gridT.GetCellKVP)
-                    .Where(x => Values.IsSupersetOf(x.Value.PossibleValues))
+                    .Where(x => Values.IsSupersetOf(x.Value))
                     .Select(x=>x.Key);
         }
 
         return UniquenessClue.Positions;
-    }
-
-    /// <inheritdoc />
-    public bool Equals(PermutationReason<T>? other)
-    {
-        return other is not null && other.UniquenessClue == UniquenessClue && Values.SequenceEqual(other.Values);
-    }
-
-    /// <inheritdoc />
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(UniquenessClue, Values.Count, Values.First(), Values.Last());
     }
 
     /// <inheritdoc />

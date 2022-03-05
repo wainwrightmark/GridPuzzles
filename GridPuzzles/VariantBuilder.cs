@@ -4,16 +4,16 @@ using GridPuzzles.VariantBuilderArguments;
 
 namespace GridPuzzles.Clues;
 
-public abstract class VariantBuilder<T> : IVariantBuilder<T> where T: notnull
+public abstract class VariantBuilder<T, TCell> : IVariantBuilder<T, TCell> where T :struct where TCell : ICell<T, TCell>, new()
 {
     /// <inheritdoc />
-    public async Task<Result<IReadOnlyCollection<IClueBuilder<T>>>> TryGetClueBuildersAsync(IReadOnlyDictionary<string, string> arguments, CancellationToken cancellationToken)
+    public async Task<Result<IReadOnlyCollection<IClueBuilder<T, TCell>>>> TryGetClueBuildersAsync(IReadOnlyDictionary<string, string> arguments, CancellationToken cancellationToken)
     {
         await Task.CompletedTask;
         return TryGetClueBuilders1(arguments);
     }
         
-    public abstract Result<IReadOnlyCollection<IClueBuilder<T>>> TryGetClueBuilders1(
+    public abstract Result<IReadOnlyCollection<IClueBuilder<T, TCell>>> TryGetClueBuilders1(
         IReadOnlyDictionary<string, string> arguments);
 
 

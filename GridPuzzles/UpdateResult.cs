@@ -24,9 +24,9 @@ public interface IUpdateResult
 }
 
 
-public sealed record UpdateResult<T>(ImmutableDictionary<Position, CellUpdate<T>> UpdatedCells,
-        ImmutableHashSet<Contradiction> Contradictions)
-    : IUpdateResult
+public sealed record UpdateResult<T, TCell>(ImmutableDictionary<Position, CellUpdate<T, TCell>> UpdatedCells,
+        ImmutableHashSet<Contradiction> Contradictions) 
+    : IUpdateResult where T: struct where TCell : ICell<T, TCell>, new()
 {
     public bool IsNotEmpty => UpdatedCells.Any() || Contradictions.Any();
     public bool HasContradictions => Contradictions.Any();
@@ -88,7 +88,7 @@ public sealed record UpdateResult<T>(ImmutableDictionary<Position, CellUpdate<T>
     }
 
 
-    public static UpdateResult<T> Empty { get; } = new(ImmutableDictionary<Position, CellUpdate<T>>.Empty,
+    public static UpdateResult<T, TCell> Empty { get; } = new(ImmutableDictionary<Position, CellUpdate<T, TCell>>.Empty,
         ImmutableHashSet<Contradiction>.Empty);
 
 
@@ -99,35 +99,34 @@ public sealed record UpdateResult<T>(ImmutableDictionary<Position, CellUpdate<T>
     [Pure] public bool IsEmpty => !(UpdatedCells.Any() || Contradictions.Any());
 
     [Pure]
-    public UpdateResult<T> CloneWithContradiction(Contradiction c) =>
-        Contradictions.Contains(c) ? this : new UpdateResult<T>(UpdatedCells, Contradictions.Add(c));
+    public UpdateResult<T, TCell> CloneWithContradiction(Contradiction c) =>
+        Contradictions.Contains(c) ? this : new UpdateResult<T, TCell>(UpdatedCells, Contradictions.Add(c));
 
     [Pure]
-    public UpdateResult<T> CloneWithCellChangeResult(ICellChangeResult r)
+    public UpdateResult<T, TCell> CloneWithCellChangeResult(ICellChangeResult r)
     {
         return r switch
         {
             NoChange => this,
-            CellUpdate<T> cellUpdate => CloneWithCellUpdate(cellUpdate),
+            CellUpdate<T, TCell> cellUpdate => CloneWithCellUpdate(cellUpdate),
             Contradiction contradiction => CloneWithContradiction(contradiction),
             _ => throw new ArgumentOutOfRangeException(nameof(r))
         };
     }
 
     [Pure]
-    public UpdateResult<T> CloneWithCellUpdate(CellUpdate<T> update)
+    public UpdateResult<T, TCell> CloneWithCellUpdate(CellUpdate<T, TCell> update)
     {
         if (!UpdatedCells.TryGetValue(update.Position, out var existing))
-            return new UpdateResult<T>(UpdatedCells.Add(update.Position, update), Contradictions);
+            return new UpdateResult<T, TCell>(UpdatedCells.Add(update.Position, update), Contradictions);
 
         var ccr = existing.TryCombine(update);
 
         return ccr switch
         {
             NoChange => this,
-            CellUpdate<T> cellUpdate when cellUpdate.NewCell.PossibleValues.Count ==
-                                          existing.NewCell.PossibleValues.Count => this,
-            CellUpdate<T> cellUpdate => new UpdateResult<T>(UpdatedCells.SetItem(update.Position, cellUpdate),
+            CellUpdate<T, TCell> cellUpdate when cellUpdate.NewCell.Equals(existing.NewCell) => this,
+            CellUpdate<T, TCell> cellUpdate => new UpdateResult<T, TCell>(UpdatedCells.SetItem(update.Position, cellUpdate),
                 Contradictions),
             Contradiction contradiction => CloneWithContradiction(contradiction),
             _ => throw new ArgumentOutOfRangeException(nameof(ccr))
@@ -135,7 +134,7 @@ public sealed record UpdateResult<T>(ImmutableDictionary<Position, CellUpdate<T>
     }
 
     [Pure]
-    public UpdateResult<T> Combine(UpdateResult<T> other, out bool hasChanges)
+    public UpdateResult<T, TCell> Combine(UpdateResult<T, TCell> other, out bool hasChanges)
     {
         hasChanges = false;
         if (other.IsEmpty) return this;
@@ -163,7 +162,7 @@ public sealed record UpdateResult<T>(ImmutableDictionary<Position, CellUpdate<T>
                 contradictionsChanged |= contradictionsBuilder.Add(c);
         }
 
-        ImmutableDictionary<Position, CellUpdate<T>> newUpdatedCells = 
+        ImmutableDictionary<Position, CellUpdate<T, TCell>> newUpdatedCells = 
             CombineUpdatedCells(other, contradictionsBuilder, ref hasChanges, ref contradictionsChanged);
             
         ImmutableHashSet<Contradiction> newContradictions =
@@ -171,20 +170,20 @@ public sealed record UpdateResult<T>(ImmutableDictionary<Position, CellUpdate<T>
 
 
         if (hasChanges || contradictionsChanged)
-            return new UpdateResult<T>(newUpdatedCells, newContradictions);
+            return new UpdateResult<T, TCell>(newUpdatedCells, newContradictions);
 
         return this;
     }
 
 
 
-    private ImmutableDictionary<Position, CellUpdate<T>> CombineUpdatedCells(UpdateResult<T> other,
+    private ImmutableDictionary<Position, CellUpdate<T, TCell>> CombineUpdatedCells(UpdateResult<T, TCell> other,
         ImmutableHashSet<Contradiction>.Builder contradictionsBuilder,
         ref bool hasChanges,
         ref bool contradictionsChanged
     )
     {
-        ImmutableDictionary<Position, CellUpdate<T>> newUpdatedCells;
+        ImmutableDictionary<Position, CellUpdate<T, TCell>> newUpdatedCells;
         if (other.UpdatedCells.IsEmpty)
             newUpdatedCells = UpdatedCells;
         else if (UpdatedCells.IsEmpty)
@@ -204,10 +203,10 @@ public sealed record UpdateResult<T>(ImmutableDictionary<Position, CellUpdate<T>
 
                     switch (ccr)
                     {
-                        case CellUpdate<T> cellUpdate:
+                        case CellUpdate<T, TCell> cellUpdate:
                         {
                             var newCell = cellUpdate.NewCell;
-                            if (newCell.PossibleValues.Count != thisUpdatedCell.NewCell.PossibleValues.Count)
+                            if (!newCell.Equals(thisUpdatedCell.NewCell))
                             {
                                 updateBuilder[otherUpdatedCell.Key] = cellUpdate;
                                 hasChanges = true;

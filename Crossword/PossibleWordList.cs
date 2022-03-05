@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using GridPuzzles;
-using GridPuzzles.Cells;
+﻿using System.Text;
 
 namespace Crossword;
 
@@ -139,7 +135,7 @@ public readonly struct ExpressionWord
     public WordSearch WordSearch { get; }
 
 
-    public static ExpressionWord? TryCreate(IEnumerable<KeyValuePair<Position, Cell<char>>> characters)
+    public static ExpressionWord? TryCreate(IEnumerable<KeyValuePair<Position, CharCell>> characters)
     {
         var pair = TryParse(characters);
 
@@ -153,7 +149,7 @@ public readonly struct ExpressionWord
         return Expression;
     }
 
-    private static (string expression, WordSearch wordSearch)? TryParse(IEnumerable<KeyValuePair<Position, Cell<char>>> characters)
+    private static (string expression, WordSearch wordSearch)? TryParse(IEnumerable<KeyValuePair<Position, CharCell>> characters)
     {
         var expression = new StringBuilder();
         (char c, ushort i)? wsTerm = null;
@@ -162,9 +158,9 @@ public readonly struct ExpressionWord
 
         foreach (var (_, cell) in characters)
         {
-            if (cell.PossibleValues.Count == 1)
+            if (cell.HasSingleValue())
             {
-                var val = cell.PossibleValues.Single();
+                var val = cell.Single();
                 if (val == CrosswordValueSource.BlockChar) return null;
                 expression.Append(val);
                 if(wsTerm==null) wsTerm = (val, i);

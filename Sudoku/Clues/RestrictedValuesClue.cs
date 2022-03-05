@@ -1,11 +1,11 @@
 ﻿namespace Sudoku.Clues;
 
-public class RestrictedValuesClue<T> : IRuleClue<T>  where T :notnull
+public class RestrictedValuesClue<T, TCell> : IRuleClue<T, TCell>  where T :struct where TCell : ICell<T, TCell>, new()
 {
     public RestrictedValuesClue(string reason, IEnumerable<Position> positions, IEnumerable<T> possibleValues)
     {
         Positions = positions.ToImmutableSortedSet();
-        PossibleValues = possibleValues.ToImmutableHashSet();
+        PossibleValues = new TCell().AddRange(possibleValues);
         Reason = reason;
     }
 
@@ -17,18 +17,18 @@ public class RestrictedValuesClue<T> : IRuleClue<T>  where T :notnull
     /// <inheritdoc />
     public ImmutableSortedSet<Position> Positions { get; }
 
-    public ImmutableHashSet<T> PossibleValues { get; }
+    public TCell PossibleValues { get; }
 
     /// <inheritdoc />
-    public IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid<T> grid)
+    public IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid<T, TCell> grid)
     {
         foreach (var cell in Positions.Select(grid.GetCellKVP))
-            yield return cell.CloneWithOnlyValues(PossibleValues, new RestrictedValuesReason<T>(this));
+            yield return cell.CloneWithOnlyValues<T, TCell>(PossibleValues, new RestrictedValuesReason<T, TCell>(this));
     }
 }
 
-public sealed record RestrictedValuesReason<T>(RestrictedValuesClue<T> RestrictedValuesClue)
-    : ISingleReason where T:notnull
+public sealed record RestrictedValuesReason<T, TCell>(RestrictedValuesClue<T, TCell> RestrictedValuesClue)
+    : ISingleReason where T :struct where TCell : ICell<T, TCell>, new()
 {
     /// <inheritdoc />
     public string Text => RestrictedValuesClue.Reason;
