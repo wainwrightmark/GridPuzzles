@@ -68,18 +68,12 @@ public class UnitTest1
             yield return (new int[]{1,2,3}, 31);
         }
     }
+    
 
-    [Fact]
-    public void TestIsEmpty()
-    {
-        var l = Array.Empty<int>().ToSmallSet();
-
-        l.IsEmpty().Should().BeTrue();
-
-        l.Add(1).IsEmpty().Should().BeFalse();
-    }
-
-    [Theory] [MemberData(nameof(GetListIntTestCases))] public void TestCount(int[] l1, int l2) => Check(l1, l2, (x, i)=>x.Count);
+    [Theory] [MemberData(nameof(GetListIntTestCases))] public void TestCount(int[] l1, int l2) => Check(l1,  (x)=>x.Count);
+    [Theory] [MemberData(nameof(GetListIntTestCases))] public void TestIsEmpty(int[] l1, int l2) => Check(l1,  (x)=>x.IsEmpty(), x=>x.Count == 0);
+    [Theory] [MemberData(nameof(GetListIntTestCases))] public void TestMin(int[] l1, int l2) => Check(l1,  (x)=>x.Min(), x=>x.Min);
+    [Theory] [MemberData(nameof(GetListIntTestCases))] public void TestMax(int[] l1, int l2) => Check(l1,  (x)=>x.Max(), x=>x.Max);
     [Theory] [MemberData(nameof(GetListIntTestCases))] public void TestAdd(int[] l1, int l2) => Check(l1, l2, (x, i)=>x.Add(i));
     [Theory] [MemberData(nameof(GetListIntTestCases))] public void TestContains(int[] l1, int l2) => Check(l1, l2, (x, i)=>x.Contains(i));
     [Theory] [MemberData(nameof(GetListIntTestCases))] public void TestRemove(int[] l1, int l2) => Check(l1, l2, (x, i)=>x.Remove(i));
@@ -87,7 +81,7 @@ public class UnitTest1
 
 
 
-    [Theory] [MemberData(nameof(GetListListTestCases))] public void TestClear(int[] l1, int[] l2) => Check(l1, l2, (x, l2)=>x.Clear());
+    [Theory] [MemberData(nameof(GetListListTestCases))] public void TestClear(int[] l1, int[] l2) => Check(l1, (x)=>x.Clear());
     [Theory] [MemberData(nameof(GetListListTestCases))] public void TestExcept(int[] l1, int[] l2) => Check(l1, l2, (x, l2)=>x.Except(l2));
     [Theory] [MemberData(nameof(GetListListTestCases))] public void TestProperSubset(int[] l1, int[] l2) => Check(l1, l2, (x, l2)=>x.IsProperSubsetOf(l2));
     [Theory] [MemberData(nameof(GetListListTestCases))] public void TestProperSuperset(int[] l1, int[] l2) => Check(l1, l2, (x, l2)=>x.IsProperSupersetOf(l2));
@@ -153,8 +147,38 @@ public class UnitTest1
         {
             r1 .Should().Be(r2);
         }
+    }
+    
+    private void Check<T>(int[] l1, Func<IImmutableSet<int>, T> func)
+    {
+        var s1 = l1.ToSmallSet();
+        var r1 = func(s1);
 
-        
+        var s2 = l1.ToImmutableSortedSet();
+        var r2 = func(s2);
+
+        if (r1 is IEnumerable<int> e1 && r2 is IEnumerable<int> e2)
+            string.Join(",", e1).Should().Be(string.Join(",", e2));
+        else
+        {
+            r1 .Should().Be(r2);
+        }
+    }
+    
+    private void Check<T>(int[] l1, Func<SmallSet, T> func, Func<ImmutableSortedSet<int>, T> func2)
+    {
+        var s1 = l1.ToSmallSet();
+        var r1 = func(s1);
+
+        var s2 = l1.ToImmutableSortedSet();
+        var r2 = func2(s2);
+
+        if (r1 is IEnumerable<int> e1 && r2 is IEnumerable<int> e2)
+            string.Join(",", e1).Should().Be(string.Join(",", e2));
+        else
+        {
+            r1 .Should().Be(r2);
+        }
     }
     
 }

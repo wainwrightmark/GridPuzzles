@@ -208,4 +208,22 @@ public readonly record struct SmallSet(BitVector32 _bitVector) : IImmutableSet<i
     {
         return new SmallSet(new BitVector32(_bitVector.Data | other._bitVector.Data));
     }
+
+    public int Min()
+    {
+        if (_bitVector.Data == 0) return 0; //Same as immutableSortedSet
+
+        var tzc = BitOperations.TrailingZeroCount(_bitVector.Data);
+        return tzc;
+    }
+
+    public int Max()
+    {
+        if (_bitVector.Data == 0) return 0; //Same as immutableSortedSet
+
+        var lzc = BitOperations.LeadingZeroCount((uint) _bitVector.Data);
+
+        var r = 31-lzc;
+        return r;
+    }
 }

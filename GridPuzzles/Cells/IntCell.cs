@@ -299,4 +299,22 @@ public readonly record struct IntCell(BitVector32 _bitVector) :  ICell<int, IntC
     }
 
     public override string ToString() => "[" + string.Join("", this) + "]";
+
+    public int Min()
+    {
+        if (_bitVector.Data == 0) return 0; //Same as immutableSortedSet
+
+        var tzc = BitOperations.TrailingZeroCount(_bitVector.Data);
+        return tzc;
+    }
+
+    public int Max()
+    {
+        if (_bitVector.Data == 0) return 0; //Same as immutableSortedSet
+
+        var lzc = BitOperations.LeadingZeroCount((uint) _bitVector.Data);
+
+        var r = 31-lzc;
+        return r;
+    }
 }
