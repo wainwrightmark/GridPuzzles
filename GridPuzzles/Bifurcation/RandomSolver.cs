@@ -64,7 +64,7 @@ public static class RandomSolver
 
         public Stack<UpdateResult<T, TCell>> RemainingUpdates { get; }
 
-        public int Hits { get; set; } = 0;
+        public int Hits { get; set; }
 
         /// <inheritdoc />
         public override string ToString() => $"{Grid} ({RemainingUpdates.Count}/{OriginalUpdates} Options Remain)";
@@ -73,9 +73,7 @@ public static class RandomSolver
     public static IEnumerable<(Grid<T, TCell> Grid, UpdateResult<T, TCell> UpdateResult)> RandomSolveIncremental<T, TCell>(this Grid<T, TCell> initialGrid, Random? random, CancellationToken cancellation)
         where T :struct where TCell : ICell<T, TCell>, new()
     {
-        UpdateResult<T, TCell> initialUpdateResult;
-
-        (initialGrid, initialUpdateResult) = initialGrid.IterateRepeatedly(UpdateResultCombiner<T, TCell>.Fast, 0);
+        (initialGrid, var initialUpdateResult) = initialGrid.IterateRepeatedly(UpdateResultCombiner<T, TCell>.Fast, 0);
 
         if (initialUpdateResult.HasContradictions)
             yield break;
@@ -149,78 +147,7 @@ public static class RandomSolver
             }
         }
     }
-
-    public static Maybe<Grid<T, TCell>> RandomSolve<T, TCell>(this Grid<T, TCell> initialGrid, Random? random) where T :struct where TCell : ICell<T, TCell>, new()
-    {
-        UpdateResult<T, TCell> initialUpdateResult;
-
-        (initialGrid, initialUpdateResult) = initialGrid.IterateRepeatedly(UpdateResultCombiner<T, TCell>.Fast, 0);
-
-        if (initialUpdateResult.HasContradictions)
-            return Maybe<Grid<T, TCell>>.None;
-
-        var rand = random ?? new Random();
-
-        var sn1 = SolveNode<T, TCell>.TryCreate(initialGrid, rand);
-
-        if (sn1.HasNoValue)
-            return Maybe<Grid<T, TCell>>.None;
-
-        var triedGrids = new Dictionary<Grid<T, TCell>, SolveNode<T, TCell>>()
-        {
-            { initialGrid, sn1.Value }
-        };
-        var nodesToTry = new Stack<SolveNode<T, TCell>>();
-
-        var backlogNodes = new Stack<SolveNode<T, TCell>>();
-
-        nodesToTry.Push(sn1.Value);
-
-        const uint triesBeforeBackTrack = 3;
-
-        while (nodesToTry.TryPop(out var currentNode))
-        {
-            if (!nodesToTry.Any() && backlogNodes.Any())
-            {
-                nodesToTry = new Stack<SolveNode<T, TCell>>(backlogNodes);
-                backlogNodes = new Stack<SolveNode<T, TCell>>();
-            }
-
-            currentNode.Hits++;
-            if (currentNode.Hits > 0 && (currentNode.Hits % triesBeforeBackTrack == 0) && nodesToTry.Any())
-            {
-                backlogNodes.Push(currentNode);
-                continue;
-            }
-
-            if (currentNode.RemainingUpdates.TryPop(out var updateResult))
-            {
-                if (currentNode.RemainingUpdates.Any())
-                    nodesToTry.Push(currentNode);
-
-                var (newGrid, newUpdateResult) = currentNode.Grid.IterateRepeatedly(UpdateResultCombiner<T, TCell>.Fast,0,updateResult);
-                    
-                if (newUpdateResult.HasContradictions)
-                    continue;
-                if (newGrid.IsComplete)
-                    return newGrid;
-
-                if (triedGrids.ContainsKey(newGrid))
-                    continue;
-
-                var newSolveNode = SolveNode<T, TCell>.TryCreate(newGrid, rand);
-
-                if (newSolveNode.HasValue)
-                {
-                    triedGrids.Add(newGrid, newSolveNode.Value);
-                    nodesToTry.Push(newSolveNode.Value);
-                }
-            }
-        }
-
-        return Maybe<Grid<T, TCell>>.None;
-    }
-
+    
 
     /// <summary>
     /// Apply a random change
@@ -251,13 +178,6 @@ public static class RandomSolver
         this Grid<T, TCell> startGrid)where T :struct where TCell : ICell<T, TCell>, new()
     {
         var r = await Task.Run(() => RandomIterate(startGrid, null)).ConfigureAwait(false);
-
-        return r;
-    }
-
-    public static async Task<Maybe<Grid<T, TCell>>> RandomSolveAsync<T, TCell>(this Grid<T, TCell> startGrid)where T :struct where TCell : ICell<T, TCell>, new()
-    {
-        var r = await Task.Run(() => RandomSolve(startGrid, null)).ConfigureAwait(false);
 
         return r;
     }
