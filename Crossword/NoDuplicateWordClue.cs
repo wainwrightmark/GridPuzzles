@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using CSharpFunctionalExtensions;
 using GridPuzzles.Reasons;
 
 namespace Crossword;
@@ -32,7 +31,7 @@ public class NoDuplicateVariantBuilder : NoArgumentVariantBuilder
     public override bool OnByDefault => true;
 }
 
-public class NoDuplicateWordClue : IRuleClue
+public class NoDuplicateWordClue : IRuleClue, ILazyClue<char,CharCell>
 {
     public NoDuplicateWordClue(IEnumerable<Position> positions)
     {
@@ -45,14 +44,22 @@ public class NoDuplicateWordClue : IRuleClue
     /// <inheritdoc />
     public ImmutableSortedSet<Position> Positions { get; }
 
-    /// <inheritdoc />
-    public IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid grid)
+    public static Result<IReadOnlyDictionary<string, ImmutableArray<Position>>, Contradiction> TryGetAllWords(Grid grid, NoDuplicateWordClue clue)
     {
+        if (grid.LazyData.IsValueCreated)
+        {
+            if (grid.LazyData.Value.TryGetValue(LazyDataKeyConst, out var o))
+            {
+                return (Result<IReadOnlyDictionary<string, ImmutableArray<Position>>, Contradiction>) o;
+            }
+        }
+
+
         var parallels =
             grid.MaxPosition.GetPositionsUpTo(true)
                 .Concat(grid.MaxPosition.GetPositionsUpTo(false));
 
-        var dict = new Dictionary<string, ImmutableSortedSet<Position>>();
+        var dict = new Dictionary<string, ImmutableArray<Position>>();
 
         var currentWord = new StringBuilder();
 
@@ -74,8 +81,8 @@ public class NoDuplicateWordClue : IRuleClue
                         if (currentWord is not null && currentWord.Length > 1)
                         {
                             foreach (var contradiction1 in TryAddWord(currentWord.ToString(), index, parallel,
-                                         dict))
-                                yield return contradiction1;
+                                         dict, clue))
+                                return contradiction1;
                         }
 
                         currentWord = new StringBuilder();
@@ -90,27 +97,48 @@ public class NoDuplicateWordClue : IRuleClue
             if (currentWord is not null && currentWord.Length > 1)
             {
                 foreach (var contradiction1 in TryAddWord(currentWord.ToString(), parallel.Length, parallel,
-                             dict))
-                    yield return contradiction1;
+                             dict, clue))
+                    return contradiction1;
             }
 
             currentWord = new StringBuilder();
         }
+
+        return dict;
     }
 
-    private IEnumerable<Contradiction> TryAddWord(string word, int index, Position[] parallel,
-        Dictionary<string, ImmutableSortedSet<Position>> dict)
+    /// <inheritdoc />
+    public IEnumerable<ICellChangeResult> CalculateCellUpdates(Grid grid)
     {
-        var positions = parallel[(index - word.Length)..index].ToImmutableSortedSet();
+        var words = TryGetAllWords(grid, this);
+        if (words.IsFailure)
+            yield return words.Error;
+
+    }
+
+    private static IEnumerable<Contradiction> TryAddWord(string word, int index, Position[] parallel,
+        Dictionary<string, ImmutableArray<Position>> dict, NoDuplicateWordClue clue)
+    {
+        var positions = parallel[(index - word.Length)..index].ToImmutableArray();
 
         if (!dict.TryAdd(word, positions))
         {
-            yield return new Contradiction(new DuplicateWordReason(word, this), positions.Concat(dict[word]).ToImmutableArray());
+            yield return new Contradiction(new DuplicateWordReason(word, clue), positions.Concat(dict[word]).ToImmutableArray());
         }
     }
+
+    public object CreateData(Grid grid)
+    {
+        var result = TryGetAllWords(grid, this);
+        return result;
+    }
+
+    public const string LazyDataKeyConst = "AllWords";
+
+    public string LazyDataKey => LazyDataKeyConst;
 }
 
-public sealed record DuplicateWordReason(string Word, NoDuplicateWordClue NDWClue) : ISingleReason
+public sealed record DuplicateWordReason(string Word, NoDuplicateWordClue NdwClue) : ISingleReason
 {
     /// <inheritdoc />
     public string Text => $"Duplicate word {Word}";
@@ -122,5 +150,5 @@ public sealed record DuplicateWordReason(string Word, NoDuplicateWordClue NDWClu
     }
 
     /// <inheritdoc />
-    public Maybe<IClue> Clue => NDWClue;
+    public Maybe<IClue> Clue => NdwClue;
 }

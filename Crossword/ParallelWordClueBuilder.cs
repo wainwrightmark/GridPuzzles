@@ -31,16 +31,17 @@ public class ParallelWordClueBuilder : NoArgumentVariantBuilder
         var symmetricalHorizontals = partition.True.Select(x => x.index).ToHashSet();
         var symmetricalVerticals = partition.False.Select(x => x.index).ToHashSet();
 
+        var allowDuplicates = !lowerLevelClues.OfType<NoDuplicateWordClue>().Any();
 
         var wordClues = new List<ParallelWordClue>();
 
         //Columns
         for (var i = minPosition.Column; i <= maxPosition.Column; i++)
-            wordClues.Add(new ParallelWordClue(wordList.PossibleWordList, minPosition, maxPosition, i, true, symmetricalVerticals.Contains(i)));
+            wordClues.Add(new ParallelWordClue(wordList.PossibleWordList, minPosition, maxPosition, i, true, symmetricalVerticals.Contains(i), allowDuplicates));
 
         //Rows
         for (var i = minPosition.Row; i <= maxPosition.Row; i++)
-            wordClues.Add(new ParallelWordClue(wordList.PossibleWordList, minPosition, maxPosition, i, false, symmetricalHorizontals.Contains(i)));
+            wordClues.Add(new ParallelWordClue(wordList.PossibleWordList, minPosition, maxPosition, i, false, symmetricalHorizontals.Contains(i), allowDuplicates));
 
         var trueClues = wordClues.Where(x => !blocks.Overlaps(x.Positions)).ToList();
 

@@ -11,12 +11,13 @@ public class ParallelWordClue : IRuleClue, IBifurcationClue<char, CharCell>
     public string Name => "Parallels should contain words";
 
     public ParallelWordClue(PossibleWordList wordList, Position min, Position max, ushort number, bool across,
-        bool symmetrical)
+        bool symmetrical, bool allowDuplicates)
     {
         WordList = wordList;
         Number = number;
         Across = across;
         Symmetrical = symmetrical;
+        AllowDuplicates = allowDuplicates;
         PositionList = across
             ? Enumerable.Range(min.Column, max.Column - min.Column + 1).Select(x => new Position(x, number))
                 .ToList()
@@ -35,6 +36,8 @@ public class ParallelWordClue : IRuleClue, IBifurcationClue<char, CharCell>
     public bool Across { get; }
     public bool Symmetrical { get; }
 
+    public bool AllowDuplicates { get; }
+
     private const int MinWordLength = 3;
 
     /// <inheritdoc />
@@ -48,8 +51,21 @@ public class ParallelWordClue : IRuleClue, IBifurcationClue<char, CharCell>
     {
         var cells = PositionList.Select(grid.GetCellKVP).ToList();
 
+        IReadOnlyDictionary<string, ImmutableArray<Position>>? existingWords;
+        if (AllowDuplicates) existingWords = null;
+        else
+        {
+            var r = NoDuplicateWordClue.TryGetAllWords(grid, null);
+            if(r.IsFailure)existingWords = null;
+            else if(r.Value.Any())
+            {
+                existingWords = r.Value;
+            }
+            else existingWords = null;
+        }
+
         var (rightOptions, leftOptions, fullLengthOptions, changes) =
-            GetAllWordOptions(grid, cells);
+            GetAllWordOptions(grid, cells, existingWords);
 
         foreach (var cellChangeResult in changes)
         {
@@ -80,9 +96,22 @@ public class ParallelWordClue : IRuleClue, IBifurcationClue<char, CharCell>
     {
         var cells = PositionList.Select(grid.GetCellKVP).ToList();
 
+        IReadOnlyDictionary<string, ImmutableArray<Position>>? existingWords;
+        if (AllowDuplicates) existingWords = null;
+        else
+        {
+            var r = NoDuplicateWordClue.TryGetAllWords(grid, null);
+            if(r.IsFailure)existingWords = null;
+            else if(r.Value.Any())
+            {
+                existingWords = r.Value;
+            }
+            else existingWords = null;
+        }
+
 
         var (rightOptions, leftOptions, fullLengthOptions, changes) =
-            GetAllWordOptions(grid, cells);
+            GetAllWordOptions(grid, cells, existingWords);
 
         if (changes.OfType<Contradiction>().Any())
             yield break;
@@ -109,7 +138,8 @@ public class ParallelWordClue : IRuleClue, IBifurcationClue<char, CharCell>
 
     private (IReadOnlyList<WordOption> rightOptions, IReadOnlyList<WordOption> leftOptions,
         IReadOnlyList<WordOption> fullLengthOptions, IReadOnlyList<ICellChangeResult> changes)
-        GetAllWordOptions(Grid grid, IReadOnlyList<KeyValuePair<Position, CharCell>> cells)
+        GetAllWordOptions(Grid grid, IReadOnlyList<KeyValuePair<Position, CharCell>> cells,
+            IReadOnlyDictionary<string, ImmutableArray<Position>>? existingWords)
     {
         //if (cells.All(x => x.Value.HasSingleValue))
         //    return (ImmutableArray<WordOption>.Empty, ImmutableArray<WordOption>.Empty,
@@ -136,7 +166,7 @@ public class ParallelWordClue : IRuleClue, IBifurcationClue<char, CharCell>
 
             possibleBlocks = centreBlocks;
 
-            changes.AddRange(nonBlocks.Select(x=>x.cell)
+            changes.AddRange(nonBlocks.Select(x => x.cell)
                 .Select(cell => cell.CloneWithoutValue(CrosswordValueSource.BlockChar,
                     new CrosswordReason("Must not be a block, by symmetry"))));
         }
@@ -155,7 +185,7 @@ public class ParallelWordClue : IRuleClue, IBifurcationClue<char, CharCell>
         {
             var leftOptions =
                 minLeftBlocks.RangeTo(maxLeftBlocks)
-                    .SelectMany(eb => GetWordOptions(cells, eb, blockIndex - eb, eb, 1)).ToList();
+                    .SelectMany(eb => GetWordOptions(cells, eb, blockIndex - eb, eb, 1, existingWords)).ToList();
 
             if (leftOptions.Count == 0)
             {
@@ -165,7 +195,7 @@ public class ParallelWordClue : IRuleClue, IBifurcationClue<char, CharCell>
             }
 
             var rightOptions = minRightBlocks.RangeTo(maxRightBlocks).SelectMany(eb =>
-                GetWordOptions(cells, blockIndex + 1, PositionList.Count - blockIndex - eb - 1, 1, eb)).ToList();
+                GetWordOptions(cells, blockIndex + 1, PositionList.Count - blockIndex - eb - 1, 1, eb, existingWords)).ToList();
             if (rightOptions.Count == 0)
             {
                 changes.Add(blockCell.CloneWithoutValue(CrosswordValueSource.BlockChar,
@@ -185,7 +215,7 @@ public class ParallelWordClue : IRuleClue, IBifurcationClue<char, CharCell>
                         .Select(rBlocks => (lBlocks, rBlocks)))
                 .SelectMany(
                     p => GetWordOptions(cells, p.lBlocks, PositionList.Count - p.rBlocks - p.lBlocks, p.lBlocks,
-                        p.rBlocks))
+                        p.rBlocks, existingWords))
                 .ToList();
 
 
@@ -210,7 +240,7 @@ public class ParallelWordClue : IRuleClue, IBifurcationClue<char, CharCell>
     }
 
     private IEnumerable<WordOption> GetWordOptions(IEnumerable<KeyValuePair<Position, CharCell>> cells, int skip,
-        int wordLength, int startBlocks, int endBlocks)
+        int wordLength, int startBlocks, int endBlocks, IReadOnlyDictionary<string, ImmutableArray<Position>>? existingWords)
     {
         var cellList = cells.Skip(skip).Take(wordLength).ToList();
 
@@ -239,9 +269,26 @@ public class ParallelWordClue : IRuleClue, IBifurcationClue<char, CharCell>
                 return words;
 
             var filteredWords = words.Where(w =>
-                cellsToCheck.All(x => x.cell.Contains(w.NormalizedText[x.i]))).ToList();
 
-            return filteredWords;
+                cellsToCheck.All(x => x.cell.Contains(w.NormalizedText[x.i])));
+
+            if (existingWords is not null)
+                filteredWords = filteredWords.Where(w =>
+            {
+                if (existingWords.TryGetValue(w.NormalizedText, out var positions))
+                {
+
+                    if (!positions.All(p => cellList.Select(x => x.Key).Contains(p)))
+                    {
+                        return false; //This word already exists in a different place    
+                    }
+
+                }
+
+                return true;
+            });
+
+            return filteredWords.ToList();
         }
     }
 
@@ -397,7 +444,7 @@ public class ParallelWordClue : IRuleClue, IBifurcationClue<char, CharCell>
         public sealed record WordOptionReason(int ParallelIndex, bool Across) : ISingleReason
         {
             /// <inheritdoc />
-            public string Text =>  Across ? $"{ParallelIndex} Across" : $"{ParallelIndex} Down";
+            public string Text => Across ? $"{ParallelIndex} Across" : $"{ParallelIndex} Down";
 
             /// <inheritdoc />
             public IEnumerable<Position> GetContributingPositions(IGrid grid)

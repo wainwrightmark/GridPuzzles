@@ -102,3 +102,18 @@ public interface IDynamicOverlayClue<T, TCell> : IClue<T, TCell> where T :struct
     [Pure]
     IEnumerable<ICellOverlay> CreateCellOverlays(Grid<T, TCell> grid);
 }
+
+/// <summary>
+/// A clue that generates some lazy data
+/// </summary>
+public interface ILazyClue<T, TCell> : IClue<T, TCell> 
+    where T : struct where TCell : ICell<T, TCell>, new()
+{
+    /// <summary>
+    /// Create data from the grid
+    /// </summary>
+    [Pure]
+    object CreateData(Grid<T, TCell> grid);
+
+    string LazyDataKey { get; }
+}

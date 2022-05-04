@@ -80,5 +80,8 @@ public sealed class ClueSource<T, TCell> where T :struct where TCell : ICell<T, 
 
     public IReadOnlyList<CellOverlayWrapper> FixedOverlays { get; }
 
+    public IReadOnlyDictionary<string, object> GetLazyData(Grid<T, TCell> grid)=>
+        Clues.OfType<ILazyClue<T, TCell>>().ToDictionary(x => x.LazyDataKey, x => x.CreateData(grid));
+
     //TODO add more to these methods when we have option clues!
 }

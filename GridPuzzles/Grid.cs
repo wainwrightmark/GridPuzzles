@@ -26,11 +26,11 @@ public class Grid<T, TCell> : IGrid where T :struct where TCell : ICell<T, TCell
                 .Concat(ClueSource.DynamicOverlayClueHelper.CreateCellOverlays(this))
                     
                 .ToList());
+
+        LazyData = new Lazy<IReadOnlyDictionary<string, object>>(()=>ClueSource.GetLazyData(this));
     }
 
     public TCell GetCell(Position p) => CellArray[GetCellIndex(p, MaxPosition)];
-
-    //public IReadOnlyDictionary<Position, TCell> Cells { get; }
 
     private ImmutableArray<TCell> CellArray { get; }
 
@@ -39,6 +39,8 @@ public class Grid<T, TCell> : IGrid where T :struct where TCell : ICell<T, TCell
     public Position MaxPosition { get; }
     public Lazy<int> NumberOfFixedCells { get; }
     public Lazy<string> UniqueString { get; }
+
+    public Lazy<IReadOnlyDictionary<string, object>> LazyData { get; }
     private Lazy<IReadOnlyList<CellOverlayWrapper>> LazyOverlays { get; }
 
     public bool IsComplete => NumberOfFixedCells.Value >= AllPositions.Length;
