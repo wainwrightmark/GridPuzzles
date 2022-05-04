@@ -20,9 +20,11 @@ public record ClearAction<T, TCell> : IGridViewAction<T, TCell> where T :struct 
         await Task.CompletedTask;
         var state = history.Peek();
 
+        
+
         var newGrid = Grid<T, TCell>.Create(
             state.FixedValues.Select(x=> 
-                new KeyValuePair<Position, TCell>(x.Key, new TCell())),
+                new KeyValuePair<Position, TCell>(x.Key, state.Grid.ClueSource.ValueSource.AnyValueCell)),
             state.Grid.MaxPosition, state.Grid.ClueSource);
 
         yield return (ActionResult<T, TCell>)new SolveState<T, TCell>(newGrid,
