@@ -233,6 +233,13 @@ public readonly record struct CharCell(BitVector32 _bitVector) :  ICell<char, Ch
         }
     }
 
+    public static bool CharIsLegal(char c)
+    {
+        if (c >= 65 && c <= 90) return true;//Capital letters
+        if (c >= 97 && c <= 122) return true; //Capital letters
+        return false;
+    }
+
     private static char MapIntToChar(int i)
     {
         if (i == 0) return '.';

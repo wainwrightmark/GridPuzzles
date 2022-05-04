@@ -37,7 +37,7 @@ public class RelatedWordsVariantBuilder : IVariantBuilder<char, CharCell>
         var document = await context.OpenAsync(address, cancellation);
         var cellSelector = "span.term";
         var cells = document.QuerySelectorAll(cellSelector);
-        var titles = cells.Select(m => m.TextContent).ToList();
+        var titles = cells.Select(m => m.TextContent.Trim()).ToList();
 
         return titles;
     }

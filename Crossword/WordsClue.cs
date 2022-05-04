@@ -4,7 +4,8 @@ public class WordsClue : IClue<char, CharCell>
 {
     public WordsClue(IEnumerable<(ushort priority, IReadOnlyCollection<string>)> words)
     {
-        Words = words.ToList();
+        Words = words
+            .Select(x => (x.priority, x.Item2.Where(w => w.All(CharCell.CharIsLegal)).ToList() as IReadOnlyCollection<string>));
         Positions = ImmutableSortedSet<Position>.Empty;
     }
 
@@ -12,6 +13,7 @@ public class WordsClue : IClue<char, CharCell>
 
     /// <inheritdoc />
     public ImmutableSortedSet<Position> Positions { get; }
+
 
     /// <inheritdoc />
     public string Name => "Crossword Words";
