@@ -48,7 +48,7 @@ public record TransformAction<T, TCell>(int QuarterTurns, bool FlipHorizontal, b
         }
 
 
-        var newCells = current.Grid.Cells.Select(x =>
+        var newCells = current.Grid.AllCells.Select(x =>
                 new KeyValuePair<Position, TCell>(x.Key.Transform(QuarterTurns, FlipHorizontal, FlipVertical,
                     current.Grid.MaxPosition), x.Value))
             .ToList();

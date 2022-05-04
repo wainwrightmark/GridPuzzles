@@ -7,18 +7,18 @@ namespace GridPuzzles;
 
 public class Grid<T, TCell> : IGrid where T :struct where TCell : ICell<T, TCell>, new()
 {
-    private Grid(IReadOnlyDictionary<Position, TCell> cells,
+    private Grid(ImmutableArray<TCell> cells,
         ClueSource<T, TCell> clueSource,
         ImmutableArray<Position> allPositions)
     {
-        Cells = cells;
+        CellArray = cells;
         AllPositions = allPositions;
         ClueSource = clueSource;
-        NumberOfFixedCells = new Lazy<int>(() => cells.Values.Count(x => x.HasSingleValue()));
+        NumberOfFixedCells = new Lazy<int>(() => cells.Count(x=> x.HasSingleValue()));
         UniqueString = new Lazy<string>(() =>
             string.Join("",
-                Cells.Select(x => x.ToString())
-            ));
+                CellArray.Select((x, i) => (x, i)).Where(x=>!Equals(x.x, clueSource.ValueSource.AnyValueCell))
+                    .Select(x=>x.ToString())));
         MaxPosition = allPositions.Last();
 
         LazyOverlays = new Lazy<IReadOnlyList<CellOverlayWrapper>>(() =>
@@ -28,8 +28,12 @@ public class Grid<T, TCell> : IGrid where T :struct where TCell : ICell<T, TCell
                 .ToList());
     }
 
-    public TCell GetCell(Position p) => Cells.TryGetValue(p, out var c) ? c : ClueSource.ValueSource.AnyValueCell;
-    public IReadOnlyDictionary<Position, TCell> Cells { get; }
+    public TCell GetCell(Position p) => CellArray[GetCellIndex(p, MaxPosition)];
+
+    //public IReadOnlyDictionary<Position, TCell> Cells { get; }
+
+    private ImmutableArray<TCell> CellArray { get; }
+
     public ClueSource<T, TCell> ClueSource { get; }
     public ImmutableArray<Position> AllPositions { get; }
     public Position MaxPosition { get; }
@@ -38,6 +42,20 @@ public class Grid<T, TCell> : IGrid where T :struct where TCell : ICell<T, TCell
     private Lazy<IReadOnlyList<CellOverlayWrapper>> LazyOverlays { get; }
 
     public bool IsComplete => NumberOfFixedCells.Value >= AllPositions.Length;
+
+    private static int GetCellIndex(Position position, Position maxPosition)
+    {
+        var r = ((position.Row - 1) * maxPosition.Column) + position.Column - 1;
+
+        return r;
+    }
+
+    private static Position GetPositionFromIndex(int index, Position maxPosition)
+    {
+        var c = (index % maxPosition.Column) + 1;
+        var r = (index / maxPosition.Row) + 1;
+        return new Position(c, r);
+    }
 
     /// <inheritdoc />
     [Pure]
@@ -49,33 +67,53 @@ public class Grid<T, TCell> : IGrid where T :struct where TCell : ICell<T, TCell
         Position maxPosition,
         ClueSource<T, TCell> clueSource)
     {
-        var dict = (cells ?? Enumerable.Empty<KeyValuePair<Position, TCell>>())
-            .Where(x => !x.Value.CouldHaveAnyValue(clueSource.ValueSource))
-            .ToImmutableSortedDictionary(x => x.Key, x => x.Value);
+
+        var l = GetCellIndex(maxPosition, maxPosition) + 1;
+        var array = Enumerable.Repeat(clueSource.ValueSource.AnyValueCell, l).ToArray();
+
+        if (cells is not null)
+        {
+            foreach (var (key, value) in cells)
+            {
+                var index = GetCellIndex(key, maxPosition);
+                array[index] = value;
+            }
+        }
+
+        //var dict = (cells ?? Enumerable.Empty<KeyValuePair<Position, TCell>>())
+        //    .Where(x => !x.Value.CouldHaveAnyValue(clueSource.ValueSource))
+        //    .ToImmutableSortedDictionary(x => x.Key, x => x.Value);
 
         var allPositions = maxPosition
             .GetPositionsUpTo(true)
             .SelectMany(x => x).ToImmutableArray();
 
-        return new Grid<T, TCell>(dict, clueSource, allPositions);
+        return new Grid<T, TCell>(array.ToImmutableArray(), clueSource, allPositions);
     }
 
     [Pure]
     public Grid<T, TCell> CloneWithClueSource(ClueSource<T, TCell> clueSource)
     {
-        var g = new Grid<T, TCell>(Cells, clueSource, AllPositions).CloneWithUpdates(UpdateResult<T, TCell>.Empty, true);
+        var g = new Grid<T, TCell>(CellArray, clueSource, AllPositions).CloneWithUpdates(UpdateResult<T, TCell>.Empty, true);
         return g;
     }
 
+    /// <summary>
+    /// Clones the grid with only cells which have a fixed value and without any of the provided positions
+    /// </summary>
     [Pure]
     public Grid<T, TCell> CloneWithoutCells(IEnumerable<Position> positions)
     {
-        var badPositions = positions.Concat(Cells.Where(x => x.Value.Count() > 1).Select(x=>x.Key)).ToHashSet();
+        var array = CellArray.Select(x=> x.HasSingleValue()? x : ClueSource.ValueSource.AnyValueCell) .ToArray();
 
-        var newCells = Cells.Where(x=>!badPositions.Contains(x.Key))
-            .ToDictionary(x=>x.Key, x=>x.Value);
+        foreach (var position in positions)
+        {
+            var index = GetCellIndex(position, MaxPosition);
+            array[index] = ClueSource.ValueSource.AnyValueCell;
+        }
+        
 
-        return new Grid<T, TCell>(newCells, ClueSource, AllPositions);
+        return new Grid<T, TCell>(array.ToImmutableArray(), ClueSource, AllPositions);
     }
 
     [Pure]
@@ -84,44 +122,19 @@ public class Grid<T, TCell> : IGrid where T :struct where TCell : ICell<T, TCell
         if (updateResult.IsEmpty && !onlyFixedValues)
             return this;
 
-        IReadOnlyDictionary<Position, TCell> newCells;
+
+        var newCellArray = CellArray.ToArray();
+        foreach (var (position, cellUpdate) in updateResult.UpdatedCells)
+        {
+            newCellArray[GetCellIndex(position, MaxPosition)] = cellUpdate.NewCell;
+        }
+
+        var newCells = newCellArray.ToImmutableArray();
 
         if (onlyFixedValues)
         {
-            if (!updateResult.UpdatedCells.Any())
-                newCells = Cells.Where(x=>x.Value.HasSingleValue())
-                    .ToDictionary(x=>x.Key, x=>x.Value);
-            else if (!Cells.Any())
-                newCells = updateResult.UpdatedCells.Where(x => x.Value.NewCell.HasSingleValue())
-                    .ToDictionary(x => x.Key, x => x.Value.NewCell);
-            else
-            {
-                newCells = Cells
-                    .Concat(updateResult.UpdatedCells.Select(x=> new KeyValuePair<Position, TCell>(x.Key, x.Value.NewCell)))
-                    .Where(x=>x.Value.HasSingleValue())
-                    .GroupBy(x=>x.Key, x=>x.Value) 
-                    .ToDictionary(x=>x.Key, x=>x.Last());
-            }
-        }
-        else
-        {
-            if (!updateResult.UpdatedCells.Any()) newCells = Cells;
-            else if (!Cells.Any())
-                newCells = updateResult.UpdatedCells
-                    .ToDictionary(
-                        x => x.Key,
-                        x => x.Value.NewCell);
-            else
-            {
-                var intermediate = new Dictionary<Position, TCell>(Cells);
-
-                foreach (var (position, value) in updateResult.UpdatedCells)
-                {
-                    intermediate[position] = value.NewCell;
-                }
-
-                newCells = intermediate;
-            }
+            newCells = newCells.Select(x => x.HasSingleValue() ? x : ClueSource.ValueSource.AnyValueCell)
+                .ToImmutableArray();
         }
 
         return new Grid<T, TCell>(newCells, ClueSource, AllPositions);
@@ -167,34 +180,22 @@ public class Grid<T, TCell> : IGrid where T :struct where TCell : ICell<T, TCell
         if (s.Length != maxPosition.GetTotalPositionsUpTo())
             return Result.Failure<Grid<T, TCell>>(
                 $"Expected {maxPosition.GetTotalPositionsUpTo()} cells but got {s.Length}");
+        
 
-        ushort colNumber = 1;
-        ushort rowNumber = 1;
+        var cells = s.Select(clueSource.ValueSource.TryParse)
+            .Combine()
+            .Map(x =>
+                x.Select(a => a.Map(CellHelper.Create<T, TCell>).GetValueOrDefault(clueSource.ValueSource.AnyValueCell))
+                    .ToImmutableArray());
 
-        var cells = ImmutableSortedDictionary<Position, TCell>.Empty.ToBuilder();
+        if (cells.IsFailure) return cells.ConvertFailure<Grid<T, TCell>>();
 
-        foreach (var parseResult in s.Select(clueSource.ValueSource.TryParse))
-        {
-            if (parseResult.IsFailure)
-                return parseResult.ConvertFailure<Grid<T, TCell>>();
-
-            var position = new Position(colNumber, rowNumber);
-            if (parseResult.Value.HasValue)
-                cells.Add(position, CellHelper.Create<T, TCell>(parseResult.Value.Value));
-
-            colNumber++;
-            if (colNumber > maxPosition.Column)
-            {
-                colNumber = 1;
-                rowNumber++;
-            }
-        }
-
+        
         var allPositions = maxPosition
             .GetPositionsUpTo(true)
             .SelectMany(x => x).ToImmutableArray();
 
-        return new Grid<T, TCell>(cells.ToImmutable(), clueSource, allPositions);
+        return new Grid<T, TCell>(cells.Value, clueSource, allPositions);
     }
 
 
@@ -205,29 +206,35 @@ public class Grid<T, TCell> : IGrid where T :struct where TCell : ICell<T, TCell
     {
         var symmetries = new Dictionary<T, T>();
 
-        foreach (var (position, cell) in Cells.Where(x => x.Value.HasSingleValue()))
+        for (var index = 0; index < CellArray.Length; index++)
         {
-            var opposite = position.GetOpposite(length);
-            if (Cells.TryGetValue(opposite, out var other) && other.HasSingleValue())
-            {
-                var val1 = cell.Single();
-                var val2 = other.Single();
-                    
-                if (symmetries.TryGetValue(val1, out var symmetry1))
-                {
-                    if (!val2.Equals(symmetry1)) return null;
-                }
-                else
-                    symmetries.Add(val1, val2);
+            var cell = CellArray[index];
 
-                if (symmetries.TryGetValue(val2, out var symmetry2))
-                {
-                    if (!val1.Equals(symmetry2)) return null;
-                }
-                else
-                    symmetries.Add(val2, val1);
+            if(!cell.HasSingleValue())continue;
+
+
+            var position = GetPositionFromIndex(index, MaxPosition);
+            var opposite = position.GetOpposite(length);
+            var oppositeCell = GetCell(opposite);
+            if(!oppositeCell.HasSingleValue())continue;
+
+            var val1 = cell.Single();
+            var val2 = oppositeCell.Single();
+                    
+            if (symmetries.TryGetValue(val1, out var symmetry1))
+            {
+                if (!val2.Equals(symmetry1)) return null;
             }
-            else return null;
+            else
+                symmetries.Add(val1, val2);
+
+            if (symmetries.TryGetValue(val2, out var symmetry2))
+            {
+                if (!val1.Equals(symmetry2)) return null;
+            }
+            else
+                symmetries.Add(val2, val1);
+
         }
 
         return symmetries;
@@ -238,6 +245,9 @@ public class Grid<T, TCell> : IGrid where T :struct where TCell : ICell<T, TCell
     /// Gets all cells, including those with the default value
     /// </summary>
     public IEnumerable<KeyValuePair<Position, TCell>> AllCells => AllPositions.Select(GetCellKVP);
+
+
+    public IEnumerable<KeyValuePair<Position, TCell>> AllModifiedCells => AllCells.Where(x=>!x.Value.CouldHaveAnyValue(ClueSource.ValueSource));
 
     public KeyValuePair<Position, TCell> GetCellKVP(Position position) => new(position, GetCell(position));
 

@@ -21,7 +21,7 @@ public static class RandomSolver
             var bifurcationOptions =
                 grid.ClueSource.BifurcationClueHelper.CalculateBifurcationOptions(grid, grid.AllPositions, max).ToList();
 
-            foreach (var (position, cell) in grid.Cells)
+            foreach (var (position, cell) in grid.AllModifiedCells)
                 bifurcationOptions.AddRange(cell.EnumerateBifurcationOptions(position, 10000));
 
             var option = bifurcationOptions
@@ -35,7 +35,9 @@ public static class RandomSolver
                 return new SolveNode<T, TCell>(grid, option.Choices.Select(x => x.UpdateResult), random);
 
             //special case for first cell
-            if (grid.Cells.All(x =>
+            if (grid.AllModifiedCells
+
+                .All(x =>
                     x.Value.HasSingleValue() && x.Value.All(c => c.ToString() == ".")))
             {
                 var cellToChange = grid

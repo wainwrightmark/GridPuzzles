@@ -136,8 +136,9 @@ public class ParallelWordClue : IRuleClue, IBifurcationClue<char, CharCell>
 
             possibleBlocks = centreBlocks;
 
-            changes.AddRange(from KeyValuePair<Position, CharCell> cell in nonBlocks
-                select cell.CloneWithoutValue(CrosswordValueSource.BlockChar, new CrosswordReason("Must not be a block, by symmetry")));
+            changes.AddRange(nonBlocks.Select(x=>x.cell)
+                .Select(cell => cell.CloneWithoutValue(CrosswordValueSource.BlockChar,
+                    new CrosswordReason("Must not be a block, by symmetry"))));
         }
         else
         {

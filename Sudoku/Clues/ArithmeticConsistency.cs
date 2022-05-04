@@ -14,7 +14,7 @@ namespace Sudoku.Clues
                 yield break;
             var completenessClueValue = grid.ClueSource.ValueSource.AllValues.Sum();
 
-            var constants = grid.Cells.Where(x => x.Value.HasSingleValue())
+            var constants = grid.AllCells.Where(x => x.Value.HasSingleValue())
                 .ToDictionary(x => x.Key, x => x.Value.Single());
 
             var basicEquations =

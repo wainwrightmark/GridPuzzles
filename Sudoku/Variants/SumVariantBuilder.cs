@@ -50,7 +50,7 @@ public partial class SumVariantBuilder : VariantBuilder
     private static readonly BoolArgument UniqueArgument = new("Unique", Maybe<bool>.From(true));
 
     [Equatable]
-    public partial record SumClueBuilder(int Sum,[property:OrderedEquality] ImmutableSortedSet<Position> Positions, bool Unique) : IClueBuilder
+    public partial record SumClueBuilder(int Sum,[property:SetEquality] ImmutableSortedSet<Position> Positions, bool Unique) : IClueBuilder
     {
         /// <inheritdoc />
         public string Name => $"Sum to {Sum}";

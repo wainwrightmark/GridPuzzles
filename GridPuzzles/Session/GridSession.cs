@@ -30,7 +30,7 @@ public class GridSession<T, TCell> : IGridSession where T :struct where TCell : 
             ChangeType.InitialState,
             "Initial State",
             TimeSpan.Zero, 
-            grid.Cells.Where(x=>x.Value.HasSingleValue())
+            grid.AllCells.Where(x=>x.Value.HasSingleValue())
                 .ToImmutableSortedDictionary(x=>x.Key, x=>x.Value.Single()), 
             null);
         StateHistory = ImmutableStack<SolveState<T, TCell>>.Empty.Push(state);
