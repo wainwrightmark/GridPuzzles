@@ -1,19 +1,19 @@
 /* /Shared/MainLayout.razor.rz.scp.css */
-.page[b-doplvei2g4] {
+.page[b-usrm912bqx] {
     position: relative;
     display: flex;
     flex-direction: column;
 }
 
-main[b-doplvei2g4] {
+main[b-usrm912bqx] {
     flex: 1;
 }
 
-.sidebar[b-doplvei2g4] {
+.sidebar[b-usrm912bqx] {
     background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);
 }
 
-.top-row[b-doplvei2g4] {
+.top-row[b-usrm912bqx] {
     background-color: #f7f7f7;
     border-bottom: 1px solid #d6d5d5;
     justify-content: flex-end;
@@ -22,60 +22,60 @@ main[b-doplvei2g4] {
     align-items: center;
 }
 
-    .top-row[b-doplvei2g4]  a, .top-row[b-doplvei2g4]  .btn-link {
+    .top-row[b-usrm912bqx]  a, .top-row[b-usrm912bqx]  .btn-link {
         white-space: nowrap;
         margin-left: 1.5rem;
         text-decoration: none;
     }
 
-    .top-row[b-doplvei2g4]  a:hover, .top-row[b-doplvei2g4]  .btn-link:hover {
+    .top-row[b-usrm912bqx]  a:hover, .top-row[b-usrm912bqx]  .btn-link:hover {
         text-decoration: underline;
     }
 
-    .top-row[b-doplvei2g4]  a:first-child {
+    .top-row[b-usrm912bqx]  a:first-child {
         overflow: hidden;
         text-overflow: ellipsis;
     }
 
 @media (max-width: 640.98px) {
-    .top-row:not(.auth)[b-doplvei2g4] {
+    .top-row:not(.auth)[b-usrm912bqx] {
         display: none;
     }
 
-    .top-row.auth[b-doplvei2g4] {
+    .top-row.auth[b-usrm912bqx] {
         justify-content: space-between;
     }
 
-    .top-row[b-doplvei2g4]  a, .top-row[b-doplvei2g4]  .btn-link {
+    .top-row[b-usrm912bqx]  a, .top-row[b-usrm912bqx]  .btn-link {
         margin-left: 0;
     }
 }
 
 @media (min-width: 641px) {
-    .page[b-doplvei2g4] {
+    .page[b-usrm912bqx] {
         flex-direction: row;
     }
 
-    .sidebar[b-doplvei2g4] {
+    .sidebar[b-usrm912bqx] {
         width: 250px;
         height: 100vh;
         position: sticky;
         top: 0;
     }
 
-    .top-row[b-doplvei2g4] {
+    .top-row[b-usrm912bqx] {
         position: sticky;
         top: 0;
         z-index: 1;
     }
 
-    .top-row.auth[b-doplvei2g4]  a:first-child {
+    .top-row.auth[b-usrm912bqx]  a:first-child {
         flex: 1;
         text-align: right;
         width: 0;
     }
 
-    .top-row[b-doplvei2g4], article[b-doplvei2g4] {
+    .top-row[b-usrm912bqx], article[b-usrm912bqx] {
         padding-left: 2rem !important;
         padding-right: 1.5rem !important;
     }
