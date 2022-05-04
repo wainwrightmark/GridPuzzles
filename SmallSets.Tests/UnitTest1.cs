@@ -8,7 +8,7 @@ using Xunit;
 namespace SmallSets.Tests;
 public class UnitTest1
 {
-    public static IEnumerable<object[]> GetListListTestCases()
+    public static IEnumerable<object[]> ListListTestCases()
     {
         return GetListListTestCases1().Select(x => new[] { x.l1, x.l2 });
 
@@ -81,27 +81,27 @@ public class UnitTest1
 
 
 
-    [Theory] [MemberData(nameof(GetListListTestCases))] public void TestClear(int[] l1, int[] l2) => Check(l1, (x)=>x.Clear());
-    [Theory] [MemberData(nameof(GetListListTestCases))] public void TestExcept(int[] l1, int[] l2) => Check(l1, l2, (x, l2)=>x.Except(l2));
-    [Theory] [MemberData(nameof(GetListListTestCases))] public void TestProperSubset(int[] l1, int[] l2) => Check(l1, l2, (x, l2)=>x.IsProperSubsetOf(l2));
-    [Theory] [MemberData(nameof(GetListListTestCases))] public void TestProperSuperset(int[] l1, int[] l2) => Check(l1, l2, (x, l2)=>x.IsProperSupersetOf(l2));
-    [Theory] [MemberData(nameof(GetListListTestCases))] public void TestSubset(int[] l1, int[] l2) => Check(l1, l2, (x, l2)=>x.IsSubsetOf(l2));
-    [Theory] [MemberData(nameof(GetListListTestCases))] public void TestSuperset(int[] l1, int[] l2) => Check(l1, l2, (x, l2)=>x.IsSupersetOf(l2));
-    [Theory] [MemberData(nameof(GetListListTestCases))] public void TestSetEquals(int[] l1, int[] l2) => Check(l1, l2, (x, l2)=>x.SetEquals(l2));
-    [Theory] [MemberData(nameof(GetListListTestCases))] public void TestOverlaps(int[] l1, int[] l2) => Check(l1, l2, (x, l2)=>x.Overlaps(l2));
-    [Theory] [MemberData(nameof(GetListListTestCases))] public void TestSymmetricExcept(int[] l1, int[] l2) => Check(l1, l2, (x, l2)=>x.SymmetricExcept(l2));
-    [Theory] [MemberData(nameof(GetListListTestCases))] public void TestIntersect(int[] l1, int[] l2) => Check(l1, l2, (x, l2)=>x.Intersect(l2));
-    [Theory] [MemberData(nameof(GetListListTestCases))] public void TestUnion(int[] l1, int[] l2) => Check(l1, l2, (x, l2)=>x.Union(l2));
+    [Theory] [MemberData(nameof(ListListTestCases))] public void TestClear(int[] l1, int[] l2) => Check(l1, (x)=>x.Clear());
+    [Theory] [MemberData(nameof(ListListTestCases))] public void TestExcept(int[] l1, int[] l2) => Check(l1, l2, (x, l2)=>x.Except(l2));
+    [Theory] [MemberData(nameof(ListListTestCases))] public void TestProperSubset(int[] l1, int[] l2) => Check(l1, l2, (x, l2)=>x.IsProperSubsetOf(l2));
+    [Theory] [MemberData(nameof(ListListTestCases))] public void TestProperSuperset(int[] l1, int[] l2) => Check(l1, l2, (x, l2)=>x.IsProperSupersetOf(l2));
+    [Theory] [MemberData(nameof(ListListTestCases))] public void TestSubset(int[] l1, int[] l2) => Check(l1, l2, (x, l2)=>x.IsSubsetOf(l2));
+    [Theory] [MemberData(nameof(ListListTestCases))] public void TestSuperset(int[] l1, int[] l2) => Check(l1, l2, (x, l2)=>x.IsSupersetOf(l2));
+    [Theory] [MemberData(nameof(ListListTestCases))] public void TestSetEquals(int[] l1, int[] l2) => Check(l1, l2, (x, l2)=>x.SetEquals(l2));
+    [Theory] [MemberData(nameof(ListListTestCases))] public void TestOverlaps(int[] l1, int[] l2) => Check(l1, l2, (x, l2)=>x.Overlaps(l2));
+    [Theory] [MemberData(nameof(ListListTestCases))] public void TestSymmetricExcept(int[] l1, int[] l2) => Check(l1, l2, (x, l2)=>x.SymmetricExcept(l2));
+    [Theory] [MemberData(nameof(ListListTestCases))] public void TestIntersect(int[] l1, int[] l2) => Check(l1, l2, (x, l2)=>x.Intersect(l2));
+    [Theory] [MemberData(nameof(ListListTestCases))] public void TestUnion(int[] l1, int[] l2) => Check(l1, l2, (x, l2)=>x.Union(l2));
 
-    [Theory] [MemberData(nameof(GetListListTestCases))] public void TestIntersectSS(int[] l1, int[] l2) => Check(l1, l2, (x, l2)=>x.Intersect(l2));
-    [Theory] [MemberData(nameof(GetListListTestCases))] public void TestExceptSS(int[] l1, int[] l2) => CheckSS(l1, l2, (x, l2)=>x.Except(l2));
-    [Theory] [MemberData(nameof(GetListListTestCases))] public void TestProperSubsetSS(int[] l1, int[] l2) => CheckSS(l1, l2, (x, l2)=>x.IsProperSubsetOf(l2));
-    [Theory] [MemberData(nameof(GetListListTestCases))] public void TestProperSupersetSS(int[] l1, int[] l2) => CheckSS(l1, l2, (x, l2)=>x.IsProperSupersetOf(l2));
-    [Theory] [MemberData(nameof(GetListListTestCases))] public void TestSubsetSS(int[] l1, int[] l2) => CheckSS(l1, l2, (x, l2)=>x.IsSubsetOf(l2));
-    [Theory] [MemberData(nameof(GetListListTestCases))] public void TestSupersetSS(int[] l1, int[] l2) => CheckSS(l1, l2, (x, l2)=>x.IsSupersetOf(l2));
+    [Theory] [MemberData(nameof(ListListTestCases))] public void TestIntersectSS(int[] l1, int[] l2) => Check(l1, l2, (x, l2)=>x.Intersect(l2));
+    [Theory] [MemberData(nameof(ListListTestCases))] public void TestExceptSS(int[] l1, int[] l2) => CheckSS(l1, l2, (x, l2)=>x.Except(l2));
+    [Theory] [MemberData(nameof(ListListTestCases))] public void TestProperSubsetSS(int[] l1, int[] l2) => CheckSS(l1, l2, (x, l2)=>x.IsProperSubsetOf(l2));
+    [Theory] [MemberData(nameof(ListListTestCases))] public void TestProperSupersetSS(int[] l1, int[] l2) => CheckSS(l1, l2, (x, l2)=>x.IsProperSupersetOf(l2));
+    [Theory] [MemberData(nameof(ListListTestCases))] public void TestSubsetSS(int[] l1, int[] l2) => CheckSS(l1, l2, (x, l2)=>x.IsSubsetOf(l2));
+    [Theory] [MemberData(nameof(ListListTestCases))] public void TestSupersetSS(int[] l1, int[] l2) => CheckSS(l1, l2, (x, l2)=>x.IsSupersetOf(l2));
 
 
-    private void Check<T>(int[] l1, int[] l2, Func<IImmutableSet<int>, int[], T> func)
+    private static void Check<T>(int[] l1, int[] l2, Func<IImmutableSet<int>, int[], T> func)
     {
         var s1 = l1.ToSmallSet();
         var r1 = func(s1, l2);

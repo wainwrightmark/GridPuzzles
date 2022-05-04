@@ -97,7 +97,7 @@ public class DictionaryHelper
     {
         if (prefix.Conditions.IsStartingMatch(word) && word.StartsWith(prefix.Strip))
         {
-            result = prefix.Append + word.Substring(prefix.Strip.Length);
+            result = prefix.Append + word[prefix.Strip.Length..];
             return true;
         }
 
@@ -109,7 +109,7 @@ public class DictionaryHelper
     {
         if (suffix.Conditions.IsEndingMatch(word) && word.EndsWith(suffix.Strip))
         {
-            result = word.Substring(0, word.Length - suffix.Strip.Length) + suffix.Append;
+            result = word[..^suffix.Strip.Length] + suffix.Append;
             return true;
         }
 

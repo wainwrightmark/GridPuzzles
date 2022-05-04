@@ -1,0 +1,25 @@
+﻿@page "/"
+@page "/{Size:int}/{GridText}"
+@page "/{Size:int}"
+@using Crossword
+@using GridPuzzles.Cells
+
+
+<GridPage T="char"
+          TCell="CharCell"
+          Columns="@_size"
+          Rows="@_size"
+          GridCreator="CrosswordGridCreator.Instance"
+          GridText="@GridText"/>
+
+
+@code {
+
+    [Parameter]
+    public int Size { get; set; }
+
+    private int _size => Size == default ? 9 : Size;
+
+    [Parameter]
+    public string? GridText { get; set; }
+}
