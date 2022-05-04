@@ -21,7 +21,7 @@ jobs:
       run: dotnet workload install wasm-tools
     # publishes Blazor project to the release-folder
     - name: Publish .NET Core Project
-      run: dotnet publish Sudoku.Blazor/Sudoku.Blazor.csproj -c Release -o release --nologo
+      run: dotnet publish Puzzles.Blazor/Puzzles.Blazor.csproj -c Release -o release --nologo
       # changes the base-tag in index.html from '/' to 'Myriad' to match GitHub Pages repository subdirectory
     - name: Change base-tag in index.html from / to GridPuzzles
       run: sed -i 's/<base href="\/"\s*\/>/<base href="\/GridPuzzles\/" \/>/g' release/wwwroot/index.html
