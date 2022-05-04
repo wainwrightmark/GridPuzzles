@@ -130,6 +130,7 @@ public static class RandomSolver
                 if (newGrid.IsComplete)
                 {
                     yield return (newGrid, newUpdateResult);
+                    yield return (newGrid, UpdateResult<T, TCell>.Empty);
                     yield break;
                 }
 
@@ -143,6 +144,7 @@ public static class RandomSolver
                     triedGrids.Add(newGrid, newSolveNode.Value);
                     nodesToTry.Push(newSolveNode.Value);
                     yield return (newGrid, newUpdateResult);
+                 
                 }
             }
         }
