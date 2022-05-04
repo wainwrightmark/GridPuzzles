@@ -8,7 +8,7 @@
     }
   },
   "profiles": {
-    "Crossword.Blazor": {
+    "Puzzles.Blazor": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,

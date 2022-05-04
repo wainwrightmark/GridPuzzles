@@ -1,7 +1,6 @@
-﻿@page "/"
-@page "/{Size:int}/{GridText}"
-@page "/{Size:int}"
-@using Sudoku
+﻿@page "/Sudoku"
+@page "/Sudoku/{Size:int}/{GridText}"
+@page "/Sudoku/{Size:int}"
 @using GridPuzzles.Cells
 
 
@@ -11,7 +10,7 @@
           Rows="@_size"
           GridCreator="SudokuGridCreator.Instance"
           GridText="@GridText"
-          Examples="@Examples.ExampleHelper.SudokuExamples.ToList()"/>
+          Examples="@Sudoku.Examples.ExampleHelper.SudokuExamples.ToList()"/>
 
 
 @code {
