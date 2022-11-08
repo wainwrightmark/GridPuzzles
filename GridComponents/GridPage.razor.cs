@@ -143,6 +143,8 @@ public partial class GridPage<T, TCell> where T :struct where TCell : ICell<T, T
 
         await MyGridSession.SetCell(result, position);
 
+        //this.sel
+
         //TODO set focus
     }
 

@@ -1,4 +1,5 @@
 using BlazorDownloadFile;
+using ElectronNET.API;
 using GridComponents;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -55,5 +56,20 @@ public class Startup
             endpoints.MapBlazorHub();
             endpoints.MapFallbackToPage("/_Host");
         });
+
+        if (HybridSupport.IsElectronActive)  
+        {  
+            CreateWindow();  
+        } 
+
+
     }
+
+    private async void CreateWindow()  
+    {  
+        var window = await Electron.WindowManager.CreateWindowAsync();  
+        window.OnClosed += () => {  
+            Electron.App.Quit();  
+        };  
+    }  
 }
