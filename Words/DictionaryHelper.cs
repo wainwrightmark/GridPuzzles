@@ -44,7 +44,8 @@ public class DictionaryHelper
 
         MostCommonWords = new Lazy<IReadOnlyCollection<string>>(
             () =>
-                Resources.MostCommonWords.Split("\r\n", StringSplitOptions.RemoveEmptyEntries)
+                Resources.MostCommonWords
+                    .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                     .Select(x => x.Trim()).Distinct(StringComparer.OrdinalIgnoreCase).ToList());
     }
 
